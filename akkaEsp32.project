@@ -5,9 +5,10 @@
       <![CDATA[00010001N0005Debug000000000000]]>
     </Plugin>
   </Plugins>
+  <File Name="CMakeLists.txt"/>
   <VirtualDirectory Name="main">
-    <File Name="main/MqttBridge.h"/>
-    <File Name="main/MqttBridge.cpp"/>
+    <File Name="main/Wifi.cpp"/>
+    <File Name="main/Wifi.h"/>
     <File Name="main/Sys.cpp"/>
     <File Name="akkaEsp32.txt"/>
     <File Name="akkaEsp32.mk"/>
