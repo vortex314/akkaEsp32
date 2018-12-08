@@ -1,6 +1,6 @@
-COMPONENT_ADD_INCLUDEDIRS = ../../Common ../../../microAkka ../microAkka /home/lieven/workspace/microAkka
+COMPONENT_ADD_INCLUDEDIRS = ../../Common ../../../microAkka  
 COMPONENT_SRCDIRS := . ../../../microAkka
-COMPONENT_EXTRA_INCLUDES := ../../../microAkka/src
+COMPONENT_EXTRA_INCLUDES := ../../../microAkka/src  ../../../ArduinoJson
 CXXFLAGS = -fno-rtti -std=gnu++11 -fno-exceptions -I/home/lieven/workspace/microAkka -mlongcalls -fdata-sections -ffunction-sections
 
 COMPONENT_ADD_INCLUDEDIRS := .

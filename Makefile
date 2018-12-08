@@ -19,5 +19,3 @@ term:
 	rm -f $(TTY)_minicom.log
 	minicom -D $(SERIAL_PORT) -b $(SERIAL_BAUD) -C $(TTY)_minicom.log
 
-
-

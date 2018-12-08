@@ -1,24 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CodeLite_Project Name="akkaEsp32" Version="10.0.0" InternalType="Console">
-  <File Name="main/Sys.cpp"/>
   <Plugins>
     <Plugin Name="qmake">
       <![CDATA[00010001N0005Debug000000000000]]>
     </Plugin>
   </Plugins>
-  <File Name="akkaEsp32.txt"/>
-  <File Name="akkaEsp32.mk"/>
-  <File Name="main.cpp"/>
   <VirtualDirectory Name="main">
+    <File Name="main/MqttBridge.h"/>
+    <File Name="main/MqttBridge.cpp"/>
+    <File Name="main/Sys.cpp"/>
+    <File Name="akkaEsp32.txt"/>
+    <File Name="akkaEsp32.mk"/>
     <File Name="main/component.mk"/>
     <File Name="main/CMakeLists.txt"/>
+    <File Name="main/main.cpp"/>
   </VirtualDirectory>
-  <File Name="main/main.cpp"/>
   <Reconciliation>
     <Regexes/>
     <Excludepaths>
-      <Path>build/</Path>
       <Path>Debug/</Path>
+      <Path>build/</Path>
     </Excludepaths>
     <Ignorefiles/>
     <Extensions>
