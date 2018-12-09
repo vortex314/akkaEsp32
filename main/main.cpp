@@ -47,7 +47,7 @@ Log logger(256);
 
 #define BZERO(x) ::memset(&x, sizeof(x), 0)
 
-extern "C" void app_main() {
+void blink_task(void* pvParameter) {
     nvs_flash_init();
 
     INFO("Starting Akka ");
@@ -78,8 +78,18 @@ extern "C" void app_main() {
         defaultDispatcher.execute();
         if (defaultDispatcher.nextWakeup() > Sys::millis()) {
             uint32_t delay = (defaultDispatcher.nextWakeup() - Sys::millis());
-            if (delay > 10)
-                vTaskDelay(delay / 10); // is in 10 msec multiples
+            if (delay > 10) {
+                if (delay > 10000) {
+                    WARN(" big delay %u", delay);
+                } else {
+                    vTaskDelay(delay / 10); // is in 10 msec multiples
+                }
+            }
         }
     }
+}
+
+extern "C" void app_main() {
+    xTaskCreate(&blink_task, "blink_task", 5000, NULL, tskIDLE_PRIORITY + 1,
+                NULL);
 }

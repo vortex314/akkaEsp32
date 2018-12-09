@@ -5,7 +5,7 @@
 #include "esp_task_wdt.h"
 
 void logHeap() {
-    INFO(" heap %d max block %d stack %d ",
+    INFO(" heap:%d max_block:%d stack:%d ",
          heap_caps_get_free_size(MALLOC_CAP_32BIT),
          heap_caps_get_largest_free_block(MALLOC_CAP_32BIT),
          uxTaskGetStackHighWaterMark(NULL));
