@@ -37,49 +37,39 @@ const static int CONNECTED_BIT = BIT0;
 #include <Echo.cpp>
 #include <MqttBridge.h>
 #include <Sender.cpp>
+#include <System.h>
 #include <Uid.cpp>
+#include <Wifi.h>
 
 using namespace std;
 
 Log logger(256);
 
-void setHostname() {
-    nvs_flash_init();
-    union {
-        uint8_t my_id[6];
-        uint32_t word[2];
-    };
-    esp_efuse_mac_get_default(my_id);
-    string hn = "ESP-";
-    string_format(hn, "ESP-%X%X", word[0], word[1]);
-    INFO(" host : %s", hn.c_str());
-    Sys::hostname(hn.c_str());
-}
-
-void logHeap() {
-    INFO(" heap %d max block %d ", heap_caps_get_free_size(MALLOC_CAP_32BIT),
-         heap_caps_get_largest_free_block(MALLOC_CAP_32BIT));
-    //  heap_caps_print_heap_info(MALLOC_CAP_32BIT);
-}
-
 #define BZERO(x) ::memset(&x, sizeof(x), 0)
 
 extern "C" void app_main() {
-    logHeap();
     nvs_flash_init();
+
+    INFO("Starting Akka ");
     Sys::init();
-    setHostname();
-    Mailbox defaultMailbox = *new Mailbox("default", 20000, 1000);
-    Mailbox remoteMailbox = *new Mailbox("remote", 20000, 1000);
     MessageDispatcher& defaultDispatcher = *new MessageDispatcher();
+    INFO("");
+    Mailbox defaultMailbox = *new Mailbox("default", 20000, 1000);
+    INFO("");
+    Mailbox remoteMailbox = *new Mailbox("remote", 20000, 1000);
+    INFO("");
     ActorSystem actorSystem(Sys::hostname(), defaultDispatcher, defaultMailbox);
 
+    INFO("");
     ActorRef sender = actorSystem.actorOf<Sender>("Sender");
-    ActorRef mqttBridge = actorSystem.actorOf<MqttBridge>(
-        Props::create()
-            .withMailbox(remoteMailbox)
-            .withDispatcher(defaultDispatcher),
-        "mqttBridge", "tcp://test.mosquitto.org:1883");
+    ActorRef wifi = actorSystem.actorOf<Wifi>("Wifi");
+    ActorRef system = actorSystem.actorOf<System>("System");
+
+    /*   ActorRef mqttBridge = actorSystem.actorOf<MqttBridge>(
+           Props::create()
+               .withMailbox(remoteMailbox)
+               .withDispatcher(defaultDispatcher),
+           "mqttBridge", "tcp://test.mosquitto.org:1883");*/
     defaultDispatcher.attach(defaultMailbox);
     defaultDispatcher.attach(remoteMailbox);
     //    defaultDispatcher.unhandled(ActorCell::lookup(&mqttBridge));
@@ -87,7 +77,9 @@ extern "C" void app_main() {
     while (true) {
         defaultDispatcher.execute();
         if (defaultDispatcher.nextWakeup() > Sys::millis()) {
-            Sys::delay(defaultDispatcher.nextWakeup() - Sys::millis());
+            uint32_t delay = (defaultDispatcher.nextWakeup() - Sys::millis());
+            if (delay > 10)
+                vTaskDelay(delay / 10); // is in 10 msec multiples
         }
     }
 }

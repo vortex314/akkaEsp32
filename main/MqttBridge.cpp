@@ -6,35 +6,27 @@
 #define BZERO(x) ::memset(&x, sizeof(x), 0)
 #define CONFIG_BROKER_URL "test.mosquitto.org"
 
-
 static const char* TAG = "MQTT_EXAMPLE";
-static EventGroupHandle_t wifi_event_group;
-const static int CONNECTED_BIT = BIT0;
 
-MqttBridge::MqttBridge(va_list args)
-{
-    _address = va_arg(args, const char*);
-};
+MqttBridge::MqttBridge(va_list args) { _address = va_arg(args, const char*); };
 MqttBridge::~MqttBridge() {}
 
-MsgClass MqttBridge::MQTT_PUBLISH_RCVD()
-{
+MsgClass MqttBridge::MQTT_PUBLISH_RCVD() {
     static MsgClass MQTT_PUBLISH_RCVD("MQTT_PUBLISH_RCVD");
     return MQTT_PUBLISH_RCVD;
 }
 
-
-static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event)
-{
+static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event) {
     ESP_LOGI(TAG, "[MQTT] Event..");
 
     esp_mqtt_client_handle_t client = event->client;
     int msg_id;
     // your_context_t *context = event->context;
-    switch(event->event_id) {
+    switch (event->event_id) {
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
-        msg_id = esp_mqtt_client_publish(client, "/topic/qos1", "data_3", 0, 1, 0);
+        msg_id =
+            esp_mqtt_client_publish(client, "/topic/qos1", "data_3", 0, 1, 0);
         ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
 
         msg_id = esp_mqtt_client_subscribe(client, "/topic/qos0", 0);
@@ -52,7 +44,8 @@ static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event)
 
     case MQTT_EVENT_SUBSCRIBED:
         ESP_LOGI(TAG, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
-        msg_id = esp_mqtt_client_publish(client, "/topic/qos0", "data", 0, 0, 0);
+        msg_id =
+            esp_mqtt_client_publish(client, "/topic/qos0", "data", 0, 0, 0);
         ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
         break;
     case MQTT_EVENT_UNSUBSCRIBED:
@@ -73,49 +66,7 @@ static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event)
     return ESP_OK;
 }
 
-static esp_err_t wifi_event_handler(void* ctx, system_event_t* event)
-{
-    switch(event->event_id) {
-    case SYSTEM_EVENT_STA_START:
-        esp_wifi_connect();
-        break;
-    case SYSTEM_EVENT_STA_GOT_IP:
-        xEventGroupSetBits(wifi_event_group, CONNECTED_BIT);
-
-        break;
-    case SYSTEM_EVENT_STA_DISCONNECTED:
-        esp_wifi_connect();
-        xEventGroupClearBits(wifi_event_group, CONNECTED_BIT);
-        break;
-    default:
-        break;
-    }
-    return ESP_OK;
-}
-
-static void wifi_init(void)
-{
-    tcpip_adapter_init();
-    wifi_event_group = xEventGroupCreate();
-    ESP_ERROR_CHECK(esp_event_loop_init(wifi_event_handler, NULL));
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-    ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
-    wifi_config_t wifi_config;
-    BZERO(wifi_config);
-    strcpy((char*)wifi_config.sta.ssid, WIFI_SSID);
-    strcpy((char*)wifi_config.sta.password, WIFI_PASS);
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
-    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
-    ESP_LOGI(TAG, "start the WIFI SSID:[%s][%s]", WIFI_SSID, WIFI_PASS);
-    ESP_ERROR_CHECK(esp_wifi_start());
-    ESP_LOGI(TAG, "Waiting for wifi");
-    xEventGroupWaitBits(wifi_event_group, CONNECTED_BIT, false, true, portMAX_DELAY);
-}
-
-
-static void mqtt_app_start(void)
-{
+static void mqtt_app_start(void) {
     ESP_LOGI(TAG, "[MQTT] Startup..");
 
     esp_mqtt_client_config_t mqtt_cfg;
@@ -127,15 +78,15 @@ static void mqtt_app_start(void)
 #if CONFIG_BROKER_URL_FROM_STDIN
     char line[128];
 
-    if(strcmp(mqtt_cfg.uri, "FROM_STDIN") == 0) {
+    if (strcmp(mqtt_cfg.uri, "FROM_STDIN") == 0) {
         int count = 0;
         printf("Please enter url of mqtt broker\n");
-        while(count < 128) {
+        while (count < 128) {
             int c = fgetc(stdin);
-            if(c == '\n') {
+            if (c == '\n') {
                 line[count] = '\0';
                 break;
-            } else if(c > 0 && c < 127) {
+            } else if (c > 0 && c < 127) {
                 line[count] = c;
                 ++count;
             }
@@ -153,9 +104,7 @@ static void mqtt_app_start(void)
     esp_mqtt_client_start(client);
 }
 
-
-void MqttBridge::preStart()
-{
+void MqttBridge::preStart() {
     //   context().mailbox(remoteMailbox);
 
     _clientId = self().path();
@@ -175,27 +124,18 @@ void MqttBridge::preStart()
     esp_log_level_set("TRANSPORT", ESP_LOG_VERBOSE);
     esp_log_level_set("OUTBOX", ESP_LOG_VERBOSE);
 
-
-    wifi_init();
     mqtt_app_start();
     mqttConnect();
 }
 
-void MqttBridge::mqttConnect()
-{
+void MqttBridge::mqttConnect() {
     int rc;
-    INFO(" connecting to %s", _address.c_str())
-
+    INFO(" connecting to %s", _address.c_str());
 }
 
-void MqttBridge::mqttDisconnect()
-{
-    int rc;
+void MqttBridge::mqttDisconnect() { int rc; }
 
-}
-
-bool payloadToJsonArray(JsonArray& array, Cbor& payload)
-{
+bool payloadToJsonArray(JsonArray& array, Cbor& payload) {
     Cbor::PackType pt;
     payload.offset(0);
     Erc rc;
@@ -223,58 +163,54 @@ bool payloadToJsonArray(JsonArray& array, Cbor& payload)
             array.add(d);
             break;
         }
-        default: {
-            payload.skipToken();
-        }
+        default: { payload.skipToken(); }
         }
     };
     return true;
 }
 
-Receive& MqttBridge::createReceive()
-{
+Receive& MqttBridge::createReceive() {
     return receiveBuilder()
-           .match(MsgClass::AnyClass(),
-    [this](Envelope& msg) {
-        if (!(*msg.receiver == self())) {
-            INFO(" message received %s:%s:%s [%d] in %s",
-                 msg.sender->path(), msg.receiver->path(),
-                 msg.msgClass.label(), msg.message.length(),
-                 context().self().path());
-            _jsonBuffer.clear();
-            JsonArray& array = _jsonBuffer.createArray();
-            array.add(msg.receiver->path());
-            array.add(msg.sender->path());
-            array.add(msg.msgClass.label());
-            array.add(msg.id);
-            payloadToJsonArray(array, msg.message);
+        .match(MsgClass::AnyClass(),
+               [this](Envelope& msg) {
+                   if (!(*msg.receiver == self())) {
+                       INFO(" message received %s:%s:%s [%d] in %s",
+                            msg.sender->path(), msg.receiver->path(),
+                            msg.msgClass.label(), msg.message.length(),
+                            context().self().path());
+                       _jsonBuffer.clear();
+                       JsonArray& array = _jsonBuffer.createArray();
+                       array.add(msg.receiver->path());
+                       array.add(msg.sender->path());
+                       array.add(msg.msgClass.label());
+                       array.add(msg.id);
+                       payloadToJsonArray(array, msg.message);
 
-            std::string topic = "dst/";
-            topic += msg.receiver->path();
+                       std::string topic = "dst/";
+                       topic += msg.receiver->path();
 
-            std::string message;
-            array.printTo(message);
+                       std::string message;
+                       array.printTo(message);
 
-            mqttPublish(topic.c_str(), message.c_str());
-        }
-    })
-    .match(MQTT_PUBLISH_RCVD(),
-    [this](Envelope& msg) {
-        Str topic(100);
-        Str message(1024);
+                       mqttPublish(topic.c_str(), message.c_str());
+                   }
+               })
+        .match(MQTT_PUBLISH_RCVD(),
+               [this](Envelope& msg) {
+                   Str topic(100);
+                   Str message(1024);
 
-        if (msg.scanf("SS", &topic, &message) &&
-            handleMqttMessage(message.c_str())) {
-            INFO(" processed message %s", message.c_str());
-        } else {
-            WARN(" processing failed : %s ", message.c_str());
-        }
-    })
-    .build();
+                   if (msg.scanf("SS", &topic, &message) &&
+                       handleMqttMessage(message.c_str())) {
+                       INFO(" processed message %s", message.c_str());
+                   } else {
+                       WARN(" processing failed : %s ", message.c_str());
+                   }
+               })
+        .build();
 }
 
-bool MqttBridge::handleMqttMessage(const char* message)
-{
+bool MqttBridge::handleMqttMessage(const char* message) {
     //    Envelope envelope(1024);
     _jsonBuffer.clear();
     JsonArray& array = _jsonBuffer.parse(message);
@@ -327,14 +263,10 @@ int MqttBridge::onMessageArrived(void* context, char* topicName, int topicLen)
     return 1;
 }*/
 
-void MqttBridge::mqttPublish(const char* topic, const char* message)
-{
+void MqttBridge::mqttPublish(const char* topic, const char* message) {
     INFO(" MQTT TXD : %s = %s", topic, message);
-
 }
 
-void MqttBridge::mqttSubscribe(const char* topic)
-{
+void MqttBridge::mqttSubscribe(const char* topic) {
     INFO("Subscribing to topic %s ", topic);
-
 }

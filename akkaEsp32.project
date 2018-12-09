@@ -7,6 +7,12 @@
   </Plugins>
   <File Name="CMakeLists.txt"/>
   <VirtualDirectory Name="main">
+    <File Name="main/Hardware_ESP32.cpp"/>
+    <File Name="main/Hardware.h"/>
+    <File Name="main/System.cpp"/>
+    <File Name="main/System.h"/>
+    <File Name="main/MqttBridge.h"/>
+    <File Name="main/MqttBridge.cpp"/>
     <File Name="main/Wifi.cpp"/>
     <File Name="main/Wifi.h"/>
     <File Name="main/Sys.cpp"/>
@@ -19,8 +25,9 @@
   <Reconciliation>
     <Regexes/>
     <Excludepaths>
-      <Path>Debug/</Path>
+      <Path>components/</Path>
       <Path>build/</Path>
+      <Path>Debug/</Path>
     </Excludepaths>
     <Ignorefiles/>
     <Extensions>
@@ -120,4 +127,8 @@
       </Completion>
     </Configuration>
   </Settings>
+  <Dependencies Name="Debug">
+    <Project Name="Common"/>
+    <Project Name="microAkka"/>
+  </Dependencies>
 </CodeLite_Project>

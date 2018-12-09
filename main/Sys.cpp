@@ -28,10 +28,6 @@ uint32_t Sys::getSerialId() {
 const char* Sys::getProcessor() { return "ESP8266"; }
 const char* Sys::getBuild() { return __DATE__ " " __TIME__; }
 
-void Sys::init() {
-    // uint8_t cpuMhz = sdk_system_get_cpu_frequency();
-}
-
 uint32_t Sys::getFreeHeap() { return xPortGetFreeHeapSize(); };
 
 char Sys::_hostname[30];
@@ -88,8 +84,6 @@ void Sys::delay(unsigned int delta) {
 
 extern "C" uint64_t SysMillis() { return Sys::millis(); }
 
-const char* Sys::hostname() { return _hostname; }
-
 /*
  *
  *  ATTENTION : LOGF call Sys::hostname, could invoke another call to
@@ -104,5 +98,27 @@ const char* Sys::hostname() { return _hostname; }
 uint32_t Sys::getFreeHeap() { return ESP.getFreeHeap(); }
 
 uint64_t Sys::millis() { return ::millis(); }
+
+void Sys::init() {
+    // uint8_t cpuMhz = sdk_system_get_cpu_frequency();
+}
+
+#endif
+
+#ifdef ESP32_IDF
+
+const char* Sys::hostname() {
+    if (_hostname[0] == 0) {
+        union {
+            uint8_t my_id[6];
+            uint32_t word[2];
+        };
+        esp_efuse_mac_get_default(my_id);
+        snprintf(_hostname, sizeof(_hostname), "ESP-%X%X", word[0], word[1]);
+    }
+    return _hostname;
+}
+
+void Sys::init() {}
 
 #endif
