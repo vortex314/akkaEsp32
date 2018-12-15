@@ -38,41 +38,38 @@ const static int CONNECTED_BIT = BIT0;
 #include <MqttBridge.h>
 #include <Sender.cpp>
 #include <System.h>
-#include <Uid.cpp>
 #include <Wifi.h>
 
 using namespace std;
 
 Log logger(256);
 
-#define BZERO(x) ::memset(&x, sizeof(x), 0)
+#define BZERO(x) ::memset(&x, 0, sizeof(x))
 
-void blink_task(void* pvParameter) {
+void akkaMainTask(void* pvParameter) {
     nvs_flash_init();
 
     INFO("Starting Akka ");
+    //    INFO(">>> %d %s", Wifi::Connected.id(), Wifi::Connected.label());
+
     Sys::init();
     MessageDispatcher& defaultDispatcher = *new MessageDispatcher();
-    INFO("");
     Mailbox defaultMailbox = *new Mailbox("default", 20000, 1000);
-    INFO("");
-    Mailbox remoteMailbox = *new Mailbox("remote", 20000, 1000);
-    INFO("");
     ActorSystem actorSystem(Sys::hostname(), defaultDispatcher, defaultMailbox);
 
-    INFO("");
     ActorRef sender = actorSystem.actorOf<Sender>("Sender");
     ActorRef wifi = actorSystem.actorOf<Wifi>("Wifi");
     ActorRef system = actorSystem.actorOf<System>("System");
 
-    /*   ActorRef mqttBridge = actorSystem.actorOf<MqttBridge>(
-           Props::create()
-               .withMailbox(remoteMailbox)
-               .withDispatcher(defaultDispatcher),
-           "mqttBridge", "tcp://test.mosquitto.org:1883");*/
+    ActorRef mqttBridge = actorSystem.actorOf<MqttBridge>(
+        Props::create()
+            .withMailbox(defaultMailbox)
+            .withDispatcher(defaultDispatcher),
+        "mqttBridge", "tcp://test.mosquitto.org:1883");
+
     defaultDispatcher.attach(defaultMailbox);
-    defaultDispatcher.attach(remoteMailbox);
-    //    defaultDispatcher.unhandled(ActorCell::lookup(&mqttBridge));
+    //    defaultDispatcher.attach(remoteMailbox);
+    defaultDispatcher.unhandled(mqttBridge.cell());
 
     while (true) {
         defaultDispatcher.execute();
@@ -82,6 +79,7 @@ void blink_task(void* pvParameter) {
                 if (delay > 10000) {
                     WARN(" big delay %u", delay);
                 } else {
+                    //                   INFO(" sleep %d ", delay / 10);
                     vTaskDelay(delay / 10); // is in 10 msec multiples
                 }
             }
@@ -90,6 +88,6 @@ void blink_task(void* pvParameter) {
 }
 
 extern "C" void app_main() {
-    xTaskCreate(&blink_task, "blink_task", 5000, NULL, tskIDLE_PRIORITY + 1,
+    xTaskCreate(&akkaMainTask, "akkaMainTask", 5000, NULL, tskIDLE_PRIORITY + 1,
                 NULL);
 }

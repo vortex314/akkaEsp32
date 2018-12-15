@@ -5,10 +5,11 @@
 #include <Hardware.h>
 
 class System : public Actor {
-    uid_type _ledTimer;
-    uid_type _reportTimer;
+    Uid _ledTimer;
+    Uid _reportTimer;
     DigitalOut& _ledGpio;
     uint32_t _interval = 100;
+    ActorRef _extern;
 
   public:
     System(va_list args);

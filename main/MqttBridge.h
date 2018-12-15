@@ -5,16 +5,16 @@ extern "C" {
 #include "freertos/semphr.h"
 #include "freertos/task.h"
 
+#include "esp_wifi.h"
+#include "esp_wifi_types.h"
 #include "lwip/dns.h"
 #include "lwip/netdb.h"
 #include "lwip/sockets.h"
-#include "esp_wifi.h"
-#include "esp_wifi_types.h"
 
-#include "esp_system.h"
 #include "esp_event.h"
 #include "esp_event_loop.h"
 #include "esp_log.h"
+#include "esp_system.h"
 #include "mqtt_client.h"
 }
 #include <Akka.h>
@@ -27,22 +27,20 @@ extern "C" {
 #define QOS 0
 #define TIMEOUT 10000L
 
-class MqttBridge : public Actor
-{
+class MqttBridge : public Actor {
 
-    bool _connected;
+    bool _connected, _receiving;
     StaticJsonBuffer<2000> _jsonBuffer;
     string _clientId;
     string _address;
+    esp_mqtt_client_handle_t _mqttClient;
 
-
-public:
-    static MsgClass MQTT_PUBLISH_RCVD();
+  public:
+    static MsgClass MqttPublishRcvd;
     MqttBridge(va_list args);
     ~MqttBridge();
     void preStart();
     Receive& createReceive();
-
 
     void mqttPublish(const char* topic, const char* message);
     void mqttSubscribe(const char* topic);
@@ -50,4 +48,6 @@ public:
     void mqttDisconnect();
 
     bool handleMqttMessage(const char* message);
+
+    static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event);
 };

@@ -17,29 +17,31 @@ System::~System() {}
 
 void System::preStart() {
     _ledGpio.init();
-    _reportTimer = timers().startPeriodicTimer("REPORT_TIMER",
-                                               MsgClass::TimerExpired(), 1000);
-    _ledTimer =
-        timers().startPeriodicTimer("LED_TIMER", MsgClass::TimerExpired(), 100);
+    _reportTimer =
+        timers().startPeriodicTimer("REPORT_TIMER", TimerExpired, 5000);
+    _ledTimer = timers().startPeriodicTimer("LED_TIMER", TimerExpired, 300);
+    _extern = context().system().actorFor("ESP32-56895/system");
 }
 
 Receive& System::createReceive() {
     return receiveBuilder()
-        .match(MsgClass::ReceiveTimeout(),
+        .match(ReceiveTimeout,
                [this](Envelope& msg) {
                    INFO(" No more messages since some time ");
                })
-        .match(MsgClass::TimerExpired(),
+        .match(TimerExpired,
                [this](Envelope& msg) {
                    uint16_t k;
                    msg.scanf("i", &k);
-                   if (k == _ledTimer) {
+                   if (Uid(k) == _ledTimer) {
                        static bool ledOn = false;
                        _ledGpio.write(ledOn ? 1 : 0);
                        ledOn = !ledOn;
-                   } else if (k == _reportTimer) {
+                   } else if (Uid(k) == _reportTimer) {
                        logHeap();
                        esp_task_wdt_reset();
+                       Envelope envelope(self(), _extern, MsgClass("Reset"));
+                       //                      _extern.tell(self(), envelope);
                    }
                })
         .build();

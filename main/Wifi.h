@@ -17,6 +17,8 @@ class Wifi : public Actor {
     string _prefix;
 
   public:
+    static MsgClass Connected;
+    static MsgClass Disconnected;
     Wifi(va_list args);
     ~Wifi();
     void preStart();

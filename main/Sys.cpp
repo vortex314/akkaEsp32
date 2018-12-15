@@ -31,14 +31,10 @@ const char* Sys::getBuild() { return __DATE__ " " __TIME__; }
 uint32_t Sys::getFreeHeap() { return xPortGetFreeHeapSize(); };
 
 char Sys::_hostname[30];
+
 uint64_t Sys::_boot_time = 0;
-uint64_t Sys::millis() {
-    /*
-    timeval time;
-    gettimeofday(&time, NULL);
-    return (time.tv_sec * 1000) + (time.tv_usec / 1000);*/
-    return Sys::micros() / 1000;
-}
+
+uint64_t Sys::millis() { return Sys::micros() / 1000; }
 
 uint32_t Sys::sec() { return millis() / 1000; }
 
@@ -107,6 +103,8 @@ void Sys::init() {
 
 #ifdef ESP32_IDF
 
+// void Sys::delay(uint32_t msec) { vTaskDelay(msec / 10); }
+
 const char* Sys::hostname() {
     if (_hostname[0] == 0) {
         union {
@@ -114,7 +112,8 @@ const char* Sys::hostname() {
             uint32_t word[2];
         };
         esp_efuse_mac_get_default(my_id);
-        snprintf(_hostname, sizeof(_hostname), "ESP-%X%X", word[0], word[1]);
+        snprintf(_hostname, sizeof(_hostname), "ESP32-%d",
+                 (word[0] ^ word[1]) & 0xFFFF);
     }
     return _hostname;
 }
