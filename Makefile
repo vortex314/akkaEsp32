@@ -10,7 +10,9 @@ ESPPORT = $(SERIAL_PORT)
 SERIAL_BAUD = 115200
 ESPBAUD = 921600
 IDF_PATH ?= /home/lieven/esp/esp-idf
-CPPFLAGS += -DWIFI_SSID=${SSID} -DWIFI_PASS=${PSWD} -DESP32_IDF=1 -I../Common -I../microAkka
+WORKSPACE := /home/lieven/workspace
+CPPFLAGS += -O2 -DWIFI_SSID=${SSID} -DWIFI_PASS=${PSWD} -DESP32_IDF=1 -I../Common -I../microAkka -I$(WORKSPACE)/ArduinoJson 
+CXXFLAGS += -O2 -DWIFI_SSID=${SSID} -DWIFI_PASS=${PSWD} -DESP32_IDF=1 -I../Common -I../microAkka -I$(WORKSPACE)/ArduinoJson -fno-exceptions -fno-rtti 
 EXTRA_COMPONENT_DIRS = 
 
 include $(IDF_PATH)/make/project.mk
