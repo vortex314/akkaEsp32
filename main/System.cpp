@@ -6,9 +6,10 @@
 #include "esp_task_wdt.h"
 
 void logHeap() {
-	INFO(" heap:%d max_block:%d stack:%d ",
-	     heap_caps_get_free_size(MALLOC_CAP_32BIT),
-	     heap_caps_get_largest_free_block(MALLOC_CAP_32BIT),
+	INFO(" heap:%d stack:%d ",
+	     xPortGetFreeHeapSize(),
+//	     heap_caps_get_free_size(MALLOC_CAP_32BIT),
+//	     heap_caps_get_largest_free_block(MALLOC_CAP_32BIT),
 	     uxTaskGetStackHighWaterMark(NULL));
 }
 
@@ -58,12 +59,12 @@ Receive& System::createReceive() {
 	.match(Properties,[this](Envelope& msg) {
 		INFO(" Properties requested ");
 
-		Msg m(PropertiesReply,40);
+		Msg m(PropertiesReply);
 		m("cpu","ESP32");
 		m("procs",2);
 		m("upTime",Sys::millis());
 		m("ram",500000);
-		m("heap",heap_caps_get_free_size(MALLOC_CAP_32BIT));
+		m("heap",xPortGetFreeHeapSize());
 		sender().tell(self(),m);
 	})
 	.build();

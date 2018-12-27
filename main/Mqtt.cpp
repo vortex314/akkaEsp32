@@ -64,18 +64,6 @@ Receive& Mqtt::createReceive() {
 			mqttPublish(topic.c_str(),message.c_str());
 		}
 	})
-	.match(TimerExpired,
-	[this](Envelope& msg) {
-		string topic = "src/";
-		topic += context().system().label();
-		topic += "/system/alive";
-		if (_connected) {
-			int id = esp_mqtt_client_publish(
-			             _mqttClient, topic.c_str(), "true", 0, 0, 0);
-			if (id < 0)
-				WARN("esp_mqtt_client_publish() failed.");
-		}
-	})
 	.match(Wifi::Connected,
 	[this](Envelope& msg) {
 		esp_mqtt_client_start(_mqttClient);
@@ -107,16 +95,12 @@ esp_err_t Mqtt::mqtt_event_handler(esp_mqtt_event_handle_t event) {
 				me.mqttSubscribe(topics.c_str());
 				topics += "/#";
 				me.mqttSubscribe(topics.c_str());
-				Msg msg(Connected);
-				msg(UID_SRC,me.self().id());
-				eb.publish(msg);
+				eb.publish(Msg(Mqtt::Connected).src(me.self()));
 				break;
 			}
 		case MQTT_EVENT_DISCONNECTED: {
 				me._connected = false;
-				Msg msg(Disconnected);
-				msg(UID_SRC,me.self().id());
-				eb.publish(msg);
+				eb.publish(Msg(Mqtt::Disconnected).src(me.self()));
 				INFO("MQTT_EVENT_DISCONNECTED");
 				break;
 			}
@@ -136,16 +120,13 @@ esp_err_t Mqtt::mqtt_event_handler(esp_mqtt_event_handle_t event) {
 					INFO("MQTT_EVENT_DATA");
 					std::string topic(event->topic, event->topic_len);
 					std::string data(event->data, event->data_len);
-					//   me->self().tell(me-self(),MQTT_PUBLISH_RCVD,"SS",&topic,&msg);
-					Msg  pub(PublishRcvd,100);
-					pub("topic", topic);
-					pub("message", data);
-					pub(UID_SRC,me.self().id());
+					Msg  pub(PublishRcvd);
+					pub("topic", topic)("message", data).src(me.self());
 					INFO("%s",pub.toString().c_str());
 					eb.publish(pub);
 					busy=false;
 				} else {
-					WARN(" soryy ! MQTT reception busy ");
+					WARN(" sorry ! MQTT reception busy ");
 				}
 				break;
 
@@ -156,24 +137,6 @@ esp_err_t Mqtt::mqtt_event_handler(esp_mqtt_event_handle_t event) {
 	}
 	return ESP_OK;
 }
-
-
-/*
-int Mqtt::onMessageArrived(void* context, char* topicName, int topicLen)
-{
-    Mqtt* me = (Mqtt*)context;
-    Str topic((uint8_t*)topicName, topicLen);
-    Str msg((uint8_t*)message->payload, message->payloadlen);
-    INFO(" MQTT RXD : %s = %s ", topicName, message->payload);
-    //   me->self().tell(me-self(),MQTT_PUBLISH_RCVD,"SS",&topic,&msg);
-    Envelope envelope(1024);
-    envelope.header(me->self(), me->self(), MQTT_PUBLISH_RCVD());
-    envelope.message.addf("SS", &topic, &msg);
-    me->self().tell(me->self(), envelope);
-    MQTTAsync_freeMessage(&message);
-    MQTTAsync_free(topicName);
-    return 1;
-}*/
 
 void Mqtt::mqttPublish(const char* topic, const char* message) {
 	INFO(" MQTT TXD : %s = %s", topic, message);

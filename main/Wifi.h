@@ -29,7 +29,7 @@ class Wifi : public Actor {
     void scanDoneHandler();
     void connectToAP(const char* AP);
     void startScan();
-    void start();
+    void wifiInit();
     const char* getSSID();
 };
 

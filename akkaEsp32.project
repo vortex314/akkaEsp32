@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CodeLite_Project Name="akkaEsp32" Version="10.0.0" InternalType="Console">
+    <File Name="main/RtosQueue.h"/>
+    <File Name="main/RtosQueue.cpp"/>
     <Plugins>
         <Plugin Name="qmake">
             <![CDATA[00010001N0005Debug000000000000]]>
@@ -7,6 +9,8 @@
     </Plugins>
     <File Name="CMakeLists.txt"/>
     <VirtualDirectory Name="main">
+        <File Name="main/RtosQueue.h"/>
+        <File Name="main/RtosQueue.cpp"/>
         <File Name="main/Mqtt.h"/>
         <File Name="main/Mqtt.cpp"/>
         <File Name="main/Hardware_ESP32.cpp"/>
@@ -25,9 +29,9 @@
     <Reconciliation>
         <Regexes/>
         <Excludepaths>
-            <Path>Debug/</Path>
-            <Path>build/</Path>
             <Path>components/</Path>
+            <Path>build/</Path>
+            <Path>Debug/</Path>
         </Excludepaths>
         <Ignorefiles/>
         <Extensions>

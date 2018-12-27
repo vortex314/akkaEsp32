@@ -15,10 +15,14 @@ Wifi::Wifi(va_list args) { _prefix = "Merckx"; }
 
 Wifi::~Wifi() {}
 
-void Wifi::preStart() { start(); }
+void Wifi::preStart() {
+	wifiInit();
+	timers().startPeriodicTimer("TIMER", TimerExpired, 10000);
+}
 
 Receive& Wifi::createReceive() {
-	return receiveBuilder().match(AnyClass, [this](Envelope& msg) {}).build();
+	return receiveBuilder().match(TimerExpired, [this](Envelope& msg) {
+	}).build();
 }
 
 #define BZERO(x) ::memset(&x, sizeof(x), 0)
@@ -52,9 +56,8 @@ esp_err_t Wifi::wifi_event_handler(void* ctx, system_event_t* event) {
 				INFO("SYSTEM_EVENT_STA_GOT_IP");
 				system_event_sta_got_ip_t* got_ip = &event->event_info.got_ip;
 				ip4addr_ntoa_r(&got_ip->ip_info.ip, my_ip_address, 20);
-				Msg  m(Wifi::Connected);
-				m(UID_SRC,wifi.self().id());
-				eb.publish(m);
+
+				eb.publish(Msg(Wifi::Connected).src(wifi.self()));
 				break;
 			}
 		case SYSTEM_EVENT_STA_CONNECTED: {
@@ -63,9 +66,7 @@ esp_err_t Wifi::wifi_event_handler(void* ctx, system_event_t* event) {
 			}
 		case SYSTEM_EVENT_STA_DISCONNECTED: {
 				INFO("SYSTEM_EVENT_STA_DISCONNECTED");
-				Msg  m(Wifi::Disconnected);
-				m(UID_SRC,wifi.self().id());
-				eb.publish(m);
+				eb.publish(Msg(Wifi::Disconnected).src(wifi.self()));
 				wifi.startScan();
 				break;
 			}
@@ -131,7 +132,7 @@ void Wifi::startScan() {
 	CHECK(esp_wifi_scan_start(&scanConfig, false));
 }
 
-void Wifi::start() {
+void Wifi::wifiInit() {
 	tcpip_adapter_init();
 	CHECK(esp_event_loop_init(wifi_event_handler, this));
 	wifi_init_config_t wifiInitializationConfig = WIFI_INIT_CONFIG_DEFAULT();

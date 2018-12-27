@@ -48,20 +48,30 @@ ActorMsgBus eb;
 
 #define BZERO(x) ::memset(&x, 0, sizeof(x))
 
+extern void XdrTester(uint32_t max);
+
+
+
 void akkaMainTask(void* pvParameter) {
 	nvs_flash_init();
+
+	Sys::delay(1000);
+	XdrTester(10000);
 
 	INFO("Starting Akka ");
 	//    INFO(">>> %d %s", Wifi::Connected.id(), Wifi::Connected.label());
 
 	Sys::init();
-	MessageDispatcher& defaultDispatcher = *new MessageDispatcher();
-	Mailbox defaultMailbox = *new Mailbox("default", 20000, 1000);
+	Mailbox defaultMailbox("default", 2048);
+	Mailbox mqttMailbox("mqtt", 2048);
+
+	MessageDispatcher defaultDispatcher;
+	MessageDispatcher mqttDispatcher;
+
 	ActorSystem actorSystem(Sys::hostname(), defaultDispatcher, defaultMailbox);
 
 	ActorRef sender = actorSystem.actorOf<Sender>("Sender");
 	ActorRef wifi = actorSystem.actorOf<Wifi>("Wifi");
-
 	ActorRef mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi,"tcp://limero.ddns.net:1883");
 	ActorRef bridge = actorSystem.actorOf<Bridge>("bridge",mqtt);
 	ActorRef system = actorSystem.actorOf<System>("System",mqtt);
@@ -69,20 +79,9 @@ void akkaMainTask(void* pvParameter) {
 	defaultDispatcher.attach(defaultMailbox);
 	defaultDispatcher.unhandled(bridge.cell());
 
-	while (true) {
-		defaultDispatcher.execute();
-		if (defaultDispatcher.nextWakeup() > Sys::millis()) {
-			uint32_t delay = (defaultDispatcher.nextWakeup() - Sys::millis());
-			if (delay > 10) {
-				if (delay > 10000) {
-					WARN(" big delay %u", delay);
-				} else {
-					//                   INFO(" sleep %d ", delay / 10);
-					vTaskDelay(delay / 10); // is in 10 msec multiples
-				}
-			}
-		}
-	}
+
+	defaultDispatcher.execute();
+
 }
 
 extern "C" void app_main() {
