@@ -12,25 +12,26 @@
 #include "freertos/event_groups.h"
 
 class Wifi : public Actor {
-    string _ssid;
-    string _pswd;
-    string _prefix;
+		string _ssid;
+		string _pswd;
+		string _prefix;
+		string _ipAddress;
 
-  public:
-    static MsgClass Connected;
-    static MsgClass Disconnected;
-    Wifi(va_list args);
-    ~Wifi();
-    void preStart();
-    Receive& createReceive();
+	public:
+		static MsgClass Connected;
+		static MsgClass Disconnected;
+		Wifi(va_list args);
+		~Wifi();
+		void preStart();
+		Receive& createReceive();
 
-    static esp_err_t wifi_event_handler(void* ctx, system_event_t* event);
-    void init();
-    void scanDoneHandler();
-    void connectToAP(const char* AP);
-    void startScan();
-    void wifiInit();
-    const char* getSSID();
+		static esp_err_t wifi_event_handler(void* ctx, system_event_t* event);
+		void init();
+		void scanDoneHandler();
+		void connectToAP(const char* AP);
+		void startScan();
+		void wifiInit();
+		const char* getSSID();
 };
 
 #endif // WIFI_H

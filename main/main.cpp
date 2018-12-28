@@ -62,8 +62,8 @@ void akkaMainTask(void* pvParameter) {
 	//    INFO(">>> %d %s", Wifi::Connected.id(), Wifi::Connected.label());
 
 	Sys::init();
-	Mailbox defaultMailbox("default", 2048);
-	Mailbox mqttMailbox("mqtt", 2048);
+	Mailbox defaultMailbox("default", 100);
+	Mailbox mqttMailbox("mqtt", 100);
 
 	MessageDispatcher defaultDispatcher;
 	MessageDispatcher mqttDispatcher;
