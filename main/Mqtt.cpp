@@ -22,7 +22,7 @@ MsgClass Mqtt::Subscribe("Mqtt/Subscribe");
 
 void Mqtt::preStart() {
 	INFO(" MQTT preStart");
-	timers().startPeriodicTimer("PUB_TIMER", TimerExpired, 5000);
+	timers().startPeriodicTimer("PUB_TIMER", TimerExpired(), 5000);
 	eb.subscribe(self(), MessageClassifier(_wifi, Wifi::Disconnected));
 	eb.subscribe(self(), MessageClassifier(_wifi, Wifi::Connected));
 	_clientId = self().path();
@@ -48,7 +48,7 @@ void Mqtt::preStart() {
 
 Receive& Mqtt::createReceive() {
 	return receiveBuilder()
-	       .match(TimerExpired,
+	       .match(TimerExpired(),
 	[this](Envelope& msg) {
 		string topic = "src/";
 		topic += context().system().label();

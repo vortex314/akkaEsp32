@@ -24,18 +24,18 @@ void System::preStart() {
 	eb.subscribe(self(), MessageClassifier(_mqtt, Mqtt::Disconnected));
 	_ledGpio.init();
 	_reportTimer =
-	    timers().startPeriodicTimer("REPORT_TIMER", TimerExpired, 5000);
-	_ledTimer = timers().startPeriodicTimer("LED_TIMER", TimerExpired, 100);
+	    timers().startPeriodicTimer("REPORT_TIMER", TimerExpired(), 5000);
+	_ledTimer = timers().startPeriodicTimer("LED_TIMER", TimerExpired(), 100);
 	_extern = context().system().actorFor("ESP32-56895/system");
 }
 
 Receive& System::createReceive() {
 	return receiveBuilder()
-	       .match(ReceiveTimeout,
+	       .match(ReceiveTimeout(),
 	[this](Envelope& msg) {
 		INFO(" No more messages since some time ");
 	})
-	.match(TimerExpired,
+	.match(TimerExpired(),
 	[this](Envelope& msg) {
 		uint16_t k;
 		msg.get(UID_TIMER, k);
@@ -56,10 +56,10 @@ Receive& System::createReceive() {
 	.match(
 	    Mqtt::Disconnected,
 	[this](Envelope& msg) { timers().find(_ledTimer)->interval(100); })
-	.match(Properties,[this](Envelope& msg) {
+	.match(Properties(),[this](Envelope& msg) {
 		INFO(" Properties requested ");
 
-		Msg m(PropertiesReply);
+		Msg m(PropertiesReply());
 		m("cpu","ESP32");
 		m("procs",2);
 		m("upTime",Sys::millis());

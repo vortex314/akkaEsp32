@@ -17,14 +17,14 @@ Wifi::~Wifi() {}
 
 void Wifi::preStart() {
 	wifiInit();
-	timers().startPeriodicTimer("TIMER", TimerExpired, 10000);
+	timers().startPeriodicTimer("TIMER", TimerExpired(), 10000);
 }
 
 Receive& Wifi::createReceive() {
 	return receiveBuilder()
-	.match(TimerExpired, [this](Envelope& msg) {
-	}).match(Properties,[this](Envelope& msg) {
-		sender().tell(Msg(PropertiesReply)
+	.match(TimerExpired(), [this](Envelope& msg) {
+	}).match(Properties(),[this](Envelope& msg) {
+		sender().tell(Msg(PropertiesReply())
 		              ("ssid",_ssid)
 		              ("prefix",_prefix)
 		              ("ipAddress",_ipAddress),self());
