@@ -4,7 +4,7 @@
 	do {                                                                       \
 		esp_err_t __err_rc = (x);                                              \
 		if (__err_rc != ESP_OK) {                                              \
-			WARN("%s = %d @ %s:%d ", #x, __err_rc, __FILE__, __LINE__);        \
+			WARN("%s = %d ", #x, __err_rc);        \
 		}                                                                      \
 	} while (0);
 
@@ -24,10 +24,15 @@ Receive& Wifi::createReceive() {
 	return receiveBuilder()
 	.match(TimerExpired(), [this](Envelope& msg) {
 	}).match(Properties(),[this](Envelope& msg) {
+		std::string macAddress;
+		uint8_t mac[6];
+		esp_base_mac_addr_get(mac);
+		string_format(macAddress,"%2X:%2X:%2X:%2X:%2X:%2X",mac[0],mac[1],mac[2],mac[3],mac[4],mac[5]);
 		sender().tell(Msg(PropertiesReply())
 		              ("ssid",_ssid)
 		              ("prefix",_prefix)
-		              ("ipAddress",_ipAddress),self());
+		              ("ip",_ipAddress)
+		              ("mac",macAddress),self());
 	}).build();
 }
 
@@ -50,6 +55,7 @@ esp_err_t Wifi::wifi_event_handler(void* ctx, system_event_t* event) {
 			}
 		case SYSTEM_EVENT_STA_STOP: {
 				INFO("SYSTEM_EVENT_STA_STOP");
+//				wifi.wifiInit();
 				break;
 			}
 		case SYSTEM_EVENT_STA_START: {

@@ -40,6 +40,7 @@ const static int CONNECTED_BIT = BIT0;
 #include <Sender.cpp>
 #include <System.h>
 #include <Wifi.h>
+#include <Publisher.cpp>
 
 using namespace std;
 
@@ -54,12 +55,9 @@ extern void XdrTester(uint32_t max);
 
 void akkaMainTask(void* pvParameter) {
 	nvs_flash_init();
-
-	Sys::delay(1000);
-	XdrTester(10000);
+	Sys::delay(3000); // let wifi start
 
 	INFO("Starting Akka ");
-	//    INFO(">>> %d %s", Wifi::Connected.id(), Wifi::Connected.label());
 
 	Sys::init();
 	Mailbox defaultMailbox("default", 100);
@@ -70,11 +68,12 @@ void akkaMainTask(void* pvParameter) {
 
 	ActorSystem actorSystem(Sys::hostname(), defaultDispatcher, defaultMailbox);
 
-	ActorRef sender = actorSystem.actorOf<Sender>("Sender");
-	ActorRef wifi = actorSystem.actorOf<Wifi>("Wifi");
+	ActorRef sender = actorSystem.actorOf<Sender>("sender");
+	ActorRef wifi = actorSystem.actorOf<Wifi>("wifi");
 	ActorRef mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi,"tcp://limero.ddns.net:1883");
 	ActorRef bridge = actorSystem.actorOf<Bridge>("bridge",mqtt);
-	ActorRef system = actorSystem.actorOf<System>("System",mqtt);
+	ActorRef system = actorSystem.actorOf<System>("system",mqtt);
+	ActorRef publisher = actorSystem.actorOf<Publisher>("publisher",mqtt);
 
 	defaultDispatcher.attach(defaultMailbox);
 	defaultDispatcher.unhandled(bridge.cell());
