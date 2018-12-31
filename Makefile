@@ -12,8 +12,9 @@ ESPBAUD = 921600
 IDF_PATH ?= /home/lieven/esp/esp-idf
 WORKSPACE := /home/lieven/workspace
 CPPFLAGS +=  -DWIFI_SSID=${SSID} -DWIFI_PASS=${PSWD} -DESP32_IDF=1 -I../Common -I../microAkka -I$(WORKSPACE)/ArduinoJson 
-CXXFLAGS +=  -DWIFI_SSID=${SSID} -DWIFI_PASS=${PSWD} -DESP32_IDF=1 -I../Common -I../microAkka -I$(WORKSPACE)/ArduinoJson -fno-exceptions -fno-rtti 
+CXXFLAGS +=  -DWIFI_SSID=${SSID} -DWIFI_PASS=${PSWD} -DESP32_IDF=1 -I../Common -I../microAkka -I$(WORKSPACE)/ArduinoJson -fno-exceptions -fno-rtti -ffunction-sections -fdata-sections 
 EXTRA_COMPONENT_DIRS = 
+# LDFLAGS += -Wl,--gc-sections
 
 include $(IDF_PATH)/make/project.mk
 

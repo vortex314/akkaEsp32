@@ -1,4 +1,5 @@
 #include "Wifi.h"
+#include <Config.h>
 
 #define CHECK(x)                                                               \
 	do {                                                                       \
@@ -11,7 +12,11 @@
 MsgClass Wifi::Connected("Wifi/Connected");
 MsgClass Wifi::Disconnected("Wifi/Disconnected");
 
-Wifi::Wifi(va_list args) { _prefix = "Merckx"; }
+Wifi::Wifi(va_list args) {
+	_prefix = "Merckx";
+	config.setNameSpace("wifi");
+	config.get("prefix",_prefix,"Merckx");
+}
 
 Wifi::~Wifi() {}
 
@@ -27,8 +32,8 @@ Receive& Wifi::createReceive() {
 		std::string macAddress;
 		uint8_t mac[6];
 		esp_base_mac_addr_get(mac);
-		string_format(macAddress,"%2X:%2X:%2X:%2X:%2X:%2X",mac[0],mac[1],mac[2],mac[3],mac[4],mac[5]);
-		sender().tell(Msg(PropertiesReply())
+		string_format(macAddress,"%02X:%02X:%02X:%02X:%02X:%02X",mac[0],mac[1],mac[2],mac[3],mac[4],mac[5]);
+		sender().tell(msg.reply()
 		              ("ssid",_ssid)
 		              ("prefix",_prefix)
 		              ("ip",_ipAddress)
@@ -55,7 +60,7 @@ esp_err_t Wifi::wifi_event_handler(void* ctx, system_event_t* event) {
 			}
 		case SYSTEM_EVENT_STA_STOP: {
 				INFO("SYSTEM_EVENT_STA_STOP");
-//				wifi.wifiInit();
+				wifi.wifiInit();
 				break;
 			}
 		case SYSTEM_EVENT_STA_START: {
@@ -80,7 +85,6 @@ esp_err_t Wifi::wifi_event_handler(void* ctx, system_event_t* event) {
 		case SYSTEM_EVENT_STA_DISCONNECTED: {
 				INFO("SYSTEM_EVENT_STA_DISCONNECTED");
 				eb.publish(Msg(Wifi::Disconnected).src(wifi.self()));
-				wifi.startScan();
 				break;
 			}
 

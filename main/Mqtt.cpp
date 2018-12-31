@@ -3,6 +3,7 @@
 #include <Wifi.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <Config.h>
 // volatile MQTTAsync_token deliveredtoken;
 #define BZERO(x) ::memset(&x, 0, sizeof(x))
 #define CONFIG_BROKER_URL "mqtt://limero.ddns.net"
@@ -11,6 +12,8 @@ Mqtt::Mqtt(va_list args) {
 	_wifi = va_arg(args,ActorRef);
 	_address = va_arg(args, const char*);
 	_connected = false;
+	config.setNameSpace("mqtt");
+	config.get("url",_address,"tcp://limero.ddns.net:1883");
 };
 Mqtt::~Mqtt() {}
 
@@ -63,6 +66,11 @@ Receive& Mqtt::createReceive() {
 		if ( msg.get("topic",topic)==0 && msg.get("message",message)==0 ) {
 			mqttPublish(topic.c_str(),message.c_str());
 		}
+	})
+	.match(Properties(),[this](Envelope& msg) {
+		sender().tell(Msg(PropertiesReply())
+		              ("clientId",_clientId)
+		              ,self());
 	})
 	.match(Wifi::Connected,
 	[this](Envelope& msg) {

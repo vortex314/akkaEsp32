@@ -41,6 +41,7 @@ const static int CONNECTED_BIT = BIT0;
 #include <System.h>
 #include <Wifi.h>
 #include <Publisher.cpp>
+#include <Config.h>
 
 using namespace std;
 
@@ -55,11 +56,14 @@ extern void XdrTester(uint32_t max);
 
 void akkaMainTask(void* pvParameter) {
 	nvs_flash_init();
-	Sys::delay(3000); // let wifi start
-
 	INFO("Starting Akka ");
-
 	Sys::init();
+	Sys::delay(3000); // let wifi start
+	std::string output;
+	config.load();
+	config.printPretty(output);
+	printf(" config : \n %s \n",output.c_str());
+
 	Mailbox defaultMailbox("default", 100);
 	Mailbox mqttMailbox("mqtt", 100);
 
@@ -77,13 +81,14 @@ void akkaMainTask(void* pvParameter) {
 
 	defaultDispatcher.attach(defaultMailbox);
 	defaultDispatcher.unhandled(bridge.cell());
-
+	config.save();
 
 	defaultDispatcher.execute();
 
 }
 
 extern "C" void app_main() {
+
 	xTaskCreate(&akkaMainTask, "akkaMainTask", 5000, NULL, tskIDLE_PRIORITY + 1,
 	            NULL);
 }

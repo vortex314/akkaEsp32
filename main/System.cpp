@@ -6,11 +6,11 @@
 #include "esp_task_wdt.h"
 
 void logHeap() {
-	INFO(" heap:%d stack:%d ",
+	INFO(" heap:%d stack:%d heap free :%d largest block : %d ",
 	     xPortGetFreeHeapSize(),
-//	     heap_caps_get_free_size(MALLOC_CAP_32BIT),
-//	     heap_caps_get_largest_free_block(MALLOC_CAP_32BIT),
-	     uxTaskGetStackHighWaterMark(NULL));
+	     uxTaskGetStackHighWaterMark(NULL),
+	     heap_caps_get_free_size(MALLOC_CAP_32BIT),
+	     heap_caps_get_largest_free_block(MALLOC_CAP_32BIT));
 }
 
 System::System(va_list args) : _ledGpio(DigitalOut::create(2)) {
@@ -26,15 +26,16 @@ void System::preStart() {
 	_reportTimer =
 	    timers().startPeriodicTimer("REPORT_TIMER", TimerExpired(), 5000);
 	_ledTimer = timers().startPeriodicTimer("LED_TIMER", TimerExpired(), 100);
-	_extern = context().system().actorFor("ESP32-56895/system");
 }
 
 Receive& System::createReceive() {
 	return receiveBuilder()
+
 	       .match(ReceiveTimeout(),
 	[this](Envelope& msg) {
 		INFO(" No more messages since some time ");
 	})
+
 	.match(TimerExpired(),
 	[this](Envelope& msg) {
 		uint16_t k;
@@ -45,27 +46,25 @@ Receive& System::createReceive() {
 			ledOn = !ledOn;
 		} else if (Uid(k) == _reportTimer) {
 			logHeap();
-			esp_task_wdt_reset();
-			Envelope envelope(self(), _extern, MsgClass("Reset"));
-			//                      _extern.tell(self(), envelope);
 		}
 	})
+
 	.match(
 	    Mqtt::Connected,
 	[this](Envelope& msg) { timers().find(_ledTimer)->interval(1000); })
+
 	.match(
 	    Mqtt::Disconnected,
 	[this](Envelope& msg) { timers().find(_ledTimer)->interval(100); })
-	.match(Properties(),[this](Envelope& msg) {
-		INFO(" Properties requested ");
 
-		Msg m(PropertiesReply());
-		m("cpu","ESP32");
-		m("procs",2);
-		m("upTime",Sys::millis());
-		m("ram",500000);
-		m("heap",xPortGetFreeHeapSize());
-		sender().tell(m,self());
+	.match(Properties(),[this](Envelope& msg) {
+		sender().tell(msg.reply()
+		              ("cpu","ESP32")
+		              ("procs",2)
+		              ("upTime",Sys::millis())
+		              ("ram",500000)
+		              ("heap",xPortGetFreeHeapSize())
+		              ,self());
 	})
 	.build();
 }
