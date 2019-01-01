@@ -7,8 +7,7 @@
   </Plugins>
   <File Name="CMakeLists.txt"/>
   <VirtualDirectory Name="main">
-    <File Name="main/RtosQueue.h"/>
-    <File Name="main/RtosQueue.cpp"/>
+    <File Name="main/Sys.cpp.old"/>
     <File Name="main/Mqtt.h"/>
     <File Name="main/Mqtt.cpp"/>
     <File Name="main/Hardware_ESP32.cpp"/>
@@ -17,7 +16,6 @@
     <File Name="main/System.h"/>
     <File Name="main/Wifi.cpp"/>
     <File Name="main/Wifi.h"/>
-    <File Name="main/Sys.cpp"/>
     <File Name="akkaEsp32.txt"/>
     <File Name="akkaEsp32.mk"/>
     <File Name="main/component.mk"/>
@@ -27,9 +25,9 @@
   <Reconciliation>
     <Regexes/>
     <Excludepaths>
-      <Path>components/</Path>
-      <Path>build/</Path>
       <Path>Debug/</Path>
+      <Path>build/</Path>
+      <Path>components/</Path>
     </Excludepaths>
     <Ignorefiles/>
     <Extensions>

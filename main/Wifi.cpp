@@ -85,6 +85,7 @@ esp_err_t Wifi::wifi_event_handler(void* ctx, system_event_t* event) {
 		case SYSTEM_EVENT_STA_DISCONNECTED: {
 				INFO("SYSTEM_EVENT_STA_DISCONNECTED");
 				eb.publish(Msg(Wifi::Disconnected).src(wifi.self()));
+				esp_wifi_connect();
 				break;
 			}
 
