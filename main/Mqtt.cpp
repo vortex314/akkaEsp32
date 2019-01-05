@@ -25,7 +25,7 @@ MsgClass Mqtt::Subscribe("Mqtt/Subscribe");
 
 void Mqtt::preStart() {
 	INFO(" MQTT preStart");
-	timers().startPeriodicTimer("PUB_TIMER", TimerExpired(), 5000);
+	timers().startPeriodicTimer("PUB_TIMER", Msg("aliveTimer"), 1000);
 	eb.subscribe(self(), MessageClassifier(_wifi, Wifi::Disconnected));
 	eb.subscribe(self(), MessageClassifier(_wifi, Wifi::Connected));
 	_clientId = self().path();
@@ -51,16 +51,14 @@ void Mqtt::preStart() {
 
 Receive& Mqtt::createReceive() {
 	return receiveBuilder()
-	       .match(TimerExpired(),
-	[this](Envelope& msg) {
+	.match(MsgClass("aliveTimer"),	[this](Envelope& msg) {
 		string topic = "src/";
 		topic += context().system().label();
 		topic += "/system/alive";
 		if (_connected) {
 			mqttPublish(topic.c_str(), "true");
 		}
-	}).match(Mqtt::Publish,
-	[this](Envelope& msg) {
+	}).match(Mqtt::Publish,	[this](Envelope& msg) {
 		std::string topic;
 		std::string message;
 		if ( msg.get("topic",topic)==0 && msg.get("message",message)==0 ) {
@@ -72,16 +70,8 @@ Receive& Mqtt::createReceive() {
 		              ("clientId",_clientId)
 		              ,self());
 	})
-	.match(Wifi::Connected,
-	[this](Envelope& msg) {
-		esp_mqtt_client_start(_mqttClient);
-		INFO(" WIFI CONNECTED !!");
-	})
-	.match(Wifi::Disconnected,
-	[this](Envelope& msg) {
-		INFO(" WIFI DISCONNECTED !!");
-		esp_mqtt_client_stop(_mqttClient);
-	})
+	.match(Wifi::Connected,	[this](Envelope& msg) {esp_mqtt_client_start(_mqttClient); INFO(" WIFI CONNECTED !!");	})
+	.match(Wifi::Disconnected,[this](Envelope& msg) {INFO(" WIFI DISCONNECTED !!"); esp_mqtt_client_stop(_mqttClient);	})
 	.build();
 }
 
@@ -103,12 +93,12 @@ esp_err_t Mqtt::mqtt_event_handler(esp_mqtt_event_handle_t event) {
 				me.mqttSubscribe(topics.c_str());
 				topics += "/#";
 				me.mqttSubscribe(topics.c_str());
-				eb.publish(Msg(Mqtt::Connected).src(me.self()));
+				eb.publish(Msg(Mqtt::Connected).src(me.self().id()));
 				break;
 			}
 		case MQTT_EVENT_DISCONNECTED: {
 				me._connected = false;
-				eb.publish(Msg(Mqtt::Disconnected).src(me.self()));
+				eb.publish(Msg(Mqtt::Disconnected).src(me.self().id()));
 				INFO("MQTT_EVENT_DISCONNECTED");
 				break;
 			}
@@ -129,7 +119,7 @@ esp_err_t Mqtt::mqtt_event_handler(esp_mqtt_event_handle_t event) {
 					std::string topic(event->topic, event->topic_len);
 					std::string data(event->data, event->data_len);
 					Msg  pub(PublishRcvd);
-					pub("topic", topic)("message", data).src(me.self());
+					pub("topic", topic)("message", data).src(me.self().id());
 					INFO("%s",pub.toString().c_str());
 					eb.publish(pub);
 					busy=false;

@@ -17,6 +17,7 @@ class Wifi : public Actor {
 		string _pswd;
 		string _prefix;
 		string _ipAddress;
+		int _rssi;
 
 	public:
 		static MsgClass Connected;

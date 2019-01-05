@@ -22,18 +22,18 @@ Wifi::~Wifi() {}
 
 void Wifi::preStart() {
 	wifiInit();
-	timers().startPeriodicTimer("TIMER", TimerExpired(), 10000);
 }
 
 Receive& Wifi::createReceive() {
 	return receiveBuilder()
-	.match(TimerExpired(), [this](Envelope& msg) {
-	}).match(Properties(),[this](Envelope& msg) {
+
+	.match(Properties(),[this](Envelope& msg) {
 		std::string macAddress;
 		uint8_t mac[6];
 		esp_base_mac_addr_get(mac);
 		string_format(macAddress,"%02X:%02X:%02X:%02X:%02X:%02X",mac[0],mac[1],mac[2],mac[3],mac[4],mac[5]);
 		sender().tell(msg.reply()
+		              ("rssi",_rssi)
 		              ("ssid",_ssid)
 		              ("prefix",_prefix)
 		              ("ip",_ipAddress)
@@ -75,7 +75,7 @@ esp_err_t Wifi::wifi_event_handler(void* ctx, system_event_t* event) {
 				ip4addr_ntoa_r(&got_ip->ip_info.ip, my_ip_address, 20);
 				wifi._ipAddress = my_ip_address;
 
-				eb.publish(Msg(Wifi::Connected).src(wifi.self()));
+				eb.publish(Msg(Wifi::Connected).src(wifi.self().id()));
 				break;
 			}
 		case SYSTEM_EVENT_STA_CONNECTED: {
@@ -84,7 +84,7 @@ esp_err_t Wifi::wifi_event_handler(void* ctx, system_event_t* event) {
 			}
 		case SYSTEM_EVENT_STA_DISCONNECTED: {
 				INFO("SYSTEM_EVENT_STA_DISCONNECTED");
-				eb.publish(Msg(Wifi::Disconnected).src(wifi.self()));
+				eb.publish(Msg(Wifi::Disconnected).src(wifi.self().id()));
 				esp_wifi_connect();
 				break;
 			}
@@ -124,13 +124,13 @@ void Wifi::scanDoneHandler() {
 	wifi_ap_record_t apRecords[sta_number];
 	esp_wifi_scan_get_ap_records(&sta_number, apRecords);
 	int strongestAP = -1;
-	int strongestRssi = -200;
+	_rssi = -200;
 	for (uint32_t i = 0; i < sta_number; i++) {
 		INFO(" %s : %d ", apRecords[i].ssid, apRecords[i].rssi);
 		basic_string<char> ssid = (const char*)apRecords[i].ssid;
-		if ((apRecords[i].rssi > strongestRssi) && (ssid.find(_prefix) == 0)) {
+		if ((apRecords[i].rssi > _rssi) && (ssid.find(_prefix) == 0)) {
 			strongestAP = i;
-			strongestRssi = apRecords[i].rssi;
+			_rssi = apRecords[i].rssi;
 		}
 	}
 	if (strongestAP == -1) {
