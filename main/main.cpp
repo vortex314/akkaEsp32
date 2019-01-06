@@ -44,6 +44,7 @@ const static int CONNECTED_BIT = BIT0;
 #include <ConfigActor.cpp>
 #include <Config.h>
 #include <UltraSonic.h>
+#include <Compass.h>
 
 using namespace std;
 
@@ -82,6 +83,8 @@ void akkaMainTask(void* pvParameter) {
 	ActorRef configActor = actorSystem.actorOf<ConfigActor>("config");
 	ActorRef publisher = actorSystem.actorOf<Publisher>("publisher",mqtt);
 	ActorRef us = actorSystem.actorOf<UltraSonic>("ultraSonic",publisher);
+	ActorRef compass = actorSystem.actorOf<Compass>("compass",publisher);
+
 
 	defaultDispatcher.attach(defaultMailbox);
 	defaultDispatcher.unhandled(bridge.cell());

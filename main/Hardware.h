@@ -86,7 +86,6 @@ class DigitalOut : public Driver {
 class I2C : public Driver {
 	public:
 		static I2C &create(PhysicalPin scl, PhysicalPin sda);
-		~I2C();
 		virtual Erc init() = 0;
 		virtual Erc deInit() = 0;
 		virtual Erc setClock(uint32_t) = 0;

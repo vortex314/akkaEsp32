@@ -27,11 +27,6 @@ Receive& UltraSonic::createReceive() {
 		_hcsr->trigger();
 		_publisher.tell(Msg(Publisher::PollMe)("e",1),self());
 	})
-	.match(Properties(),[this](Envelope& msg) {
-		sender().tell(msg.reply()
-		              ("distance",_distance)
-		              ,self());
-
-	})
+	.match(Properties(),[this](Envelope& msg) {sender().tell(msg.reply()("distance",_distance),self());})
 	.build();
 }

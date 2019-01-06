@@ -25,7 +25,6 @@ Erc HCSR04::init() {
 
 Erc HCSR04::trigger() {
 	_trigger.write(1);
-	vTaskDelay(1);
 	_trigger.write(0);
 	_trigger_usec = Sys::micros();
 	return E_OK;
