@@ -25,7 +25,7 @@ MsgClass Mqtt::Subscribe("Mqtt/Subscribe");
 
 void Mqtt::preStart() {
 	INFO(" MQTT preStart");
-	timers().startPeriodicTimer("PUB_TIMER", Msg("aliveTimer"), 1000);
+//	timers().startPeriodicTimer("PUB_TIMER", Msg("aliveTimer"), 1000);
 	eb.subscribe(self(), MessageClassifier(_wifi, Wifi::Disconnected));
 	eb.subscribe(self(), MessageClassifier(_wifi, Wifi::Connected));
 	_clientId = self().path();
@@ -137,7 +137,7 @@ esp_err_t Mqtt::mqtt_event_handler(esp_mqtt_event_handle_t event) {
 }
 
 void Mqtt::mqttPublish(const char* topic, const char* message) {
-	INFO(" MQTT TXD : %s = %s", topic, message);
+//	INFO(" MQTT TXD : %s = %s", topic, message);
 	int id = esp_mqtt_client_publish(_mqttClient, topic, message, 0, 0, 0);
 	if (id < 0)
 		WARN("esp_mqtt_client_publish() failed.");

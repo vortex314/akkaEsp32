@@ -43,6 +43,7 @@ const static int CONNECTED_BIT = BIT0;
 #include <Publisher.cpp>
 #include <ConfigActor.cpp>
 #include <Config.h>
+#include <UltraSonic.h>
 
 using namespace std;
 
@@ -80,6 +81,7 @@ void akkaMainTask(void* pvParameter) {
 	ActorRef system = actorSystem.actorOf<System>("system",mqtt);
 	ActorRef configActor = actorSystem.actorOf<ConfigActor>("config");
 	ActorRef publisher = actorSystem.actorOf<Publisher>("publisher",mqtt);
+	ActorRef us = actorSystem.actorOf<UltraSonic>("ultraSonic",publisher);
 
 	defaultDispatcher.attach(defaultMailbox);
 	defaultDispatcher.unhandled(bridge.cell());

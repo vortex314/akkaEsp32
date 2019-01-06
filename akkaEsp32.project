@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CodeLite_Project Name="akkaEsp32" Version="10.0.0" InternalType="Console">
+  <VirtualDirectory Name="components">
+    <VirtualDirectory Name="US">
+      <File Name="components/US/HCSR04.h"/>
+      <File Name="components/US/UltraSonic.h"/>
+      <File Name="components/US/UltraSonic.cpp"/>
+      <File Name="components/US/HCSR04.cpp"/>
+    </VirtualDirectory>
+  </VirtualDirectory>
   <Plugins>
     <Plugin Name="qmake">
       <![CDATA[00010001N0005Debug000000000000]]>
