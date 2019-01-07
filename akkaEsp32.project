@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CodeLite_Project Name="akkaEsp32" Version="10.0.0" InternalType="Console">
+    <Plugins>
+        <Plugin Name="qmake">
+            <![CDATA[00010001N0005Debug000000000000]]>
+        </Plugin>
+    </Plugins>
     <VirtualDirectory Name="components">
+        <VirtualDirectory Name="MotorControl">
+            <File Name="components/MotorControl/component.mk"/>
+            <File Name="components/MotorControl/MotorSpeed.h"/>
+            <File Name="components/MotorControl/MotorSpeed.cpp"/>
+            <File Name="components/MotorControl/MedianFilter.hpp"/>
+            <File Name="components/MotorControl/BTS7960.h"/>
+            <File Name="components/MotorControl/BTS7960.cpp"/>
+        </VirtualDirectory>
         <VirtualDirectory Name="Compass">
             <File Name="components/Compass/component.mk"/>
             <File Name="components/Compass/HMC5883L.h"/>
@@ -15,11 +28,6 @@
             <File Name="components/US/HCSR04.cpp"/>
         </VirtualDirectory>
     </VirtualDirectory>
-    <Plugins>
-        <Plugin Name="qmake">
-            <![CDATA[00010001N0005Debug000000000000]]>
-        </Plugin>
-    </Plugins>
     <File Name="CMakeLists.txt"/>
     <VirtualDirectory Name="main">
         <File Name="main/Sys.cpp.old"/>
@@ -40,8 +48,8 @@
     <Reconciliation>
         <Regexes/>
         <Excludepaths>
-            <Path>Debug/</Path>
             <Path>build/</Path>
+            <Path>Debug/</Path>
         </Excludepaths>
         <Ignorefiles/>
         <Extensions>

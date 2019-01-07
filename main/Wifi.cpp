@@ -9,8 +9,8 @@
 		}                                                                      \
 	} while (0);
 
-MsgClass Wifi::Connected("Wifi/Connected");
-MsgClass Wifi::Disconnected("Wifi/Disconnected");
+MsgClass Wifi::Connected("Connected");
+MsgClass Wifi::Disconnected("Disconnected");
 
 Wifi::Wifi(va_list args) {
 	_prefix = "Merckx";
@@ -27,12 +27,12 @@ void Wifi::preStart() {
 Receive& Wifi::createReceive() {
 	return receiveBuilder()
 
-	.match(Properties(),[this](Envelope& msg) {
+	.match(Properties(),[this](Msg& msg) {
 		std::string macAddress;
 		uint8_t mac[6];
 		esp_base_mac_addr_get(mac);
 		string_format(macAddress,"%02X:%02X:%02X:%02X:%02X:%02X",mac[0],mac[1],mac[2],mac[3],mac[4],mac[5]);
-		sender().tell(msg.reply()
+		sender().tell(replyBuilder(msg)
 		              ("rssi",_rssi)
 		              ("ssid",_ssid)
 		              ("prefix",_prefix)

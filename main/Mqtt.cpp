@@ -51,27 +51,27 @@ void Mqtt::preStart() {
 
 Receive& Mqtt::createReceive() {
 	return receiveBuilder()
-	.match(MsgClass("aliveTimer"),	[this](Envelope& msg) {
+	.match(MsgClass("aliveTimer"),	[this](Msg& msg) {
 		string topic = "src/";
 		topic += context().system().label();
 		topic += "/system/alive";
 		if (_connected) {
 			mqttPublish(topic.c_str(), "true");
 		}
-	}).match(Mqtt::Publish,	[this](Envelope& msg) {
+	}).match(Mqtt::Publish,	[this](Msg& msg) {
 		std::string topic;
 		std::string message;
 		if ( msg.get("topic",topic)==0 && msg.get("message",message)==0 ) {
 			mqttPublish(topic.c_str(),message.c_str());
 		}
 	})
-	.match(Properties(),[this](Envelope& msg) {
+	.match(Properties(),[this](Msg& msg) {
 		sender().tell(Msg(PropertiesReply())
 		              ("clientId",_clientId)
 		              ,self());
 	})
-	.match(Wifi::Connected,	[this](Envelope& msg) {esp_mqtt_client_start(_mqttClient); INFO(" WIFI CONNECTED !!");	})
-	.match(Wifi::Disconnected,[this](Envelope& msg) {INFO(" WIFI DISCONNECTED !!"); esp_mqtt_client_stop(_mqttClient);	})
+	.match(Wifi::Connected,	[this](Msg& msg) {esp_mqtt_client_start(_mqttClient); INFO(" WIFI CONNECTED !!");	})
+	.match(Wifi::Disconnected,[this](Msg& msg) {INFO(" WIFI DISCONNECTED !!"); esp_mqtt_client_stop(_mqttClient);	})
 	.build();
 }
 
