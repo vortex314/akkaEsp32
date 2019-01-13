@@ -55,49 +55,34 @@ ActorMsgBus eb;
 
 extern void XdrTester(uint32_t max);
 
+extern "C" void app_main() {
+	INFO(" ActorCell : %d , ActorRef: %d , Uid : %d Mailbox: %d ",sizeof(ActorCell),sizeof(ActorRef),sizeof(Uid),sizeof(Mailbox));
+	Sys::init();
+	nvs_flash_init();
+	INFO("Starting Akka ");
+	Sys::delay(3000); // let wifi start
+	std::string output;
+	config.load();
+	config.printPretty(output);
+	printf(" config : \n %s \n",output.c_str());
 
+	printf("Starting Akka on %s heap : %d ", Sys::getProcessor(), Sys::getFreeHeap());
+	static Mailbox defaultMailbox("default", 100);
+	static MessageDispatcher defaultDispatcher(3,3000,tskIDLE_PRIORITY+1);
+	defaultDispatcher.attach(defaultMailbox);
+	static ActorSystem actorSystem(Sys::hostname(), defaultDispatcher, defaultMailbox);
 
-void akkaMainTask(void* pvParameter)
-{
-    nvs_flash_init();
-    INFO("Starting Akka ");
-    Sys::init();
-    Sys::delay(3000); // let wifi start
-    std::string output;
-    config.load();
-    config.printPretty(output);
-    printf(" config : \n %s \n",output.c_str());
+	actorSystem.actorOf<Sender>("sender");
+	ActorRef wifi = actorSystem.actorOf<Wifi>("wifi");
+	ActorRef mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi,"tcp://limero.ddns.net:1883");
+	ActorRef bridge = actorSystem.actorOf<Bridge>("bridge",mqtt);
+	defaultDispatcher.unhandled(bridge.cell());
 
-    Mailbox defaultMailbox("default", 100);
-    Mailbox mqttMailbox("mqtt", 100);
-
-    MessageDispatcher defaultDispatcher;
-    MessageDispatcher mqttDispatcher;
-
-    ActorSystem actorSystem(Sys::hostname(), defaultDispatcher, defaultMailbox);
-
-    ActorRef sender = actorSystem.actorOf<Sender>("sender");
-    ActorRef wifi = actorSystem.actorOf<Wifi>("wifi");
-    ActorRef mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi,"tcp://limero.ddns.net:1883");
-    ActorRef bridge = actorSystem.actorOf<Bridge>("bridge",mqtt);
-    ActorRef system = actorSystem.actorOf<System>("system",mqtt);
-    ActorRef configActor = actorSystem.actorOf<ConfigActor>("config");
-    ActorRef publisher = actorSystem.actorOf<Publisher>("publisher",mqtt);
-    ActorRef us = actorSystem.actorOf<UltraSonic>("ultraSonic",publisher);
+	actorSystem.actorOf<System>("system",mqtt);
+	actorSystem.actorOf<ConfigActor>("config");
+	ActorRef publisher = actorSystem.actorOf<Publisher>("publisher",mqtt);
+	ActorRef us = actorSystem.actorOf<UltraSonic>("ultraSonic",publisher);
 //	ActorRef compass = actorSystem.actorOf<Compass>("compass",publisher);
-
-
-    defaultDispatcher.attach(defaultMailbox);
-    defaultDispatcher.unhandled(bridge.cell());
-    config.save();
-
-    defaultDispatcher.execute();
-
-}
-
-extern "C" void app_main()
-{
-
-    xTaskCreate(&akkaMainTask, "akkaMainTask", 5000, NULL, tskIDLE_PRIORITY + 1,
-                NULL);
+	config.save();
+	defaultDispatcher.start();
 }

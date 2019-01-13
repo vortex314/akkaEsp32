@@ -1,5 +1,5 @@
-#ifndef SYSTEM_H
-#define SYSTEM_H
+#ifndef SYSTEM__H
+#define SYSTEM__H
 
 #include <Akka.h>
 #include <Hardware.h>

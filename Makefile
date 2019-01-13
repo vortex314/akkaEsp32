@@ -11,9 +11,9 @@ SERIAL_BAUD = 115200
 ESPBAUD = 921600
 IDF_PATH ?= /home/lieven/esp/esp-idf
 WORKSPACE := /home/lieven/workspace
-CPPFLAGS +=  -DWIFI_SSID=${SSID} -DWIFI_PASS=${PSWD} -DESP32_IDF=1 -I../Common -I../microAkka 
+CPPFLAGS +=   -DWIFI_SSID=${SSID} -DWIFI_PASS=${PSWD} -DESP32_IDF=1 -I../Common -I../microAkka 
 CPPFLAGS +=  -I$(WORKSPACE)/ArduinoJson -I $(IDF_PATH)/components/freertos/include/freertos 
-CXXFLAGS +=  -DWIFI_SSID=${SSID} -DWIFI_PASS=${PSWD} -DESP32_IDF=1 -I../Common -I../microAkka 
+CXXFLAGS +=   -DWIFI_SSID=${SSID} -DWIFI_PASS=${PSWD} -DESP32_IDF=1 -I../Common -I../microAkka 
 CXXFLAGS +=  -I$(WORKSPACE)/ArduinoJson -I $(IDF_PATH)/components/freertos/include/freertos 
 CXXFLAGS +=  -fno-rtti -ffunction-sections -fdata-sections 
 EXTRA_COMPONENT_DIRS = 

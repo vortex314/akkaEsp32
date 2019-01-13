@@ -17,11 +17,11 @@ Mqtt::Mqtt(va_list args) {
 };
 Mqtt::~Mqtt() {}
 
-MsgClass Mqtt::PublishRcvd("Mqtt/Publish");
-MsgClass Mqtt::Connected("Mqtt/Connected");
-MsgClass Mqtt::Disconnected("Mqtt/Disconnected");
-MsgClass Mqtt::Publish("Mqtt/Publish");
-MsgClass Mqtt::Subscribe("Mqtt/Subscribe");
+MsgClass Mqtt::PublishRcvd("publishRcvd");
+MsgClass Mqtt::Connected("connected");
+MsgClass Mqtt::Disconnected("disconnected");
+MsgClass Mqtt::Publish("publish");
+MsgClass Mqtt::Subscribe("subscribe");
 
 void Mqtt::preStart() {
 	INFO(" MQTT preStart");
