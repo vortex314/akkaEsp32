@@ -8,9 +8,7 @@
 #define BZERO(x) ::memset(&x, 0, sizeof(x))
 #define CONFIG_BROKER_URL "mqtt://limero.ddns.net"
 
-Mqtt::Mqtt(va_list args) {
-	_wifi = va_arg(args,ActorRef);
-	_address = va_arg(args, const char*);
+Mqtt::Mqtt(ActorRef& wifi,const char* address) : _wifi(wifi),_address(address) {
 	_connected = false;
 	config.setNameSpace("mqtt");
 	config.get("url",_address,"tcp://limero.ddns.net:1883");
@@ -35,7 +33,7 @@ void Mqtt::preStart() {
 	snprintf(str, sizeof(str), "%d", pid);
 	_clientId += str;
 
-	esp_log_level_set("*", ESP_LOG_VERBOSE);
+//	esp_log_level_set("*", ESP_LOG_VERBOSE);
 
 	esp_mqtt_client_config_t mqtt_cfg;
 	BZERO(mqtt_cfg);
@@ -52,7 +50,7 @@ void Mqtt::preStart() {
 Receive& Mqtt::createReceive() {
 	return receiveBuilder()
 	.match(MsgClass("aliveTimer"),	[this](Msg& msg) {
-		string topic = "src/";
+		std::string topic = "src/";
 		topic += context().system().label();
 		topic += "/system/alive";
 		if (_connected) {
@@ -65,8 +63,8 @@ Receive& Mqtt::createReceive() {
 			mqttPublish(topic.c_str(),message.c_str());
 		}
 	})
-	.match(Properties(),[this](Msg& msg) {
-		sender().tell(Msg(PropertiesReply())
+	.match(MsgClass::Properties(),[this](Msg& msg) {
+		sender().tell(Msg(MsgClass::PropertiesReply())
 		              ("clientId",_clientId)
 		              ,self());
 	})
@@ -77,7 +75,7 @@ Receive& Mqtt::createReceive() {
 
 esp_err_t Mqtt::mqtt_event_handler(esp_mqtt_event_handle_t event) {
 	Mqtt& me = *(Mqtt*)event->user_context;
-	string topics;
+	std::string topics;
 	esp_mqtt_client_handle_t client = event->client;
 	int msg_id;
 
@@ -137,7 +135,7 @@ esp_err_t Mqtt::mqtt_event_handler(esp_mqtt_event_handle_t event) {
 }
 
 void Mqtt::mqttPublish(const char* topic, const char* message) {
-//	INFO(" MQTT TXD : %s = %s", topic, message);
+	INFO(" MQTT TXD : %s = %s", topic, message);
 	int id = esp_mqtt_client_publish(_mqttClient, topic, message, 0, 0, 0);
 	if (id < 0)
 		WARN("esp_mqtt_client_publish() failed.");

@@ -5,15 +5,14 @@
 #include <Hardware.h>
 
 class System : public Actor {
-		Uid _ledTimer;
-		Uid _reportTimer;
+		Label _ledTimer;
+		Label _reportTimer;
 		DigitalOut& _ledGpio;
 		uint32_t _interval = 100;
-		ActorRef _extern;
-		ActorRef _mqtt;
+		ActorRef& _mqtt;
 
 	public:
-		System(va_list args);
+		System(ActorRef& mqtt);
 		~System();
 		void preStart();
 		Receive& createReceive();

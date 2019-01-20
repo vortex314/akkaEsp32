@@ -31,12 +31,12 @@ extern "C" {
 
 class Mqtt : public Actor {
 
-		bool _connected, _receiving;
+		bool _connected;
 		StaticJsonBuffer<2000> _jsonBuffer;
-		string _clientId;
-		string _address;
+		std::string _clientId;
+		std::string _address;
 		esp_mqtt_client_handle_t _mqttClient;
-		ActorRef _wifi;
+		ActorRef& _wifi;
 
 	public:
 		static MsgClass PublishRcvd;
@@ -44,7 +44,7 @@ class Mqtt : public Actor {
 		static MsgClass Disconnected;
 		static MsgClass Publish;
 		static MsgClass Subscribe;
-		Mqtt(va_list args);
+		Mqtt(ActorRef&,const char*);
 		~Mqtt();
 		void preStart();
 		Receive& createReceive();

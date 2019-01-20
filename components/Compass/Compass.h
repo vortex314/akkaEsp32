@@ -9,10 +9,10 @@ class Compass : public Actor {
 		HMC5883L* _hmc;
 		struct Vector _v;
 		int32_t _x,_y,_z;
-		ActorRef _publisher;
-		Uid _measureTimer;
+		ActorRef& _publisher;
+		Label _measureTimer;
 	public:
-		Compass(va_list args);
+		Compass(ActorRef& );
 		virtual ~Compass() {};
 		void preStart();
 		Receive& createReceive();

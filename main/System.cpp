@@ -14,9 +14,8 @@ void logHeap() {
 			heap_caps_get_largest_free_block(MALLOC_CAP_32BIT));
 }
 
-System::System(va_list args) :
-		_ledGpio(DigitalOut::create(2)) {
-	_mqtt = va_arg(args, ActorRef);
+System::System(ActorRef& mqtt) :
+		_ledGpio(DigitalOut::create(2)),_mqtt(mqtt) {
 }
 
 System::~System() {
@@ -31,7 +30,7 @@ void System::preStart() {
 }
 
 Receive& System::createReceive() {
-	return receiveBuilder().match(ReceiveTimeout(), [this](Msg& msg) {
+	return receiveBuilder().match(MsgClass::ReceiveTimeout(), [this](Msg& msg) {
 		INFO(" No more messages since some time ");
 	})
 
@@ -49,7 +48,7 @@ Receive& System::createReceive() {
 	.match(Mqtt::Disconnected,
 			[this](Msg& msg) {timers().find(_ledTimer)->interval(100);})
 
-	.match(Properties(), [this](Msg& msg) {
+	.match(MsgClass::Properties(), [this](Msg& msg) {
 		esp_chip_info_t chip_info;
 		esp_chip_info(&chip_info);
 		sender().tell(replyBuilder(msg)

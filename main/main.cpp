@@ -48,6 +48,10 @@ const static int CONNECTED_BIT = BIT0;
 
 using namespace std;
 
+/*
+ * ATTENTION : TIMER_TASK_PRIORITY needs to be raised to avoid wdt trigger on load test
+ */
+
 Log logger(256);
 ActorMsgBus eb;
 
@@ -67,22 +71,19 @@ extern "C" void app_main() {
 	printf(" config : \n %s \n",output.c_str());
 
 	printf("Starting Akka on %s heap : %d ", Sys::getProcessor(), Sys::getFreeHeap());
-	static Mailbox defaultMailbox("default", 100);
-	static MessageDispatcher defaultDispatcher(3,3000,tskIDLE_PRIORITY+1);
-	defaultDispatcher.attach(defaultMailbox);
-	static ActorSystem actorSystem(Sys::hostname(), defaultDispatcher, defaultMailbox);
+	static MessageDispatcher defaultDispatcher(3,6000,tskIDLE_PRIORITY+1);
+	static ActorSystem actorSystem(Sys::hostname(), defaultDispatcher);
 
 	actorSystem.actorOf<Sender>("sender");
-	ActorRef wifi = actorSystem.actorOf<Wifi>("wifi");
-	ActorRef mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi,"tcp://limero.ddns.net:1883");
-	ActorRef bridge = actorSystem.actorOf<Bridge>("bridge",mqtt);
-	defaultDispatcher.unhandled(bridge.cell());
+	ActorRef& wifi = actorSystem.actorOf<Wifi>("wifi");
+	ActorRef& mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi,"tcp://limero.ddns.net:1883");
+	ActorRef& bridge = actorSystem.actorOf<Bridge>("bridge",mqtt);
+//	defaultDispatcher.unhandled(bridge.cell());
 
 	actorSystem.actorOf<System>("system",mqtt);
 	actorSystem.actorOf<ConfigActor>("config");
-	ActorRef publisher = actorSystem.actorOf<Publisher>("publisher",mqtt);
-	ActorRef us = actorSystem.actorOf<UltraSonic>("ultraSonic",publisher);
+	ActorRef& publisher = actorSystem.actorOf<Publisher>("publisher",mqtt);
+	ActorRef& us = actorSystem.actorOf<UltraSonic>("ultraSonic",publisher);
 //	ActorRef compass = actorSystem.actorOf<Compass>("compass",publisher);
 	config.save();
-	defaultDispatcher.start();
 }

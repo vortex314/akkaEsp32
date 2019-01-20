@@ -13,16 +13,16 @@
 
 
 class Wifi : public Actor {
-		string _ssid;
-		string _pswd;
-		string _prefix;
-		string _ipAddress;
+		std::string _ssid;
+		std::string _pswd;
+		std::string _prefix;
+		std::string _ipAddress;
 		int _rssi;
 
 	public:
 		static MsgClass Connected;
 		static MsgClass Disconnected;
-		Wifi(va_list args);
+		Wifi( );
 		~Wifi();
 		void preStart();
 		Receive& createReceive();

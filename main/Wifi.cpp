@@ -12,8 +12,9 @@
 MsgClass Wifi::Connected("Connected");
 MsgClass Wifi::Disconnected("Disconnected");
 
-Wifi::Wifi(va_list args) {
+Wifi::Wifi() {
 	_prefix = "Merckx";
+	_rssi=0;
 	config.setNameSpace("wifi");
 	config.get("prefix",_prefix,"Merckx");
 }
@@ -27,7 +28,7 @@ void Wifi::preStart() {
 Receive& Wifi::createReceive() {
 	return receiveBuilder()
 
-	.match(Properties(),[this](Msg& msg) {
+	.match(MsgClass::Properties(),[this](Msg& msg) {
 		std::string macAddress;
 		uint8_t mac[6];
 		esp_base_mac_addr_get(mac);
@@ -127,7 +128,7 @@ void Wifi::scanDoneHandler() {
 	_rssi = -200;
 	for (uint32_t i = 0; i < sta_number; i++) {
 		INFO(" %s : %d ", apRecords[i].ssid, apRecords[i].rssi);
-		basic_string<char> ssid = (const char*)apRecords[i].ssid;
+		std::basic_string<char> ssid = (const char*)apRecords[i].ssid;
 		if ((apRecords[i].rssi > _rssi) && (ssid.find(_prefix) == 0)) {
 			strongestAP = i;
 			_rssi = apRecords[i].rssi;

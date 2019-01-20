@@ -1,8 +1,7 @@
 #include "Compass.h"
 
-Compass::Compass(va_list args) : _uext(2), _v( { 0, 0, 0 }) {
+Compass::Compass(ActorRef& publisher) : _uext(2), _v( { 0, 0, 0 }),_publisher(publisher) {
 	_hmc = new 	HMC5883L(_uext);
-	_publisher = va_arg(args,ActorRef) ;
 };
 
 void Compass::preStart() {
@@ -38,6 +37,6 @@ Receive& Compass::createReceive() {
 		_z = _z + (_v.ZAxis - _z) / 4;
 		_publisher.tell(msgBuilder(Publisher::PollMe)("e",1),self());
 	})
-	.match(Properties(),[this](Msg& msg) {sender().tell(replyBuilder(msg)("x",_x)("y",_y)("z",_z),self());})
+	.match(MsgClass::Properties(),[this](Msg& msg) {sender().tell(replyBuilder(msg)("x",_x)("y",_y)("z",_z),self());})
 	.build();
 }

@@ -64,11 +64,11 @@ class MotorSpeed : public Actor {
     float _angleFiltered;
     float _currentLeft, _currentRight;
     AverageFilter<float>* _rpmMeasuredFilter;
-    Uid _controlTimer;
+    Label _controlTimer;
 
   public:
-    MotorSpeed(const char* name, Connector& connector);
-    MotorSpeed(const char* name, uint32_t pinLeftIS, uint32_t pinrightIS,
+    MotorSpeed( Connector& connector);
+    MotorSpeed( uint32_t pinLeftIS, uint32_t pinrightIS,
                uint32_t pinLeftEnable, uint32_t pinRightEnable,
                uint32_t pinLeftPwm, uint32_t pinRightPwm, uint32_t pinTachoA,
                uint32_t pinTachoB);

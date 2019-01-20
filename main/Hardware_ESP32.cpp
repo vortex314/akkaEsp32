@@ -27,13 +27,14 @@ static struct ESP32 { i2c_port_t _i2c_port; } esp32 = {I2C_NUM_0};
 class DigitalIn_ESP32 : public DigitalIn {
   private:
     PhysicalPin _gpio;
-    Mode _mode;
-    void* _object;
-    FunctionPointer _fp;
+    Mode _mode=DIN_PULL_UP;
+    void* _object=0;
+    FunctionPointer _fp=0;
     PinChange _pinChange;
 
   public:
     DigitalIn_ESP32(PhysicalPin pin) : _gpio(pin), _pinChange(DIN_NONE){};
+    virtual ~DigitalIn_ESP32(){};
     static DigitalIn& create(PhysicalPin pin);
     int read() { return gpio_get_level((gpio_num_t)_gpio); }
     Erc init() {
@@ -111,7 +112,7 @@ class DigitalOut_ESP32 : public DigitalOut {
 
   public:
     DigitalOut_ESP32(uint32_t gpio) : _gpio(gpio) {}
-    ~DigitalOut_ESP32(){};
+    virtual ~DigitalOut_ESP32(){};
     Erc init() {
         INFO(" DigitalOut Init %d ", _gpio);
         esp_err_t erc = gpio_set_direction((gpio_num_t)_gpio, GPIO_MODE_OUTPUT);
@@ -180,7 +181,7 @@ class I2C_ESP32 : public I2C {
     uint32_t _clock;
     uint8_t _slaveAddress;
 
-    FunctionPointer _onTxd;
+    FunctionPointer _onTxd=0;
 
     i2c_port_t _port;
 
@@ -433,7 +434,7 @@ class SPI_ESP32 : public Spi {
     uint32_t _mode;
     bool _lsbFirst;
     PhysicalPin _miso, _mosi, _sck, _cs;
-    void* _object;
+    void* _object=0;
     spi_device_handle_t _spi;
 
   public:
@@ -442,6 +443,9 @@ class SPI_ESP32 : public Spi {
         : _miso(miso), _mosi(mosi), _sck(sck), _cs(cs) {
         _clock = 100000;
         _mode = 0;
+        _lsbFirst=true;
+        _spi=0;
+        _onExchange=0;
     };
 
     Erc init() {
@@ -575,9 +579,9 @@ Spi& Spi::create(PhysicalPin miso, PhysicalPin mosi, PhysicalPin sck,
 class UART_ESP32 : public UART {
     FunctionPointer _onRxd;
     FunctionPointer _onTxd;
-    void* _onRxdVoid;
-    void* _onTxdVoid;
-    uint32_t clock;
+    void* _onRxdVoid=0;
+    void* _onTxdVoid=0;
+    uint32_t clock=9600;
     uart_port_t _uartNum;
     uint32_t _pinTxd;
     uint32_t _pinRxd;
@@ -593,6 +597,7 @@ class UART_ESP32 : public UART {
         _onTxd = 0;
         _onRxd = 0;
     };
+    virtual ~UART_ESP32();
     Erc init() {
         uart_config_t uart_config;
         uart_config.baud_rate = _baudrate;
@@ -822,6 +827,7 @@ if (idx == 1) {
     _uart = 0;
     _pinsUsed = 0;
     _connectorIdx = idx;
+    _adc=0;
 }
 
 PhysicalPin Connector::toPin(uint32_t logicalPin) {

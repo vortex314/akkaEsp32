@@ -26,7 +26,7 @@
 
 static mcpwm_dev_t* MCPWM[2] = {&MCPWM0, &MCPWM1};
 
-MotorSpeed::MotorSpeed(const char* name, uint32_t pinLeftIS,
+MotorSpeed::MotorSpeed( uint32_t pinLeftIS,
                        uint32_t pinRightIS, uint32_t pinLeftEnable,
                        uint32_t pinRightEnable, uint32_t pinLeftPwm,
                        uint32_t pinRightPwm, uint32_t pinTachoA,
@@ -41,8 +41,8 @@ MotorSpeed::MotorSpeed(const char* name, uint32_t pinLeftIS,
 	_rpmTarget = 50;
 }
 
-MotorSpeed::MotorSpeed(const char* name, Connector& uext)
-	: MotorSpeed(name, uext.toPin(LP_SCL), uext.toPin(LP_MISO),
+MotorSpeed::MotorSpeed(Connector& uext)
+	: MotorSpeed(uext.toPin(LP_SCL), uext.toPin(LP_MISO),
 	             uext.toPin(LP_MOSI), uext.toPin(LP_CS), uext.toPin(LP_TXD),
 	             uext.toPin(LP_SCK), uext.toPin(LP_RXD), uext.toPin(LP_SDA)) {
 	INFO(" Drive/Sensor = UEXT GPIO ");
@@ -147,7 +147,7 @@ void MotorSpeed::preStart() {
 
 Receive& MotorSpeed::createReceive() {
 	return receiveBuilder()
-	       .match(Properties(),
+	       .match(MsgClass::Properties(),
 	[this](Msg& msg) {
 		sender().tell(replyBuilder(msg)("rpmTarget", _rpmTarget)(
 		                  "rpmMeasured", _rpmMeasured)(

@@ -10,11 +10,11 @@ class UltraSonic : public Actor {
     HCSR04* _hcsr;
     int32_t _distance;
     int32_t _delay;
-    Uid _measureTimer;
-    ActorRef _publisher;
+    Label _measureTimer;
+    ActorRef& _publisher;
 
   public:
-    UltraSonic(va_list args);
+    UltraSonic(ActorRef& ref);
     virtual ~UltraSonic(){};
     void preStart();
     Receive& createReceive();
