@@ -34,6 +34,7 @@ const static int CONNECTED_BIT = BIT0;
 #include "esp_system.h"
 
 #include <Akka.cpp>
+#include <Native.cpp>
 #include <Echo.cpp>
 #include <Bridge.cpp>
 #include <Mqtt.h>

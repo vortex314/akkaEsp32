@@ -43,7 +43,7 @@ Receive& System::createReceive() {
 	.match(MsgClass("reportTimer"), [this](Msg& msg) {logHeap();})
 
 	.match(Mqtt::Connected,
-			[this](Msg& msg) {timers().find(_ledTimer)->interval(1000);})
+			[this](Msg& msg) {timers().find(_ledTimer)->interval(500);})
 
 	.match(Mqtt::Disconnected,
 			[this](Msg& msg) {timers().find(_ledTimer)->interval(100);})
