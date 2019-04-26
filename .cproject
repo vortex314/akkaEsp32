@@ -26,18 +26,22 @@
 							<builder id="cdt.managedbuild.builder.gnu.cross.40486494" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross"/>
 							<tool id="cdt.managedbuild.tool.gnu.cross.c.compiler.87203075" name="Cross GCC Compiler" superClass="cdt.managedbuild.tool.gnu.cross.c.compiler">
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.include.paths.1681127684" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/akkaEsp32/main}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/microAkka/src}&quot;"/>
 									<listOptionValue builtIn="false" value="/home/lieven/esp/xtensa-esp32-elf/xtensa-esp32-elf/include"/>
 									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components"/>
+									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/esp_common/include"/>
 									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/freertos/include"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/akkaEsp32/main}&quot;"/>
 									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/esp32/include"/>
 									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/nvs_flash/include"/>
 									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/mqtt/include"/>
 									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/lwip/include"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/microAkka/src}&quot;"/>
 									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/heap/include"/>
 									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/spi_flash/include"/>
 									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/mqtt/esp-mqtt/include"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.preprocessor.def.symbols.438366400" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="ESP32_IDF=1"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.764327348" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -55,6 +59,10 @@
 									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/heap/include"/>
 									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/spi_flash/include"/>
 									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/mqtt/esp-mqtt/include"/>
+									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/esp_common"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.preprocessor.def.68104154" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="ESP32_IDF=1"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1196973038" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -80,6 +88,7 @@
 									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/heap/include"/>
 									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/spi_flash/include"/>
 									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/mqtt/esp-mqtt/include"/>
+									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/esp_common/include"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1342762966" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>

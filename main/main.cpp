@@ -65,6 +65,8 @@ extern "C" void app_main() {
 	Sys::init();
 	nvs_flash_init();
 	INFO("Starting Akka ");
+	logger.setLogLevel('I');
+
 	Sys::delay(3000); // let wifi start
 	std::string output;
 	config.load();
@@ -72,7 +74,7 @@ extern "C" void app_main() {
 	printf(" config : \n %s \n",output.c_str());
 
 	printf("Starting Akka on %s heap : %d ", Sys::getProcessor(), Sys::getFreeHeap());
-	static MessageDispatcher defaultDispatcher(3,6000,tskIDLE_PRIORITY+1);
+	static MessageDispatcher defaultDispatcher(1,6000,tskIDLE_PRIORITY+1);
 	static ActorSystem actorSystem(Sys::hostname(), defaultDispatcher);
 
 	actorSystem.actorOf<Sender>("sender");
