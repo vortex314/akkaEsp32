@@ -8,7 +8,9 @@
 #include <driver/gpio.h>
 #include <driver/i2c.h>
 
-static struct ESP32 { i2c_port_t _i2c_port; } esp32 = {I2C_NUM_0};
+static struct ESP32 {
+    i2c_port_t _i2c_port;
+} esp32 = {I2C_NUM_0};
 
 /**********************************************************************
  *
@@ -24,20 +26,25 @@ static struct ESP32 { i2c_port_t _i2c_port; } esp32 = {I2C_NUM_0};
  * *******************************************************************/
 //================================================== DigitalIn =====
 
-class DigitalIn_ESP32 : public DigitalIn {
-  private:
+class DigitalIn_ESP32 : public DigitalIn
+{
+private:
     PhysicalPin _gpio;
     Mode _mode=DIN_PULL_UP;
     void* _object=0;
     FunctionPointer _fp=0;
     PinChange _pinChange;
 
-  public:
-    DigitalIn_ESP32(PhysicalPin pin) : _gpio(pin), _pinChange(DIN_NONE){};
-    virtual ~DigitalIn_ESP32(){};
+public:
+    DigitalIn_ESP32(PhysicalPin pin) : _gpio(pin), _pinChange(DIN_NONE) {};
+    virtual ~DigitalIn_ESP32() {};
     static DigitalIn& create(PhysicalPin pin);
-    int read() { return gpio_get_level((gpio_num_t)_gpio); }
-    Erc init() {
+    int read()
+    {
+        return gpio_get_level((gpio_num_t)_gpio);
+    }
+    Erc init()
+    {
         esp_err_t erc;
         INFO(" DigitalIn Init %d ", _gpio);
         erc = gpio_set_direction((gpio_num_t)_gpio, GPIO_MODE_INPUT);
@@ -79,21 +86,30 @@ class DigitalIn_ESP32 : public DigitalIn {
         return gpio_config(&io_conf);
     }
 
-    Erc deInit() { return E_OK; };
-    Erc setMode(DigitalIn::Mode m) {
+    Erc deInit()
+    {
+        return E_OK;
+    };
+    Erc setMode(DigitalIn::Mode m)
+    {
         _mode = m;
         return E_OK;
     }
-    Erc onChange(PinChange pinChange, FunctionPointer fp, void* object) {
+    Erc onChange(PinChange pinChange, FunctionPointer fp, void* object)
+    {
         _pinChange = pinChange;
         _fp = fp;
         _object = object;
         return E_OK;
     }
-    PhysicalPin getPin() { return _gpio; }
+    PhysicalPin getPin()
+    {
+        return _gpio;
+    }
 };
 
-DigitalIn& DigitalIn::create(PhysicalPin pin) {
+DigitalIn& DigitalIn::create(PhysicalPin pin)
+{
     DigitalIn_ESP32* ptr = new DigitalIn_ESP32(pin);
     return *ptr;
 }
@@ -107,13 +123,15 @@ DigitalIn& DigitalIn::create(PhysicalPin pin) {
 ######      #     ####      #       #    #    #  ###### #######   ####      #
 */
 //================================================== DigitalOu =====
-class DigitalOut_ESP32 : public DigitalOut {
+class DigitalOut_ESP32 : public DigitalOut
+{
     PhysicalPin _gpio;
 
-  public:
+public:
     DigitalOut_ESP32(uint32_t gpio) : _gpio(gpio) {}
-    virtual ~DigitalOut_ESP32(){};
-    Erc init() {
+    virtual ~DigitalOut_ESP32() {};
+    Erc init()
+    {
         INFO(" DigitalOut Init %d ", _gpio);
         esp_err_t erc = gpio_set_direction((gpio_num_t)_gpio, GPIO_MODE_OUTPUT);
         if (erc)
@@ -133,9 +151,13 @@ class DigitalOut_ESP32 : public DigitalOut {
         return gpio_config(&io_conf);
     }
 
-    Erc deInit() { return E_OK; }
+    Erc deInit()
+    {
+        return E_OK;
+    }
 
-    Erc write(int x) {
+    Erc write(int x)
+    {
         if (x) {
             return gpio_set_level((gpio_num_t)_gpio, 1);
         } else {
@@ -143,10 +165,14 @@ class DigitalOut_ESP32 : public DigitalOut {
         }
     }
 
-    PhysicalPin getPin() { return _gpio; }
+    PhysicalPin getPin()
+    {
+        return _gpio;
+    }
 };
 
-DigitalOut& DigitalOut::create(PhysicalPin pin) {
+DigitalOut& DigitalOut::create(PhysicalPin pin)
+{
     DigitalOut_ESP32* ptr = new DigitalOut_ESP32(pin);
     return *ptr;
 }
@@ -172,7 +198,8 @@ DigitalOut& DigitalOut::create(PhysicalPin pin) {
 #define ACK_VAL 0x0       /*!< I2C ack value */
 #define NACK_VAL 0x1      /*!< I2C nack value */
 
-class I2C_ESP32 : public I2C {
+class I2C_ESP32 : public I2C
+{
     Bytes _txd;
     Bytes _rxd;
 
@@ -185,17 +212,19 @@ class I2C_ESP32 : public I2C {
 
     i2c_port_t _port;
 
-  public:
+public:
     I2C_ESP32(PhysicalPin scl, PhysicalPin sda);
     ~I2C_ESP32();
     Erc init();
     Erc deInit();
 
-    Erc setClock(uint32_t clock) {
+    Erc setClock(uint32_t clock)
+    {
         _clock = clock;
         return E_OK;
     }
-    Erc setSlaveAddress(uint8_t slaveAddress) {
+    Erc setSlaveAddress(uint8_t slaveAddress)
+    {
         _slaveAddress = slaveAddress;
         return E_OK;
     }
@@ -206,18 +235,21 @@ class I2C_ESP32 : public I2C {
 };
 
 I2C_ESP32::I2C_ESP32(PhysicalPin scl, PhysicalPin sda)
-    : _txd(16), _rxd(16), _scl(scl), _sda(sda) {
+    : _txd(16), _rxd(16), _scl(scl), _sda(sda)
+{
     _port = esp32._i2c_port;
     _clock = 100000;
     _slaveAddress = 0x1E; // HMC 5883L
 }
 
-I2C_ESP32::~I2C_ESP32() {
+I2C_ESP32::~I2C_ESP32()
+{
     esp_err_t erc = i2c_driver_delete(_port);
     INFO(" erc : %d ", erc);
 }
 
-Erc I2C_ESP32::init() {
+Erc I2C_ESP32::init()
+{
     INFO(" init : scl:%d ,sda :%d ", _scl, _sda);
     i2c_config_t conf;
     conf.mode = I2C_MODE_MASTER;
@@ -234,9 +266,13 @@ Erc I2C_ESP32::init() {
     return erc;
 }
 
-Erc I2C_ESP32::deInit() { return E_OK; }
+Erc I2C_ESP32::deInit()
+{
+    return E_OK;
+}
 
-Erc I2C_ESP32::write(uint8_t* data, uint32_t size) {
+Erc I2C_ESP32::write(uint8_t* data, uint32_t size)
+{
     esp_err_t erc;
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     erc = i2c_master_start(cmd);
@@ -259,9 +295,13 @@ Erc I2C_ESP32::write(uint8_t* data, uint32_t size) {
     return erc;
 }
 
-Erc I2C_ESP32::write(uint8_t b) { return write(&b, 1); }
+Erc I2C_ESP32::write(uint8_t b)
+{
+    return write(&b, 1);
+}
 
-Erc I2C_ESP32::read(uint8_t* data, uint32_t size) {
+Erc I2C_ESP32::read(uint8_t* data, uint32_t size)
+{
     if (size == 0) {
         return E_OK;
     }
@@ -279,7 +319,8 @@ Erc I2C_ESP32::read(uint8_t* data, uint32_t size) {
     return ret;
 }
 
-I2C& I2C::create(PhysicalPin scl, PhysicalPin sda) {
+I2C& I2C::create(PhysicalPin scl, PhysicalPin sda)
+{
     I2C_ESP32* ptr = new I2C_ESP32(scl, sda);
     return *ptr;
 }
@@ -305,7 +346,8 @@ esp_adc_cal_characteristics_t _characteristics;
 
 #define V_REF 1100
 
-static void check_efuse() {
+static void check_efuse()
+{
     // Check TP is burned into eFuse
     if (esp_adc_cal_check_efuse(ESP_ADC_CAL_VAL_EFUSE_TP) == ESP_OK) {
         printf("eFuse Two Point: Supported\n");
@@ -329,21 +371,24 @@ struct AdcEntry {
     AdcUnit unit;
 
 } AdcTable[] = {{32, ADC1_CHANNEL_4, ADC1},
-                {33, ADC1_CHANNEL_5, ADC1},
-                {34, ADC1_CHANNEL_6, ADC1},
-                {35, ADC1_CHANNEL_7, ADC1},
-                {13, ADC2_GPIO13_CHANNEL, ADC2},
-                {15, ADC2_GPIO15_CHANNEL, ADC2},
-                {36, ADC1_GPIO36_CHANNEL, ADC1},
-                {39, ADC1_GPIO39_CHANNEL, ADC1}}; // INCOMPLETE !!
+    {33, ADC1_CHANNEL_5, ADC1},
+    {34, ADC1_CHANNEL_6, ADC1},
+    {35, ADC1_CHANNEL_7, ADC1},
+    {13, ADC2_GPIO13_CHANNEL, ADC2},
+    {15, ADC2_GPIO15_CHANNEL, ADC2},
+    {36, ADC1_GPIO36_CHANNEL, ADC1},
+    {39, ADC1_GPIO39_CHANNEL, ADC1}
+}; // INCOMPLETE !!
 
-class ADC_ESP32 : public ADC {
+class ADC_ESP32 : public ADC
+{
     PhysicalPin _pin;
     uint32_t _channel;
     AdcUnit _unit;
 
-  public:
-    ADC_ESP32(PhysicalPin pin) {
+public:
+    ADC_ESP32(PhysicalPin pin)
+    {
         _pin = pin;
         _channel = (adc1_channel_t)0;
         uint32_t channels = sizeof(AdcTable) / sizeof(struct AdcEntry);
@@ -356,7 +401,8 @@ class ADC_ESP32 : public ADC {
         }
         ERROR("ADC channel not found for pin %d", pin);
     }
-    Erc init() {
+    Erc init()
+    {
         if (_channel == 0)
             return EINVAL;
         esp_err_t erc;
@@ -385,7 +431,8 @@ class ADC_ESP32 : public ADC {
         return E_OK;
     }
 
-    int getValue() {
+    int getValue()
+    {
         if (_unit == ADC1) {
             uint32_t voltage = adc1_get_raw((adc1_channel_t)_channel);
             //   uint32_t voltage = adc1_to_voltage((adc1_channel_t)_channel,
@@ -406,7 +453,8 @@ class ADC_ESP32 : public ADC {
     }
 };
 
-ADC& ADC::create(PhysicalPin pin) {
+ADC& ADC::create(PhysicalPin pin)
+{
     ADC_ESP32* ptr = new ADC_ESP32(pin);
     return *ptr;
 }
@@ -427,8 +475,9 @@ ADC& ADC::create(PhysicalPin pin) {
 #include "driver/spi_master.h"
 #include "esp_system.h"
 
-class SPI_ESP32 : public Spi {
-  protected:
+class SPI_ESP32 : public Spi
+{
+protected:
     FunctionPointer _onExchange;
     uint32_t _clock;
     uint32_t _mode;
@@ -437,10 +486,11 @@ class SPI_ESP32 : public Spi {
     void* _object=0;
     spi_device_handle_t _spi;
 
-  public:
+public:
     SPI_ESP32(PhysicalPin miso, PhysicalPin mosi, PhysicalPin sck,
               PhysicalPin cs)
-        : _miso(miso), _mosi(mosi), _sck(sck), _cs(cs) {
+        : _miso(miso), _mosi(mosi), _sck(sck), _cs(cs)
+    {
         _clock = 100000;
         _mode = 0;
         _lsbFirst=true;
@@ -448,7 +498,8 @@ class SPI_ESP32 : public Spi {
         _onExchange=0;
     };
 
-    Erc init() {
+    Erc init()
+    {
         DEBUG(" SPI_ESP32 : miso : %d, mosi : %d , sck : %d , cs : %d ", _miso,
               _mosi, _sck, _cs);
 
@@ -486,7 +537,8 @@ class SPI_ESP32 : public Spi {
         return E_OK;
     };
 
-    Erc deInit() {
+    Erc deInit()
+    {
         esp_err_t ret = spi_bus_remove_device(_spi);
         if (ret) {
             ERROR("spi_bus_remove_device(_spi) = %d ", ret);
@@ -500,7 +552,8 @@ class SPI_ESP32 : public Spi {
         return E_OK;
     }
 
-    Erc exchange(Bytes& in, Bytes& out) {
+    Erc exchange(Bytes& in, Bytes& out)
+    {
         uint8_t inData[100];
         esp_err_t ret;
         spi_transaction_t t, *pTrans;
@@ -531,30 +584,40 @@ class SPI_ESP32 : public Spi {
         return E_OK; // Should have had no issues.
     };
 
-    Erc setClock(uint32_t clock) {
+    Erc setClock(uint32_t clock)
+    {
         _clock = clock;
         return E_OK;
     }
 
-    Erc setMode(SpiMode mode) {
+    Erc setMode(SpiMode mode)
+    {
         _mode = mode;
         return E_OK;
     }
 
-    Erc setLsbFirst(bool f) {
+    Erc setLsbFirst(bool f)
+    {
         _lsbFirst = f;
         return true;
     }
 
-    Erc onExchange(FunctionPointer p, void* ptr) { return E_OK; }
+    Erc onExchange(FunctionPointer p, void* ptr)
+    {
+        return E_OK;
+    }
 
-    Erc setHwSelect(bool b) { return E_OK; }
+    Erc setHwSelect(bool b)
+    {
+        return E_OK;
+    }
 };
 
 Spi::~Spi() {}
 
 Spi& Spi::create(PhysicalPin miso, PhysicalPin mosi, PhysicalPin sck,
-                 PhysicalPin cs) {
+                 PhysicalPin cs)
+{
     SPI_ESP32* ptr = new SPI_ESP32(miso, mosi, sck, cs);
     return *ptr;
 }
@@ -576,7 +639,8 @@ Spi& Spi::create(PhysicalPin miso, PhysicalPin mosi, PhysicalPin sck,
 #define TAG "uart0"
 #define PATTERN_CHR_NUM 1
 
-class UART_ESP32 : public UART {
+class UART_ESP32 : public UART
+{
     FunctionPointer _onRxd;
     FunctionPointer _onTxd;
     void* _onRxdVoid=0;
@@ -589,16 +653,18 @@ class UART_ESP32 : public UART {
     QueueHandle_t _queue = 0;
     CircBuf _rxdBuf;
 
-  public:
+public:
     UART_ESP32(PhysicalPin txd, PhysicalPin rxd)
-        : _pinTxd(txd), _pinRxd(rxd), _rxdBuf(256) {
-        _uartNum = UART_NUM_0;
-        _baudrate = 115200;
+        : _pinTxd(txd), _pinRxd(rxd), _rxdBuf(256)
+    {
+        _uartNum = UART_NUM_1;
+        _baudrate = 9600;
         _onTxd = 0;
         _onRxd = 0;
     };
-    virtual ~UART_ESP32();
-    Erc init() {
+    virtual ~UART_ESP32() {};
+    Erc init()
+    {
         uart_config_t uart_config;
         uart_config.baud_rate = _baudrate;
         uart_config.data_bits = UART_DATA_8_BITS;
@@ -622,48 +688,68 @@ class UART_ESP32 : public UART {
         /*       INFO(" queue %0xX",_queue);
                uart_enable_pattern_det_intr(_uartNum, '\n', 1, 10000, 10, 10);
                uart_pattern_queue_reset(_uartNum, 20);*/
-        xTaskCreate(uart_event_task, "uart_event_task", 2048, this, 12, NULL);
+        xTaskCreate(uart_event_task, "uart_event_task", 3120, this, 12, NULL);
         return E_OK;
     };
-    Erc deInit() { return E_OK; };
-    Erc setClock(uint32_t clock) {
+    Erc deInit()
+    {
+        return E_OK;
+    };
+    Erc setClock(uint32_t clock)
+    {
         _baudrate = clock;
         return E_OK;
     };
 
-    Erc write(const uint8_t* data, uint32_t length) {
+    Erc write(const uint8_t* data, uint32_t length)
+    {
         if (uart_write_bytes(_uartNum, (const char*)data, length) == length)
             return E_OK;
         return EIO;
     };
-    Erc write(uint8_t b) {
+    Erc write(uint8_t b)
+    {
         if (uart_write_bytes(_uartNum, (const char*)&b, 1) == 1)
             return E_OK;
         return E_OK;
     };
-    Erc read(Bytes& bytes) {
+    Erc read(Bytes& bytes)
+    {
         while (_rxdBuf.hasData() && bytes.hasSpace(1))
             bytes.write(_rxdBuf.read());
         return E_OK;
     };
-    uint8_t read() { return _rxdBuf.read(); };
-    void onRxd(FunctionPointer fr, void* pv) {
+    uint8_t read()
+    {
+        return _rxdBuf.read();
+    };
+    void onRxd(FunctionPointer fr, void* pv)
+    {
         _onRxd = fr;
         _onRxdVoid = pv;
         return;
     };
-    void onTxd(FunctionPointer fw, void* pv) {
+    void onTxd(FunctionPointer fw, void* pv)
+    {
         _onTxd = fw;
         _onTxdVoid = pv;
         return;
     };
-    uint32_t hasSpace() { return E_OK; };
-    uint32_t hasData() { return _rxdBuf.hasData(); };
-    static void uart_event_task(void* pvParameters) {
+    uint32_t hasSpace()
+    {
+        return E_OK;
+    };
+    uint32_t hasData()
+    {
+        return _rxdBuf.hasData();
+    };
+    static void uart_event_task(void* pvParameters)
+    {
         UART_ESP32* uartEsp32 = (UART_ESP32*)pvParameters;
         uartEsp32->event_task();
     }
-    void event_task() {
+    void event_task()
+    {
         uart_event_t event;
         size_t buffered_size;
         uint8_t* dtmp = (uint8_t*)malloc(RX_BUF_SIZE);
@@ -756,7 +842,8 @@ class UART_ESP32 : public UART {
     }
 };
 
-UART& UART::create(PhysicalPin txd, PhysicalPin rxd) {
+UART& UART::create(PhysicalPin txd, PhysicalPin rxd)
+{
     UART_ESP32* ptr = new UART_ESP32(txd, rxd);
     return *ptr;
 }
@@ -774,7 +861,7 @@ UART& UART::create(PhysicalPin txd, PhysicalPin rxd) {
 Connector::Connector(uint32_t idx) // defined by PCB layout
 {
     /* OLD PCB
-if (idx == 1) {
+    if (idx == 1) {
     _physicalPins[LP_TXD] = 17;
     _physicalPins[LP_RXD] = 16;
     _physicalPins[LP_SCL] = 15;
@@ -783,7 +870,7 @@ if (idx == 1) {
     _physicalPins[LP_MOSI] = 23;
     _physicalPins[LP_SCK] = 18;
     _physicalPins[LP_CS] = 21;
-} else if (idx == 2) {
+    } else if (idx == 2) {
     _physicalPins[LP_TXD] = 32;
     _physicalPins[LP_RXD] = 33;
     _physicalPins[LP_SCL] = 25;
@@ -792,7 +879,7 @@ if (idx == 1) {
     _physicalPins[LP_MOSI] = 14;
     _physicalPins[LP_SCK] = 13;
     _physicalPins[LP_CS] = 12;
-} else if (idx == 3) {
+    } else if (idx == 3) {
     _physicalPins[LP_TXD] = 1;
     _physicalPins[LP_RXD] = 3;
     _physicalPins[LP_SCL] = 22;
@@ -801,7 +888,7 @@ if (idx == 1) {
     _physicalPins[LP_MOSI] = 39;
     _physicalPins[LP_SCK] = 34;
     _physicalPins[LP_CS] = 35;
-}*/
+    }*/
     if (idx == 1) {
         _physicalPins[LP_TXD] = 19;
         _physicalPins[LP_RXD] = 36;
@@ -830,22 +917,26 @@ if (idx == 1) {
     _adc=0;
 }
 
-PhysicalPin Connector::toPin(uint32_t logicalPin) {
+PhysicalPin Connector::toPin(uint32_t logicalPin)
+{
     INFO(" logical %d => %d physical ", logicalPin, _physicalPins[logicalPin]);
     return _physicalPins[logicalPin];
 }
 
 const char* sLogicalPin[] = {"TXD",  "RXD",  "SCL", "SDA",
-                             "MISO", "MOSI", "SCK", "CS"};
+                             "MISO", "MOSI", "SCK", "CS"
+                            };
 
-UART& Connector::getUART() {
+UART& Connector::getUART()
+{
     lockPin(LP_TXD);
     lockPin(LP_RXD);
     _uart = new UART_ESP32(toPin(LP_TXD), toPin(LP_RXD));
     return *_uart;
 };
 
-Spi& Connector::getSPI() {
+Spi& Connector::getSPI()
+{
     _spi = new SPI_ESP32(toPin(LP_MISO), toPin(LP_MOSI), toPin(LP_SCK),
                          toPin(LP_CS));
     lockPin(LP_MISO);
@@ -854,36 +945,41 @@ Spi& Connector::getSPI() {
     lockPin(LP_CS);
     return *_spi;
 }
-I2C& Connector::getI2C() {
+I2C& Connector::getI2C()
+{
     lockPin(LP_SDA);
     lockPin(LP_SCL);
     _i2c = new I2C_ESP32(toPin(LP_SCL), toPin(LP_SDA));
     return *_i2c;
 };
 
-ADC& Connector::getADC(LogicalPin pin) {
+ADC& Connector::getADC(LogicalPin pin)
+{
     lockPin(LP_SDA);
     ADC* adc = new ADC_ESP32(toPin(pin));
     return *adc;
 };
 
-DigitalOut& Connector::getDigitalOut(LogicalPin lp) {
+DigitalOut& Connector::getDigitalOut(LogicalPin lp)
+{
     lockPin(lp);
     DigitalOut* _out = new DigitalOut_ESP32(toPin(lp));
     return *_out;
 }
 
-DigitalIn& Connector::getDigitalIn(LogicalPin lp) {
+DigitalIn& Connector::getDigitalIn(LogicalPin lp)
+{
     lockPin(lp);
     DigitalIn* _in = new DigitalIn_ESP32(toPin(lp));
     return *_in;
 }
 
-void Connector::lockPin(LogicalPin lp) {
-    if (_pinsUsed & lp) {
-        ERROR(" PIN in use %d : %s  >>>>>>>>>>>>>>>>>> ", lp, sLogicalPin[lp]);
+void Connector::lockPin(LogicalPin lp)
+{
+    if (_pinsUsed & (1<<lp)) {
+        ERROR(" PIN in use %d : %s  >>>>>>>>>>>>>>>>>> %X", lp, sLogicalPin[lp],_pinsUsed);
     } else {
-        INFO(" PIN locked : %d :%s", lp, sLogicalPin[lp]);
+        INFO(" PIN locked : %d :%s ,%X", lp, sLogicalPin[lp],_pinsUsed);
         _pinsUsed |= (1 << lp);
     }
 }
