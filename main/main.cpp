@@ -86,8 +86,10 @@ extern "C" void app_main()
     config.setNameSpace("Gps");
     uint32_t uextNumber;
     config.get("connector",uextNumber,0);
+    config.set("connector",1);
     if ( uextNumber ) {
-        actorSystem.actorOf<Neo6m>("gps",new Connector(uextNumber),mqtt);
+        actorSystem.actorOf<Neo6m>("gps1",new Connector(uextNumber),mqtt);
+        actorSystem.actorOf<Neo6m>("gps2",new Connector(2),mqtt);
     }
 
     config.setNameSpace("Compass");

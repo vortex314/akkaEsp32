@@ -36,21 +36,21 @@ void Neo6m::onRxd(void* me)
 
 void Neo6m::handleRxd()
 {
-    static std::string line;
+
     while ( _uart.hasData() ) {
         char c = _uart.read();
         if ( c=='\n' || c=='\r') {
-            if ( line.size()>7 ) {
- //               INFO("%s",line.c_str());
+            if ( _line.size()>8 ) {
+//               INFO("%s",line.c_str());
                 std::string topic="src/";
-                string_format(topic,"src/%s/%s",self().path(),line.substr(1,5).c_str());
+                string_format(topic,"src/%s/%s",self().path(),_line.substr(1,5).c_str());
                 Msg msg(Mqtt::Publish);
-                msg("topic",topic)("message",line.substr(7))(AKKA_SRC,self().id())(AKKA_DST,_mqtt.id());
+                msg("topic",topic)("message",_line.substr(6))(AKKA_SRC,self().id())(AKKA_DST,_mqtt.id());
                 _mqtt.tell(msg);
             }
-            line.clear();
+            _line.clear();
         } else {
-            line +=c;
+            _line +=c;
         }
     }
 }

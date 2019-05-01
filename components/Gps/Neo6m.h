@@ -11,7 +11,7 @@ class Neo6m : public Actor
     static void onRxd(void*);
     ActorRef& _mqtt;
     Label _measureTimer;
-
+    std::string _line;
 public:
     Neo6m(Connector* connector,ActorRef& mqtt);
     virtual ~Neo6m();

@@ -10,8 +10,6 @@
     <VirtualDirectory Name="Gps">
       <File Name="components/Gps/Neo6m.cpp"/>
       <File Name="components/Gps/Neo6m.h"/>
-      <File Name="components/Gps/Gps.cpp"/>
-      <File Name="components/Gps/Gps.h"/>
     </VirtualDirectory>
     <VirtualDirectory Name="MotorControl">
       <File Name="components/MotorControl/component.mk"/>
@@ -55,8 +53,8 @@
   <Reconciliation>
     <Regexes/>
     <Excludepaths>
-      <Path>Debug/</Path>
       <Path>build/</Path>
+      <Path>Debug/</Path>
     </Excludepaths>
     <Ignorefiles/>
     <Extensions>

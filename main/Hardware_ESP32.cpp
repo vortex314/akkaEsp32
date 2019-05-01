@@ -652,12 +652,14 @@ class UART_ESP32 : public UART
     uint32_t _baudrate;
     QueueHandle_t _queue = 0;
     CircBuf _rxdBuf;
+    uint32_t _driver;
 
 public:
-    UART_ESP32(PhysicalPin txd, PhysicalPin rxd)
+    UART_ESP32(uint32_t driver,PhysicalPin txd, PhysicalPin rxd)
         : _pinTxd(txd), _pinRxd(rxd), _rxdBuf(256)
     {
-        _uartNum = UART_NUM_1;
+        _driver=driver;
+        _uartNum = driver==1 ? UART_NUM_1 : UART_NUM_2 ;
         _baudrate = 9600;
         _onTxd = 0;
         _onRxd = 0;
@@ -688,7 +690,9 @@ public:
         /*       INFO(" queue %0xX",_queue);
                uart_enable_pattern_det_intr(_uartNum, '\n', 1, 10000, 10, 10);
                uart_pattern_queue_reset(_uartNum, 20);*/
-        xTaskCreate(uart_event_task, "uart_event_task", 3120, this, 12, NULL);
+        std::string taskName;
+        string_format(taskName,"uart_event_task_%d",_driver);
+        xTaskCreate(uart_event_task,taskName.c_str(), 3120, this, 12, NULL);
         return E_OK;
     };
     Erc deInit()
@@ -844,7 +848,7 @@ public:
 
 UART& UART::create(PhysicalPin txd, PhysicalPin rxd)
 {
-    UART_ESP32* ptr = new UART_ESP32(txd, rxd);
+    UART_ESP32* ptr = new UART_ESP32(1,txd, rxd);
     return *ptr;
 }
 
@@ -931,7 +935,7 @@ UART& Connector::getUART()
 {
     lockPin(LP_TXD);
     lockPin(LP_RXD);
-    _uart = new UART_ESP32(toPin(LP_TXD), toPin(LP_RXD));
+    _uart = new UART_ESP32(_connectorIdx,toPin(LP_TXD), toPin(LP_RXD));
     return *_uart;
 };
 
