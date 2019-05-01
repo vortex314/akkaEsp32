@@ -135,6 +135,7 @@ esp_err_t Mqtt::mqtt_event_handler(esp_mqtt_event_handle_t event) {
 }
 
 void Mqtt::mqttPublish(const char* topic, const char* message) {
+	if ( _connected == false) return;
 	INFO(" MQTT TXD : %s = %s", topic, message);
 	int id = esp_mqtt_client_publish(_mqttClient, topic, message, 0, 0, 0);
 	if (id < 0)
@@ -142,6 +143,7 @@ void Mqtt::mqttPublish(const char* topic, const char* message) {
 }
 
 void Mqtt::mqttSubscribe(const char* topic) {
+	if ( _connected == false ) return;
 	INFO("Subscribing to topic %s ", topic);
 	int id = esp_mqtt_client_subscribe(_mqttClient, topic, 0);
 	if (id < 0)

@@ -4,17 +4,21 @@
 #include <Log.h>
 #include <Akka.h>
 #include <Mqtt.h>
-class Neo6m
+class Neo6m : public Actor
 {
-    Connector& _connector;
+    Connector* _connector;
     UART& _uart;
     static void onRxd(void*);
     ActorRef& _mqtt;
+    Label _measureTimer;
+
 public:
-    Neo6m(Connector& connector,ActorRef& mqtt);
-    ~Neo6m();
+    Neo6m(Connector* connector,ActorRef& mqtt);
+    virtual ~Neo6m();
     int init();
     void handleRxd();
+    void preStart();
+    Receive& createReceive();
 };
 
 #endif // NEO6M_H

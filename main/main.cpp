@@ -46,7 +46,7 @@ const static int CONNECTED_BIT = BIT0;
 #include <Config.h>
 #include <UltraSonic.h>
 #include <Compass.h>
-#include <Gps.h>
+#include <Neo6m.h>
 
 using namespace std;
 
@@ -70,7 +70,7 @@ extern "C" void app_main()
     std::string output;
     config.load();
 
-    static MessageDispatcher defaultDispatcher(3,6000,tskIDLE_PRIORITY+1);
+    static MessageDispatcher defaultDispatcher(4,6000,tskIDLE_PRIORITY+1);
     static ActorSystem actorSystem(Sys::hostname(), defaultDispatcher);
 
 //    actorSystem.actorOf<Sender>("sender");
@@ -87,7 +87,7 @@ extern "C" void app_main()
     uint32_t uextNumber;
     config.get("connector",uextNumber,0);
     if ( uextNumber ) {
-        actorSystem.actorOf<Gps>("gps",new Connector(uextNumber),mqtt);
+        actorSystem.actorOf<Neo6m>("gps",new Connector(uextNumber),mqtt);
     }
 
     config.setNameSpace("Compass");
