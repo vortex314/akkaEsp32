@@ -29,34 +29,35 @@ extern "C" {
 #define QOS 0
 #define TIMEOUT 10000L
 
-class Mqtt : public Actor {
+class Mqtt : public Actor
+{
 
-		bool _connected;
-		StaticJsonBuffer<2000> _jsonBuffer;
-		std::string _clientId;
-		std::string _address;
-		esp_mqtt_client_handle_t _mqttClient;
-		ActorRef& _wifi;
+    bool _connected;
+    StaticJsonDocument<2000> _jsonBuffer;
+    std::string _clientId;
+    std::string _address;
+    esp_mqtt_client_handle_t _mqttClient;
+    ActorRef& _wifi;
 
-	public:
-		static MsgClass PublishRcvd;
-		static MsgClass Connected;
-		static MsgClass Disconnected;
-		static MsgClass Publish;
-		static MsgClass Subscribe;
-		Mqtt(ActorRef&,const char*);
-		~Mqtt();
-		void preStart();
-		Receive& createReceive();
+public:
+    static MsgClass PublishRcvd;
+    static MsgClass Connected;
+    static MsgClass Disconnected;
+    static MsgClass Publish;
+    static MsgClass Subscribe;
+    Mqtt(ActorRef&,const char*);
+    ~Mqtt();
+    void preStart();
+    Receive& createReceive();
 
-		void mqttPublish(const char* topic, const char* message);
-		void mqttSubscribe(const char* topic);
-		void mqttConnect();
-		void mqttDisconnect();
+    void mqttPublish(const char* topic, const char* message);
+    void mqttSubscribe(const char* topic);
+    void mqttConnect();
+    void mqttDisconnect();
 
-		bool handleMqttMessage(const char* message);
+    bool handleMqttMessage(const char* message);
 
-		static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event);
+    static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event);
 };
 
 #endif
