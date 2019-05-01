@@ -66,19 +66,16 @@ extern "C" void app_main()
 {
     Sys::init();
     nvs_flash_init();
-    INFO("Starting Akka ");
-//    Sys::delay(3000); // let wifi start
+    INFO("Starting Akka on %s heap : %d ", Sys::getProcessor(), Sys::getFreeHeap());
     std::string output;
     config.load();
-    config.printPretty(output);
-    printf(" config : \n %s \n",output.c_str());
 
-    printf("Starting Akka on %s heap : %d ", Sys::getProcessor(), Sys::getFreeHeap());
     static MessageDispatcher defaultDispatcher(3,6000,tskIDLE_PRIORITY+1);
     static ActorSystem actorSystem(Sys::hostname(), defaultDispatcher);
 
 //    actorSystem.actorOf<Sender>("sender");
     ActorRef& wifi = actorSystem.actorOf<Wifi>("wifi");
+
     ActorRef& mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi,"tcp://limero.ddns.net:1883");
     ActorRef& bridge = actorSystem.actorOf<Bridge>("bridge",mqtt);
 //	defaultDispatcher.unhandled(bridge.cell())
@@ -86,21 +83,23 @@ extern "C" void app_main()
     actorSystem.actorOf<ConfigActor>("config");
     ActorRef& publisher = actorSystem.actorOf<Publisher>("publisher",mqtt);
 
-    config.setNameSpace("peripheral");
-    std::string peripheral;
-    config.get("uext1",peripheral,"none");
-    peripheral="GPS";
-    Connector uext1(1);
-    if ( peripheral.compare("none")==0) {
-        INFO(" none device ");
-    } else if ( peripheral.compare("UltraSonic")==0) {
-//       ActorRef& us = actorSystem.actorOf<UltraSonic>("ultraSonic",uext1,publisher);
-    } else if(peripheral.compare("GPS")==0) {
-        INFO("GPS");
-        ActorRef& gps = actorSystem.actorOf<Gps>("gps",uext1,mqtt);
-    } else if(peripheral.compare("Compass")==0) {
-//        ActorRef& compass = actorSystem.actorOf<Compass>("compass",uext1,publisher);
+    config.setNameSpace("Gps");
+    uint32_t uextNumber;
+    config.get("connector",uextNumber,0);
+    if ( uextNumber ) {
+        actorSystem.actorOf<Gps>("gps",new Connector(uextNumber),mqtt);
     }
-//	ActorRef compass = actorSystem.actorOf<Compass>("compass",publisher);
+
+    config.setNameSpace("Compass");
+    config.get("connector",uextNumber,0);
+    if ( uextNumber ) {
+        actorSystem.actorOf<Compass>("compass",new Connector(uextNumber),mqtt);
+    }
+
+    config.setNameSpace("UltraSonic");
+    config.get("connector",uextNumber,0);
+    if ( uextNumber ) {
+        actorSystem.actorOf<UltraSonic>("ultraSonic",new Connector(uextNumber),mqtt);
+    }
     config.save();
 }

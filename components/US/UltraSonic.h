@@ -6,7 +6,7 @@
 #include <Publisher.h>
 
 class UltraSonic : public Actor {
-    Connector _uext;
+    Connector* _uext;
     HCSR04* _hcsr;
     int32_t _distance;
     int32_t _delay;
@@ -14,8 +14,8 @@ class UltraSonic : public Actor {
     ActorRef& _publisher;
 
   public:
-    UltraSonic(ActorRef& ref);
-    virtual ~UltraSonic(){};
+    UltraSonic(Connector*,ActorRef& );
+    virtual ~UltraSonic();
     void preStart();
     Receive& createReceive();
 };

@@ -1,9 +1,14 @@
 #include "UltraSonic.h"
 
-UltraSonic::UltraSonic(ActorRef& publisher ) : _uext(1),_publisher(publisher) {
-	_hcsr = new HCSR04(_uext);
+UltraSonic::UltraSonic(Connector* connector,ActorRef& publisher ) : _publisher(publisher) {
+	_uext=connector;
+	_hcsr = new HCSR04(*_uext);
 	_distance=0;
 	_delay=0;
+}
+
+UltraSonic::~UltraSonic(){
+delete _uext;
 }
 
 void UltraSonic::preStart() {

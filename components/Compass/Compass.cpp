@@ -1,9 +1,14 @@
 #include "Compass.h"
 
-Compass::Compass(ActorRef& publisher) : _uext(2), _v( { 0, 0, 0 }),_publisher(publisher) {
-	_hmc = new 	HMC5883L(_uext);
+Compass::Compass(Connector* connector,ActorRef& publisher) :  _v( { 0, 0, 0 }),_publisher(publisher) {
+	_uext=connector;
+	_hmc = new 	HMC5883L(*_uext);
+	_x=_y=_z=0;
 };
 
+Compass::~Compass(){
+	delete _uext;
+}
 void Compass::preStart() {
 
 	if(_hmc->init()) {

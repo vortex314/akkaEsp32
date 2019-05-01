@@ -1,8 +1,9 @@
 #include "Gps.h"
 
-Gps::Gps(Connector& uext,ActorRef& mqtt) : _mqtt(mqtt),_uext(uext)
+Gps::Gps(Connector* uext,ActorRef& mqtt) : _mqtt(mqtt)
 {
-    _neo6m = new Neo6m(_uext,mqtt);
+	_uext=uext;
+    _neo6m = new Neo6m(*_uext,mqtt);
 }
 
 void Gps::preStart()
@@ -19,7 +20,7 @@ Receive& Gps::createReceive()
 
     })
     .match(MsgClass::Properties(),[this](Msg& msg) {
-        sender().tell(replyBuilder(msg)("gps",_distance),self());
+        sender().tell(replyBuilder(msg)("connector",_uext->index()),self());
     })
     .build();
 }

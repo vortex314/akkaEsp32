@@ -154,6 +154,7 @@ class Connector {
     DigitalIn& getDigitalIn(LogicalPin);
     DigitalOut& getDigitalOut(LogicalPin);
     ADC& getADC(LogicalPin);
+    uint32_t index() {return _connectorIdx;};
     // PWM& getPWM();
 };
 

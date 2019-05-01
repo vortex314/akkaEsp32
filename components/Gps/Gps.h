@@ -7,15 +7,13 @@
 
 class Gps : public Actor
 {
-    int32_t _distance;
-    int32_t _delay;
     Label _measureTimer;
     ActorRef& _mqtt;
-    Connector _uext;
+    Connector* _uext;
     Neo6m* _neo6m;
 
 public:
-    Gps(Connector& uext,ActorRef& publisher);
+    Gps(Connector* uext,ActorRef& publisher);
     virtual ~Gps() {};
     void preStart();
     Receive& createReceive();

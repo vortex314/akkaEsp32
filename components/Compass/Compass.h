@@ -5,15 +5,15 @@
 #include <Publisher.h>
 
 class Compass : public Actor {
-		Connector _uext;
+		Connector* _uext;
 		HMC5883L* _hmc;
 		struct Vector _v;
 		int32_t _x,_y,_z;
 		ActorRef& _publisher;
 		Label _measureTimer;
 	public:
-		Compass(ActorRef& );
-		virtual ~Compass() {};
+		Compass(Connector* ,ActorRef& );
+		virtual ~Compass() ;
 		void preStart();
 		Receive& createReceive();
 };
