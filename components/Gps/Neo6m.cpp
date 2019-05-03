@@ -38,8 +38,8 @@ void Neo6m::handleRxd()
 {
 
     while ( _uart.hasData() ) {
-        char c = _uart.read();
-        if ( c=='\n' || c=='\r') {
+        char ch = _uart.read();
+        if ( ch=='\n' || ch=='\r') {
             if ( _line.size()>8 ) {
 //               INFO("%s",line.c_str());
                 std::string topic="src/";
@@ -50,7 +50,7 @@ void Neo6m::handleRxd()
             }
             _line.clear();
         } else {
-            _line +=c;
+            _line +=ch;
         }
     }
 }

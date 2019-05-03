@@ -110,7 +110,7 @@ class Spi : public Driver {
 
     static Spi& create(PhysicalPin miso, PhysicalPin mosi, PhysicalPin sck,
                        PhysicalPin cs);
-    ~Spi();
+    virtual ~Spi();
     virtual Erc init() = 0;
     virtual Erc deInit() = 0;
     virtual Erc exchange(Bytes& in, Bytes& out) = 0;

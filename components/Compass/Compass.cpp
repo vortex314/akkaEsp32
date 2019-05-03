@@ -40,7 +40,7 @@ Receive& Compass::createReceive() {
 		_x = _x + (_v.XAxis - _x) / 4;
 		_y = _y + (_v.YAxis - _y) / 4;
 		_z = _z + (_v.ZAxis - _z) / 4;
-		_publisher.tell(msgBuilder(Publisher::PollMe)("e",1),self());
+		_publisher.tell(msgBuilder(Publisher::Publish)("e",1),self());
 	})
 	.match(MsgClass::Properties(),[this](Msg& msg) {sender().tell(replyBuilder(msg)("x",_x)("y",_y)("z",_z),self());})
 	.build();

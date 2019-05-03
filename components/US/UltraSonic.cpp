@@ -25,7 +25,7 @@ Receive& UltraSonic::createReceive() {
 			_delay = _delay + (_hcsr->getTime() - _delay) / 2;
 		}
 		_hcsr->trigger();
-		_publisher.tell(msgBuilder(Publisher::PollMe)("e",1),self());
+		_publisher.tell(msgBuilder(Publisher::Publish)("distance",_distance),self());
 	})
 	.match(MsgClass::Properties(),[this](Msg& msg) {sender().tell(replyBuilder(msg)("distance",_distance),self());})
 	.build();

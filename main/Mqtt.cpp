@@ -136,7 +136,7 @@ esp_err_t Mqtt::mqtt_event_handler(esp_mqtt_event_handle_t event) {
 
 void Mqtt::mqttPublish(const char* topic, const char* message) {
 	if ( _connected == false) return;
-	INFO(" MQTT TXD : %s = %s", topic, message);
+//	INFO(" MQTT TXD : %s = %s", topic, message);
 	int id = esp_mqtt_client_publish(_mqttClient, topic, message, 0, 0, 0);
 	if (id < 0)
 		WARN("esp_mqtt_client_publish() failed.");

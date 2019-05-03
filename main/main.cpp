@@ -47,6 +47,7 @@ const static int CONNECTED_BIT = BIT0;
 #include <UltraSonic.h>
 #include <Compass.h>
 #include <Neo6m.h>
+#include <LSM303C.h>
 
 using namespace std;
 
@@ -68,7 +69,10 @@ extern "C" void app_main()
     nvs_flash_init();
     INFO("Starting Akka on %s heap : %d ", Sys::getProcessor(), Sys::getFreeHeap());
     std::string output;
-    config.load();
+    std::string conf="{\"board\":{\"uext\":[\"HMC5883L\",\"LSM303C\"]},\"LSM303C\":"
+    		"{\"actor\":\"compass\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},"
+    		"\"wifi\":{\"ssidPrefix\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
+//    config.load(conf);
 
     static MessageDispatcher defaultDispatcher(4,6000,tskIDLE_PRIORITY+1);
     static ActorSystem actorSystem(Sys::hostname(), defaultDispatcher);
@@ -83,6 +87,23 @@ extern "C" void app_main()
     actorSystem.actorOf<ConfigActor>("config");
     ActorRef& publisher = actorSystem.actorOf<Publisher>("publisher",mqtt);
 
+    JsonObject cfg = config.root();
+    JsonArray uexts= cfg["board"]["uext"];
+
+    for(int idx=0;idx<uexts.size();idx++) {
+    	const char* peripheral= uexts[idx].as<const char*>();
+    	if ( strlen(peripheral)>0 ){
+    		switch(H(peripheral)) {
+    			case H("LSM303C") : {
+    				const char* name=cfg["LSM303C"]["actor"];
+    		        actorSystem.actorOf<LSM303C>(name,new Connector(idx+1),publisher);
+    				break;
+    			}
+    		}
+    	}
+
+    }
+/*
     config.setNameSpace("Gps");
     uint32_t uextNumber;
     config.get("connector",uextNumber,0);
@@ -102,6 +123,6 @@ extern "C" void app_main()
     config.get("connector",uextNumber,0);
     if ( uextNumber ) {
         actorSystem.actorOf<UltraSonic>("ultraSonic",new Connector(uextNumber),mqtt);
-    }
+    }*/
     config.save();
 }
