@@ -96,7 +96,7 @@ class LSM303C : public Actor{
 
 
 		// Variables to store the most recently read raw data from sensor
-		AxesRaw_t accel = { 0, 0, 0 };
+		AxesRaw_t accData = { 0, 0, 0 };
 		AxesRaw_t magData = { 0, 0, 0 };
 		Range<int16_t> magXrange;
 		Range<int16_t> magYrange;

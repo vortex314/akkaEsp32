@@ -48,6 +48,7 @@ const static int CONNECTED_BIT = BIT0;
 #include <Compass.h>
 #include <Neo6m.h>
 #include <LSM303C.h>
+#include <DigitalCompass.h>
 
 using namespace std;
 
@@ -69,10 +70,10 @@ extern "C" void app_main()
     nvs_flash_init();
     INFO("Starting Akka on %s heap : %d ", Sys::getProcessor(), Sys::getFreeHeap());
     std::string output;
-    std::string conf="{\"board\":{\"uext\":[\"HMC5883L\",\"LSM303C\"]},\"LSM303C\":"
-    		"{\"actor\":\"compass\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},"
-    		"\"wifi\":{\"ssidPrefix\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
-//    config.load(conf);
+    std::string conf="{\"board\":{\"uext\":[\"Compass\"]},\"LSM303C\":"
+                     "{\"actor\":\"compass\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},"
+                     "\"wifi\":{\"ssidPrefix\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
+    config.load(conf);
 
     static MessageDispatcher defaultDispatcher(4,6000,tskIDLE_PRIORITY+1);
     static ActorSystem actorSystem(Sys::hostname(), defaultDispatcher);
@@ -88,41 +89,36 @@ extern "C" void app_main()
     ActorRef& publisher = actorSystem.actorOf<Publisher>("publisher",mqtt);
 
     JsonObject cfg = config.root();
-    JsonArray uexts= cfg["board"]["uext"];
+    JsonArray uexts= cfg["board"]["uext"].as<JsonArray>();
 
-    for(int idx=0;idx<uexts.size();idx++) {
-    	const char* peripheral= uexts[idx].as<const char*>();
-    	if ( strlen(peripheral)>0 ){
-    		switch(H(peripheral)) {
-    			case H("LSM303C") : {
-    				const char* name=cfg["LSM303C"]["actor"];
-    		        actorSystem.actorOf<LSM303C>(name,new Connector(idx+1),publisher);
-    				break;
-    			}
-    		}
-    	}
+    for(int idx=0; idx<uexts.size(); idx++) {
+        const char* peripheral= uexts[idx].as<const char*>();
+        if ( strlen(peripheral)>0 ) {
+            switch(H(peripheral)) {
+            case H("Compass") : {
+                const char* name=cfg["Compass"]["actor"] | "compass";
+                actorSystem.actorOf<DigitalCompass>(name,new Connector(idx+1),publisher);
+                break;
+            }
+            case H("LSM303C") : {
+                const char* name=cfg["LSM303C"]["actor"] | "compass";
+                actorSystem.actorOf<LSM303C>(name,new Connector(idx+1),publisher);
+                break;
+            }
+            case H("NEO6M") : {
+                const char* name=cfg["NEO6M"]["actor"] | "gps";
+                actorSystem.actorOf<Neo6m>(name,new Connector(idx+1),publisher);
+                break;
+            }
+            case H("US") : {
+                const char* name=cfg["US"]["actor"] | "us";
+                actorSystem.actorOf<UltraSonic>(name,new Connector(idx+1),publisher);
+                break;
+            }
+            }
+        }
 
     }
-/*
-    config.setNameSpace("Gps");
-    uint32_t uextNumber;
-    config.get("connector",uextNumber,0);
-    config.set("connector",1);
-    if ( uextNumber ) {
-        actorSystem.actorOf<Neo6m>("gps1",new Connector(uextNumber),mqtt);
-        actorSystem.actorOf<Neo6m>("gps2",new Connector(2),mqtt);
-    }
 
-    config.setNameSpace("Compass");
-    config.get("connector",uextNumber,0);
-    if ( uextNumber ) {
-        actorSystem.actorOf<Compass>("compass",new Connector(uextNumber),mqtt);
-    }
-
-    config.setNameSpace("UltraSonic");
-    config.get("connector",uextNumber,0);
-    if ( uextNumber ) {
-        actorSystem.actorOf<UltraSonic>("ultraSonic",new Connector(uextNumber),mqtt);
-    }*/
     config.save();
 }

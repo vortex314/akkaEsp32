@@ -1,135 +1,322 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
-	<storageModule moduleId="org.eclipse.cdt.core.settings">
-		<cconfiguration id="cdt.managedbuild.toolchain.gnu.cross.base.1714930154">
-			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.toolchain.gnu.cross.base.1714930154" moduleId="org.eclipse.cdt.core.settings" name="Default">
-				<macros>
-					<stringMacro name="__freeRTOS__" type="VALUE_TEXT" value="a"/>
-				</macros>
-				<externalSettings/>
-				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
-					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-				</extensions>
-			</storageModule>
-			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="${ProjName}" buildProperties="" description="" id="cdt.managedbuild.toolchain.gnu.cross.base.1714930154" name="Default" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.connection=unix:///var/run/docker.sock" parent="org.eclipse.cdt.build.core.emptycfg">
-					<folderInfo id="cdt.managedbuild.toolchain.gnu.cross.base.1714930154.2096015736" name="/" resourcePath="">
-						<toolChain id="cdt.managedbuild.toolchain.gnu.cross.base.500067024" name="Cross GCC" superClass="cdt.managedbuild.toolchain.gnu.cross.base">
-							<option id="cdt.managedbuild.option.gnu.cross.prefix.2018078355" name="Prefix" superClass="cdt.managedbuild.option.gnu.cross.prefix"/>
-							<option id="cdt.managedbuild.option.gnu.cross.path.1056390768" name="Path" superClass="cdt.managedbuild.option.gnu.cross.path"/>
-							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.targetPlatform.gnu.cross.853937255" isAbstract="false" osList="all" superClass="cdt.managedbuild.targetPlatform.gnu.cross"/>
-							<builder id="cdt.managedbuild.builder.gnu.cross.40486494" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross"/>
-							<tool id="cdt.managedbuild.tool.gnu.cross.c.compiler.87203075" name="Cross GCC Compiler" superClass="cdt.managedbuild.tool.gnu.cross.c.compiler">
-								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.include.paths.1681127684" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/akkaEsp32/main}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/microAkka/src}&quot;"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/xtensa-esp32-elf/xtensa-esp32-elf/include"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/esp_common/include"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/freertos/include"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/esp32/include"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/nvs_flash/include"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/mqtt/include"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/lwip/include"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/heap/include"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/spi_flash/include"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/mqtt/esp-mqtt/include"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ArduinoJson/src}&quot;"/>
-									<listOptionValue builtIn="false" value="../$HOME/esp/esp-idf/components/esp_wifi/include"/>
-									<listOptionValue builtIn="false" value="&quot;${HOME}/esp/esp-idf/components/esp_event/include&quot;"/>
-								</option>
-								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.preprocessor.def.symbols.438366400" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="ESP32_IDF=1"/>
-								</option>
-								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.764327348" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
-							</tool>
-							<tool id="cdt.managedbuild.tool.gnu.cross.cpp.compiler.657373912" name="Cross G++ Compiler" superClass="cdt.managedbuild.tool.gnu.cross.cpp.compiler">
-								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.1021381522" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="/home/lieven/esp/xtensa-esp32-elf/xtensa-esp32-elf/include"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/driver/include"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/freertos/include"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/akkaEsp32/main}&quot;"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/esp32/include"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/nvs_flash/include"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/mqtt/include"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/lwip/lwip/src/include"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/microAkka/src}&quot;"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/heap/include"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/spi_flash/include"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/mqtt/esp-mqtt/include"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/esp_common"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ArduinoJson/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${HOME}/esp/esp-idf/components/esp_event/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${HOME}/esp/esp-idf/components/esp_wifi/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${HOME}/esp/esp-idf/components/esp_common/include&quot;"/>
-								</option>
-								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.preprocessor.def.68104154" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="ESP32_IDF=1"/>
-								</option>
-								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1196973038" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
-							</tool>
-							<tool id="cdt.managedbuild.tool.gnu.cross.c.linker.580313542" name="Cross GCC Linker" superClass="cdt.managedbuild.tool.gnu.cross.c.linker"/>
-							<tool id="cdt.managedbuild.tool.gnu.cross.cpp.linker.745185601" name="Cross G++ Linker" superClass="cdt.managedbuild.tool.gnu.cross.cpp.linker">
-								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1304472423" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
-									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
-									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
-								</inputType>
-							</tool>
-							<tool id="cdt.managedbuild.tool.gnu.cross.archiver.1991304109" name="Cross GCC Archiver" superClass="cdt.managedbuild.tool.gnu.cross.archiver"/>
-							<tool id="cdt.managedbuild.tool.gnu.cross.assembler.852960378" name="Cross GCC Assembler" superClass="cdt.managedbuild.tool.gnu.cross.assembler">
-								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.both.asm.option.include.paths.154971655" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="/home/lieven/esp/xtensa-esp32-elf/xtensa-esp32-elf/include"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/freertos/include"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/akkaEsp32/main}&quot;"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/esp32/include"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/nvs_flash/include"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/mqtt/include"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/lwip/include"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/microAkka/src}&quot;"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/heap/include"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/spi_flash/include"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/mqtt/esp-mqtt/include"/>
-									<listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/esp_common/include"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ArduinoJson/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${HOME}/esp/esp-idf/components/esp_wifi/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${HOME}/esp/esp-idf/components/esp_event/include&quot;"/>
-								</option>
-								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1342762966" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
-							</tool>
-						</toolChain>
-					</folderInfo>
-				</configuration>
-			</storageModule>
-			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
-		</cconfiguration>
-	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.core.pathentry">
-		<pathentry kind="out" path="build"/>
-	</storageModule>
-	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-		<project id="akkaEsp32.null.274561586" name="akkaEsp32"/>
-	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
-	<storageModule moduleId="refreshScope" versionNumber="2">
-		<configuration configurationName="Default">
-			<resource resourceType="PROJECT" workspacePath="/akkaEsp32"/>
-		</configuration>
-	</storageModule>
-	<storageModule moduleId="scannerConfiguration">
-		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1714930154;cdt.managedbuild.toolchain.gnu.cross.base.1714930154.2096015736;cdt.managedbuild.tool.gnu.cross.c.compiler.87203075;cdt.managedbuild.tool.gnu.c.compiler.input.764327348">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1714930154;cdt.managedbuild.toolchain.gnu.cross.base.1714930154.2096015736;cdt.managedbuild.tool.gnu.cross.cpp.compiler.657373912;cdt.managedbuild.tool.gnu.cpp.compiler.input.1196973038">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo>
-	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
-	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+    	
+    <storageModule moduleId="org.eclipse.cdt.core.settings">
+        		
+        <cconfiguration id="cdt.managedbuild.toolchain.gnu.cross.base.1714930154">
+            			
+            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.toolchain.gnu.cross.base.1714930154" moduleId="org.eclipse.cdt.core.settings" name="Default">
+                				
+                <macros>
+                    					
+                    <stringMacro name="__freeRTOS__" type="VALUE_TEXT" value="a"/>
+                    				
+                </macros>
+                				
+                <externalSettings/>
+                				
+                <extensions>
+                    					
+                    <extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+                    					
+                    <extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+                    					
+                    <extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+                    					
+                    <extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+                    					
+                    <extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+                    					
+                    <extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+                    				
+                </extensions>
+                			
+            </storageModule>
+            			
+            <storageModule moduleId="cdtBuildSystem" version="4.0.0">
+                				
+                <configuration artifactName="${ProjName}" buildProperties="" description="" id="cdt.managedbuild.toolchain.gnu.cross.base.1714930154" name="Default" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.connection=unix:///var/run/docker.sock" parent="org.eclipse.cdt.build.core.emptycfg">
+                    					
+                    <folderInfo id="cdt.managedbuild.toolchain.gnu.cross.base.1714930154.2096015736" name="/" resourcePath="">
+                        						
+                        <toolChain id="cdt.managedbuild.toolchain.gnu.cross.base.500067024" name="Cross GCC" superClass="cdt.managedbuild.toolchain.gnu.cross.base">
+                            							
+                            <option id="cdt.managedbuild.option.gnu.cross.prefix.2018078355" name="Prefix" superClass="cdt.managedbuild.option.gnu.cross.prefix"/>
+                            							
+                            <option id="cdt.managedbuild.option.gnu.cross.path.1056390768" name="Path" superClass="cdt.managedbuild.option.gnu.cross.path"/>
+                            							
+                            <targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.targetPlatform.gnu.cross.853937255" isAbstract="false" osList="all" superClass="cdt.managedbuild.targetPlatform.gnu.cross"/>
+                            							
+                            <builder id="cdt.managedbuild.builder.gnu.cross.40486494" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross"/>
+                            							
+                            <tool id="cdt.managedbuild.tool.gnu.cross.c.compiler.87203075" name="Cross GCC Compiler" superClass="cdt.managedbuild.tool.gnu.cross.c.compiler">
+                                								
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.include.paths.1681127684" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/akkaEsp32/main}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/microAkka/src}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/xtensa-esp32-elf/xtensa-esp32-elf/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/esp_common/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/freertos/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/esp32/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/nvs_flash/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/mqtt/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/lwip/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/heap/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/spi_flash/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/mqtt/esp-mqtt/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/ArduinoJson/src}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="../$HOME/esp/esp-idf/components/esp_wifi/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${HOME}/esp/esp-idf/components/esp_event/include&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${HOME}/esp/esp-idf/components/log/include&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/akkaEsp32/components/DigitalCompass}&quot;"/>
+                                    								
+                                </option>
+                                								
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.preprocessor.def.symbols.438366400" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
+                                    									
+                                    <listOptionValue builtIn="false" value="ESP32_IDF=1"/>
+                                    								
+                                </option>
+                                								
+                                <inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.764327348" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+                                							
+                            </tool>
+                            							
+                            <tool id="cdt.managedbuild.tool.gnu.cross.cpp.compiler.657373912" name="Cross G++ Compiler" superClass="cdt.managedbuild.tool.gnu.cross.cpp.compiler">
+                                								
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.1021381522" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/xtensa-esp32-elf/xtensa-esp32-elf/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/driver/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/freertos/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/akkaEsp32/main}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/esp32/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/nvs_flash/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/mqtt/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/lwip/lwip/src/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/microAkka/src}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/heap/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/spi_flash/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/mqtt/esp-mqtt/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/esp_common"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/ArduinoJson/src}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${HOME}/esp/esp-idf/components/esp_event/include&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${HOME}/esp/esp-idf/components/esp_wifi/include&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${HOME}/esp/esp-idf/components/esp_common/include&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${HOME}/esp/esp-idf/components/log/include&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/akkaEsp32/components/DigitalCompass}&quot;"/>
+                                    								
+                                </option>
+                                								
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.preprocessor.def.68104154" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
+                                    									
+                                    <listOptionValue builtIn="false" value="ESP32_IDF=1"/>
+                                    								
+                                </option>
+                                								
+                                <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1196973038" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+                                							
+                            </tool>
+                            							
+                            <tool id="cdt.managedbuild.tool.gnu.cross.c.linker.580313542" name="Cross GCC Linker" superClass="cdt.managedbuild.tool.gnu.cross.c.linker"/>
+                            							
+                            <tool id="cdt.managedbuild.tool.gnu.cross.cpp.linker.745185601" name="Cross G++ Linker" superClass="cdt.managedbuild.tool.gnu.cross.cpp.linker">
+                                								
+                                <inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1304472423" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
+                                    									
+                                    <additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+                                    									
+                                    <additionalInput kind="additionalinput" paths="$(LIBS)"/>
+                                    								
+                                </inputType>
+                                							
+                            </tool>
+                            							
+                            <tool id="cdt.managedbuild.tool.gnu.cross.archiver.1991304109" name="Cross GCC Archiver" superClass="cdt.managedbuild.tool.gnu.cross.archiver"/>
+                            							
+                            <tool id="cdt.managedbuild.tool.gnu.cross.assembler.852960378" name="Cross GCC Assembler" superClass="cdt.managedbuild.tool.gnu.cross.assembler">
+                                								
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.both.asm.option.include.paths.154971655" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/xtensa-esp32-elf/xtensa-esp32-elf/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/freertos/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/akkaEsp32/main}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/esp32/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/nvs_flash/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/mqtt/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/lwip/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/microAkka/src}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/heap/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/spi_flash/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/mqtt/esp-mqtt/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/home/lieven/esp/esp-idf/components/esp_common/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/ArduinoJson/src}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${HOME}/esp/esp-idf/components/esp_wifi/include&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${HOME}/esp/esp-idf/components/esp_event/include&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${HOME}/esp/esp-idf/components/log/include&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/akkaEsp32/components/DigitalCompass}&quot;"/>
+                                    								
+                                </option>
+                                								
+                                <inputType id="cdt.managedbuild.tool.gnu.assembler.input.1342762966" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+                                							
+                            </tool>
+                            						
+                        </toolChain>
+                        					
+                    </folderInfo>
+                    					
+                    <folderInfo id="cdt.managedbuild.toolchain.gnu.cross.base.1714930154.1790192978" name="/" resourcePath="components/DigitalCompass">
+                        						
+                        <toolChain id="cdt.managedbuild.toolchain.gnu.cross.base.1761782791" name="Cross GCC" superClass="cdt.managedbuild.toolchain.gnu.cross.base" unusedChildren="">
+                            							
+                            <option id="cdt.managedbuild.option.gnu.cross.prefix.2018078355.1421762029" name="Prefix" superClass="cdt.managedbuild.option.gnu.cross.prefix.2018078355"/>
+                            							
+                            <option id="cdt.managedbuild.option.gnu.cross.path.1056390768.1931776706" name="Path" superClass="cdt.managedbuild.option.gnu.cross.path.1056390768"/>
+                            							
+                            <tool id="cdt.managedbuild.tool.gnu.cross.c.compiler.761376664" name="Cross GCC Compiler" superClass="cdt.managedbuild.tool.gnu.cross.c.compiler.87203075">
+                                								
+                                <inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.2057478865" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+                                							
+                            </tool>
+                            							
+                            <tool id="cdt.managedbuild.tool.gnu.cross.cpp.compiler.1443273938" name="Cross G++ Compiler" superClass="cdt.managedbuild.tool.gnu.cross.cpp.compiler.657373912">
+                                								
+                                <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1202214086" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+                                							
+                            </tool>
+                            							
+                            <tool id="cdt.managedbuild.tool.gnu.cross.c.linker.122821876" name="Cross GCC Linker" superClass="cdt.managedbuild.tool.gnu.cross.c.linker.580313542"/>
+                            							
+                            <tool id="cdt.managedbuild.tool.gnu.cross.cpp.linker.407583294" name="Cross G++ Linker" superClass="cdt.managedbuild.tool.gnu.cross.cpp.linker.745185601"/>
+                            							
+                            <tool id="cdt.managedbuild.tool.gnu.cross.archiver.334053065" name="Cross GCC Archiver" superClass="cdt.managedbuild.tool.gnu.cross.archiver.1991304109"/>
+                            							
+                            <tool id="cdt.managedbuild.tool.gnu.cross.assembler.2021635808" name="Cross GCC Assembler" superClass="cdt.managedbuild.tool.gnu.cross.assembler.852960378">
+                                								
+                                <inputType id="cdt.managedbuild.tool.gnu.assembler.input.287264946" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+                                							
+                            </tool>
+                            						
+                        </toolChain>
+                        					
+                    </folderInfo>
+                    					
+                    <sourceEntries>
+                        						
+                        <entry excluding="components/ArduinoJson/DigitalCompass|DigitalCompass" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+                        					
+                    </sourceEntries>
+                    				
+                </configuration>
+                			
+            </storageModule>
+            			
+            <storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+            		
+        </cconfiguration>
+        	
+    </storageModule>
+    	
+    <storageModule moduleId="org.eclipse.cdt.core.pathentry">
+        		
+        <pathentry kind="out" path="build"/>
+        	
+    </storageModule>
+    	
+    <storageModule moduleId="cdtBuildSystem" version="4.0.0">
+        		
+        <project id="akkaEsp32.null.274561586" name="akkaEsp32"/>
+        	
+    </storageModule>
+    	
+    <storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+    	
+    <storageModule moduleId="refreshScope" versionNumber="2">
+        		
+        <configuration configurationName="Default">
+            			
+            <resource resourceType="PROJECT" workspacePath="/akkaEsp32"/>
+            		
+        </configuration>
+        	
+    </storageModule>
+    	
+    <storageModule moduleId="scannerConfiguration">
+        		
+        <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+        		
+        <scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1714930154;cdt.managedbuild.toolchain.gnu.cross.base.1714930154.2096015736;cdt.managedbuild.tool.gnu.cross.c.compiler.87203075;cdt.managedbuild.tool.gnu.c.compiler.input.764327348">
+            			
+            <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+            		
+        </scannerConfigBuildInfo>
+        		
+        <scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1714930154;cdt.managedbuild.toolchain.gnu.cross.base.1714930154.2096015736;cdt.managedbuild.tool.gnu.cross.cpp.compiler.657373912;cdt.managedbuild.tool.gnu.cpp.compiler.input.1196973038">
+            			
+            <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+            		
+        </scannerConfigBuildInfo>
+        	
+    </storageModule>
+    	
+    <storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+    	
+    <storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+    
 </cproject>

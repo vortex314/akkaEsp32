@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CodeLite_Project Name="akkaEsp32" Version="10.0.0" InternalType="Console">
+
   <Plugins>
     <Plugin Name="qmake">
       <![CDATA[00010001N0005Debug000000000000]]>
@@ -7,6 +8,15 @@
   </Plugins>
   <File Name="components/Gps/component.mk"/>
   <VirtualDirectory Name="components">
+    <VirtualDirectory Name="Compass_LSM303C">
+		  <File Name="main/FreeRTOSConfig.h"/>
+  <File Name="components/US/component.mk"/>
+  <File Name="components/Compass_LSM303C/component.mk"/>
+  <File Name="components/Compass_LSM303C/LSM303CTypes.h"/>
+  <File Name="components/Compass_LSM303C/LSM303C.h"/>
+  <File Name="components/Compass_LSM303C/LSM303C.cpp"/>
+  <File Name="components/Compass_LSM303C/IMU.h"/>
+    </VirtualDirectory>
     <VirtualDirectory Name="Gps">
       <File Name="components/Gps/Neo6m.cpp"/>
       <File Name="components/Gps/Neo6m.h"/>
@@ -53,8 +63,8 @@
   <Reconciliation>
     <Regexes/>
     <Excludepaths>
-      <Path>build/</Path>
       <Path>Debug/</Path>
+      <Path>build/</Path>
     </Excludepaths>
     <Ignorefiles/>
     <Extensions>
