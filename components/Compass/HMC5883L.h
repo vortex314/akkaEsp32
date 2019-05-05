@@ -75,16 +75,10 @@ typedef enum {
 
 #ifndef VECTOR_STRUCT_H
 #define VECTOR_STRUCT_H
-struct Vector {
-	float XAxis;
-	float YAxis;
-	float ZAxis;
-	/*	bool operator==(const struct Vector& v2) const {
-			if ( XAxis == v2.XAxis && YAxis = v2.YAxis && ZAxis == v2.ZAxis ) {
-				return true;
-			}
-			return false;
-		}*/
+template <typename T> struct Vector {
+	T x;
+	T y;
+	T z;
 };
 #endif
 
@@ -94,8 +88,8 @@ class HMC5883L {
 		HMC5883L(Connector& i2c);
 		bool init();
 
-		Vector readRaw(void);
-		Vector readNormalize(void);
+		Vector<int16_t> readRaw(void);
+		Vector<float> readNormalize(void);
 
 		void setOffset(int xo, int yo);
 
@@ -114,7 +108,6 @@ class HMC5883L {
 
 	private:
 		float mgPerDigit;
-		Vector v;
 		int xOffset, yOffset;
 		I2C& _i2c;
 

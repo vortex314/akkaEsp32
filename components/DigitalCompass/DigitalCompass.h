@@ -30,14 +30,14 @@ class DigitalCompass : public Actor {
     KALMAN rfilter;
 
     uint32_t lasttime = 0;
-    Vector vMag;
+    Vector<int16_t> vMag;
 
 public:
 	DigitalCompass(Connector* ,ActorRef& );
 	virtual ~DigitalCompass() ;
 	void preStart();
 	Receive& createReceive();
-	void calc();
+	int16_t calc();
 };
 
 #endif /* DIGITALCOMPASS_H_ */

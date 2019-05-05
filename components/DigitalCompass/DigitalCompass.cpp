@@ -44,7 +44,7 @@ void DigitalCompass::preStart() {
 	// Set calibration offset. See HMC5883L_calibration.ino
 	_hmc->setOffset(0, 0);
 	_measureTimer = timers().startPeriodicTimer("measureTimer",
-			Msg("measureTimer"), 1000);
+			Msg("measureTimer"), 300);
 }
 
 Receive& DigitalCompass::createReceive() {
@@ -63,32 +63,37 @@ Receive& DigitalCompass::createReceive() {
 				INFO("mpu6050 Acc: ( %.3f, %.3f, %.3f) Gyro: ( %.3f, %.3f, %.3f)", ax, ay, az,gx, gy, gz);
 				INFO("mpu6050 Pitch: %.3f Roll: %.3f FPitch: %.3f FRoll: %.3f", pitch,roll,fpitch,froll);
 				vMag = _hmc->readRaw();
-				calc();
-				_publisher.tell(msgBuilder(Publisher::Publish)("e",1),self());
+				int16_t azimuth=calc();
+				INFO(" vector mag : %6d %6d %6d",vMag.x,vMag.y,vMag.z);
+				_publisher.tell(msgBuilder(Publisher::Publish)
+						("roll",roll)
+						("pitch",pitch)
+						("froll",froll)
+						("fpitch",fpitch)
+						("azimuth",azimuth),self());
 			}).match(MsgClass::Properties(),
-			[this](Msg& msg) {sender().tell(replyBuilder(msg)("roll",roll)("pitch",pitch)("acc/x",ax)("acc/y",ay)("acc/z",az),self());}).build();
+			[this](Msg& msg) {}).build();
 }
 
-void DigitalCompass::calc() {
+int16_t DigitalCompass::calc() {
 	static int16_t mag_x, mag_y, mag_z;
 	static int16_t acc_x, acc_y, acc_z;
 	static double roll;
 	static double pitch;
 	static double azimuth;
 	static double X_h, Y_h;
-	static int8_t x, y;
 	static uint8_t acc_buffer[8];
 
-	mag_x = vMag.XAxis;
-	mag_y = vMag.YAxis;
-	mag_z = vMag.ZAxis;
+	mag_x = vMag.y; // IC's are opposite mounted
+	mag_y = -vMag.x; // direction is opposite for one axis
+	mag_z = vMag.z;
 	_mpu->getRaw(acc_buffer);
 
-	acc_x = (acc_buffer[0] << 8) + (acc_buffer[1]);
+	acc_x = (acc_buffer[0] << 8) + (acc_buffer[1]); // switched y and x, IC's opposite mounted
 	acc_y = (acc_buffer[2] << 8) + (acc_buffer[3]);
 	acc_z = (acc_buffer[4] << 8) + (acc_buffer[5]);
 
-	INFO("%d,%d,%d  %d,%d,%d", mag_x, mag_y, mag_z, acc_x, acc_y, acc_z);
+	INFO("MAG %5d,%5d,%5d  ACC %5d,%5d,%5d", mag_x, mag_y, mag_z, acc_x, acc_y, acc_z);
 
 	/* Calculate pitch and roll, in the range (-pi,pi) */
 	pitch = atan2((double) -acc_x,
@@ -109,27 +114,8 @@ void DigitalCompass::calc() {
 	if (azimuth < 0) { /* Convert Azimuth in the range (0, 2pi) */
 		azimuth = 2 * M_PI + azimuth;
 	}
-	x = 32 + 24 * sin(azimuth);
-	y = 32 - 24 * cos(azimuth);
 
-	/* Update display */
 	INFO(" azimuth : %d pitch :%d roll:%d ", (int16_t )(azimuth * 180.0 / 3.14),
 			(int16_t )(pitch * 180.0 / 3.14), (int16_t )(roll * 180.0 / 3.14));
-	/*   oled_set_font(font_16pt);
-	 oled_update_number(&oled_azimuth, (int16_t)(azimuth * 180.0 / 3.14), 0);
-	 oled_putchar('~');
-	 oled_clear_area(OLED_PAGE_RANGE(1, 1), oled_get_column(), OLED_LAST_COLUMN);
-	 oled_update_number(&oled_pitch, (int16_t)(pitch * 180.0 / 3.14), 0);
-	 oled_putchar('~');
-	 oled_clear_area(OLED_PAGE_RANGE(4, 4), oled_get_column(), OLED_LAST_COLUMN);
-	 oled_update_number(&oled_roll, (int16_t)(roll * 180.0 / 3.14), 0);
-	 oled_putchar('~');
-	 oled_clear_area(OLED_PAGE_RANGE(6, 6), oled_get_column(), OLED_LAST_COLUMN);
-	 if((x != x_old) || (y != y_old)) {
-	 oled_clear_area(OLED_PAGE_RANGE(1, 6), 8, 57);
-	 oled_line(32, 32, x, y);
-	 }
-	 x_old = x;
-	 y_old = y;
-	 //RED_LED_TOGGLE();*/
+	return (int16_t )(azimuth * 180.0 / 3.14);
 }
