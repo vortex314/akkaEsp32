@@ -88,6 +88,8 @@
                                     <listOptionValue builtIn="false" value="&quot;${HOME}/esp/esp-idf/components/log/include&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/akkaEsp32/components/DigitalCompass}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/akkaEsp32/components/Triac}&quot;"/>
                                     								
                                 </option>
                                 								
@@ -142,6 +144,8 @@
                                     <listOptionValue builtIn="false" value="&quot;${HOME}/esp/esp-idf/components/log/include&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/akkaEsp32/components/DigitalCompass}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/akkaEsp32/components/Triac}&quot;"/>
                                     								
                                 </option>
                                 								
@@ -210,46 +214,12 @@
                                     <listOptionValue builtIn="false" value="&quot;${HOME}/esp/esp-idf/components/log/include&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/akkaEsp32/components/DigitalCompass}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/akkaEsp32/components/Triac}&quot;"/>
                                     								
                                 </option>
                                 								
                                 <inputType id="cdt.managedbuild.tool.gnu.assembler.input.1342762966" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
-                                							
-                            </tool>
-                            						
-                        </toolChain>
-                        					
-                    </folderInfo>
-                    					
-                    <folderInfo id="cdt.managedbuild.toolchain.gnu.cross.base.1714930154.1790192978" name="/" resourcePath="components/DigitalCompass">
-                        						
-                        <toolChain id="cdt.managedbuild.toolchain.gnu.cross.base.1761782791" name="Cross GCC" superClass="cdt.managedbuild.toolchain.gnu.cross.base" unusedChildren="">
-                            							
-                            <option id="cdt.managedbuild.option.gnu.cross.prefix.2018078355.1421762029" name="Prefix" superClass="cdt.managedbuild.option.gnu.cross.prefix.2018078355"/>
-                            							
-                            <option id="cdt.managedbuild.option.gnu.cross.path.1056390768.1931776706" name="Path" superClass="cdt.managedbuild.option.gnu.cross.path.1056390768"/>
-                            							
-                            <tool id="cdt.managedbuild.tool.gnu.cross.c.compiler.761376664" name="Cross GCC Compiler" superClass="cdt.managedbuild.tool.gnu.cross.c.compiler.87203075">
-                                								
-                                <inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.2057478865" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
-                                							
-                            </tool>
-                            							
-                            <tool id="cdt.managedbuild.tool.gnu.cross.cpp.compiler.1443273938" name="Cross G++ Compiler" superClass="cdt.managedbuild.tool.gnu.cross.cpp.compiler.657373912">
-                                								
-                                <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1202214086" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
-                                							
-                            </tool>
-                            							
-                            <tool id="cdt.managedbuild.tool.gnu.cross.c.linker.122821876" name="Cross GCC Linker" superClass="cdt.managedbuild.tool.gnu.cross.c.linker.580313542"/>
-                            							
-                            <tool id="cdt.managedbuild.tool.gnu.cross.cpp.linker.407583294" name="Cross G++ Linker" superClass="cdt.managedbuild.tool.gnu.cross.cpp.linker.745185601"/>
-                            							
-                            <tool id="cdt.managedbuild.tool.gnu.cross.archiver.334053065" name="Cross GCC Archiver" superClass="cdt.managedbuild.tool.gnu.cross.archiver.1991304109"/>
-                            							
-                            <tool id="cdt.managedbuild.tool.gnu.cross.assembler.2021635808" name="Cross GCC Assembler" superClass="cdt.managedbuild.tool.gnu.cross.assembler.852960378">
-                                								
-                                <inputType id="cdt.managedbuild.tool.gnu.assembler.input.287264946" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
                                 							
                             </tool>
                             						

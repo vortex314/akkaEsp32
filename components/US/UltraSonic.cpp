@@ -13,7 +13,7 @@ delete _uext;
 
 void UltraSonic::preStart() {
 	_hcsr->init();
-	_measureTimer = timers().startPeriodicTimer("measureTimer", Msg("measureTimer"), 300);
+	_measureTimer = timers().startPeriodicTimer("measureTimer", Msg("measureTimer"), 100);
 }
 
 Receive& UltraSonic::createReceive() {

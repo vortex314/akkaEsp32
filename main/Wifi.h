@@ -18,6 +18,7 @@ class Wifi : public Actor {
 		std::string _prefix;
 		std::string _ipAddress;
 		int _rssi;
+		uint8_t _mac[6];
 
 	public:
 		static MsgClass Connected;

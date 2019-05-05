@@ -1,7 +1,7 @@
 #include "Neo6m.h"
 
-Neo6m::Neo6m(Connector* connector,ActorRef& mqtt)
-    :_connector(connector),_uart(connector->getUART()),_mqtt(mqtt)
+Neo6m::Neo6m(Connector* connector,ActorRef& publisher)
+    :_connector(connector),_uart(connector->getUART()),_publisher(publisher)
 {
 }
 
@@ -40,13 +40,11 @@ void Neo6m::handleRxd()
     while ( _uart.hasData() ) {
         char ch = _uart.read();
         if ( ch=='\n' || ch=='\r') {
-            if ( _line.size()>8 ) {
-//               INFO("%s",line.c_str());
-                std::string topic="src/";
-                string_format(topic,"src/%s/%s",self().path(),_line.substr(1,5).c_str());
-                Msg msg(Mqtt::Publish);
-                msg("topic",topic)("message",_line.substr(6))(AKKA_SRC,self().id())(AKKA_DST,_mqtt.id());
-                _mqtt.tell(msg);
+            if ( _line.size()>8 ) { // cannot use msgBuilder as out of thread
+                Msg msg(Publisher::Publish);
+                msg.src(self().id()).dst(_publisher.id());
+                msg(_line.substr(1,5).c_str(),_line.substr(6));
+                _publisher.tell(msg,self());
             }
             _line.clear();
         } else {

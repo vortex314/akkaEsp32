@@ -3,13 +3,13 @@
 #include <Hardware.h>
 #include <Log.h>
 #include <Akka.h>
-#include <Mqtt.h>
+#include <Publisher.h>
 class Neo6m : public Actor
 {
     Connector* _connector;
     UART& _uart;
     static void onRxd(void*);
-    ActorRef& _mqtt;
+    ActorRef& _publisher;
     Label _measureTimer;
     std::string _line;
 public:

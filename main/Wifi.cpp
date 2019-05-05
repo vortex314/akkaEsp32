@@ -23,6 +23,7 @@ Wifi::~Wifi() {}
 
 void Wifi::preStart() {
 	wifiInit();
+	esp_base_mac_addr_get(_mac);
 }
 
 Receive& Wifi::createReceive() {
@@ -30,9 +31,8 @@ Receive& Wifi::createReceive() {
 
 	.match(MsgClass::Properties(),[this](Msg& msg) {
 		std::string macAddress;
-		uint8_t mac[6];
-		esp_base_mac_addr_get(mac);
-		string_format(macAddress,"%02X:%02X:%02X:%02X:%02X:%02X",mac[0],mac[1],mac[2],mac[3],mac[4],mac[5]);
+
+		string_format(macAddress,"%02X:%02X:%02X:%02X:%02X:%02X",_mac[0],_mac[1],_mac[2],_mac[3],_mac[4],_mac[5]);
 		sender().tell(replyBuilder(msg)
 		              ("rssi",_rssi)
 		              ("ssid",_ssid)
@@ -61,7 +61,8 @@ esp_err_t Wifi::wifi_event_handler(void* ctx, system_event_t* event) {
 			}
 		case SYSTEM_EVENT_STA_STOP: {
 				INFO("SYSTEM_EVENT_STA_STOP");
-				wifi.wifiInit();
+				esp_wifi_start();
+//				wifi.wifiInit();
 				break;
 			}
 		case SYSTEM_EVENT_STA_START: {
@@ -110,7 +111,6 @@ void Wifi::connectToAP(const char* ssid) {
 	CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
 	CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
 	esp_wifi_connect();
-	INFO("");
 }
 
 void Wifi::scanDoneHandler() {

@@ -932,7 +932,7 @@ void Connector::lockPin(LogicalPin lp) {
 	if (_pinsUsed & (1 << lp)) {
 		ERROR(" PIN in use %d : %s  >>>>>>>>>>>>>>>>>> %X", lp, sLogicalPin[lp], _pinsUsed);
 	} else {
-		INFO(" PIN locked : %d :%s ,%X", lp, sLogicalPin[lp], _pinsUsed);
+		DEBUG(" PIN locked : %d :%s ,%X", lp, sLogicalPin[lp], _pinsUsed);
 		_pinsUsed |= (1 << lp);
 	}
 }

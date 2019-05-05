@@ -49,6 +49,7 @@ const static int CONNECTED_BIT = BIT0;
 #include <Neo6m.h>
 #include <LSM303C.h>
 #include <DigitalCompass.h>
+#include <Triac.h>
 
 using namespace std;
 
@@ -63,62 +64,79 @@ ActorMsgBus eb;
 
 extern void XdrTester(uint32_t max);
 
+extern "C" void app_main() {
+	esp_log_level_set("*", ESP_LOG_INFO);
+	esp_log_level_set("MQTT_CLIENT", ESP_LOG_DEBUG);
+	esp_log_level_set("TRANSPORT_TCP", ESP_LOG_DEBUG);
+	esp_log_level_set("TRANSPORT_SSL", ESP_LOG_VERBOSE);
+	esp_log_level_set("TRANSPORT", ESP_LOG_VERBOSE);
+	esp_log_level_set("OUTBOX", ESP_LOG_VERBOSE);
 
-extern "C" void app_main()
-{
-    Sys::init();
-    nvs_flash_init();
-    INFO("Starting Akka on %s heap : %d ", Sys::getProcessor(), Sys::getFreeHeap());
-    std::string output;
-    std::string conf="{\"board\":{\"uext\":[\"Compass\"]},\"LSM303C\":"
-                     "{\"actor\":\"compass\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},"
-                     "\"wifi\":{\"ssidPrefix\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
-    config.load(conf);
+	Sys::init();
+	nvs_flash_init();
+	INFO("Starting Akka on %s heap : %d ", Sys::getProcessor(),
+			Sys::getFreeHeap());
+	std::string output;
+	std::string conf1 =
+			"{\"uext\":[\"gps\",\"us\"],\"gps\":{\"class\":\"NEO6M\"},\"us\":{\"class\":\"UltraSonic\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
+	std::string conf =
+			"{\"uext\":[\"triac\"],\"triac\":{\"class\":\"Triac\"},\"us\":{\"class\":\"UltraSonic\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
+	config.load(conf);
 
-    static MessageDispatcher defaultDispatcher(4,6000,tskIDLE_PRIORITY+1);
-    static ActorSystem actorSystem(Sys::hostname(), defaultDispatcher);
+	static MessageDispatcher defaultDispatcher(4, 6000, tskIDLE_PRIORITY + 1);
+	static ActorSystem actorSystem(Sys::hostname(), defaultDispatcher);
 
 //    actorSystem.actorOf<Sender>("sender");
-    ActorRef& wifi = actorSystem.actorOf<Wifi>("wifi");
+	ActorRef& wifi = actorSystem.actorOf<Wifi>("wifi");
 
-    ActorRef& mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi,"tcp://limero.ddns.net:1883");
-    ActorRef& bridge = actorSystem.actorOf<Bridge>("bridge",mqtt);
+	ActorRef& mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi,
+			"tcp://limero.ddns.net:1883");
+	ActorRef& bridge = actorSystem.actorOf<Bridge>("bridge", mqtt);
 //	defaultDispatcher.unhandled(bridge.cell())
-    actorSystem.actorOf<System>("system",mqtt);
-    actorSystem.actorOf<ConfigActor>("config");
-    ActorRef& publisher = actorSystem.actorOf<Publisher>("publisher",mqtt);
+	actorSystem.actorOf<System>("system", mqtt);
+	actorSystem.actorOf<ConfigActor>("config");
+	ActorRef& publisher = actorSystem.actorOf<Publisher>("publisher", mqtt);
 
-    JsonObject cfg = config.root();
-    JsonArray uexts= cfg["board"]["uext"].as<JsonArray>();
+	JsonObject cfg = config.root();
+	JsonArray uexts = cfg["uext"].as<JsonArray>();
+	int idx = 0;
+	for (const char* name : uexts) {
+		idx++;				// starts at 1
+		const char* peripheral = cfg[name]["class"] | "";
+		if (strlen(peripheral) > 0) {
+			switch (H(peripheral)) {
+			case H("Compass"): {
+				actorSystem.actorOf<DigitalCompass>(name, new Connector(idx),
+						publisher);
+				break;
+			}
+			case H("LSM303C"): {
+				actorSystem.actorOf<LSM303C>(name, new Connector(idx),
+						publisher);
+				break;
+			}
+			case H("NEO6M"): {
+				actorSystem.actorOf<Neo6m>(name, new Connector(idx), publisher);
+				break;
+			}
+			case H("UltraSonic"): {
+				actorSystem.actorOf<UltraSonic>(name, new Connector(idx),
+						publisher);
+				break;
+			}
+			case H("Triac"): {
+				actorSystem.actorOf<Triac>(name, new Connector(idx), publisher);
+				break;
+			}
+			default: {
+				ERROR("peripheral '%s' not found", peripheral);
+			}
+			}
+		} else {
+			ERROR("peripheral '%s' class not found ", peripheral);
+		}
 
-    for(int idx=0; idx<uexts.size(); idx++) {
-        const char* peripheral= uexts[idx].as<const char*>();
-        if ( strlen(peripheral)>0 ) {
-            switch(H(peripheral)) {
-            case H("Compass") : {
-                const char* name=cfg["Compass"]["actor"] | "compass";
-                actorSystem.actorOf<DigitalCompass>(name,new Connector(idx+1),publisher);
-                break;
-            }
-            case H("LSM303C") : {
-                const char* name=cfg["LSM303C"]["actor"] | "compass";
-                actorSystem.actorOf<LSM303C>(name,new Connector(idx+1),publisher);
-                break;
-            }
-            case H("NEO6M") : {
-                const char* name=cfg["NEO6M"]["actor"] | "gps";
-                actorSystem.actorOf<Neo6m>(name,new Connector(idx+1),publisher);
-                break;
-            }
-            case H("US") : {
-                const char* name=cfg["US"]["actor"] | "us";
-                actorSystem.actorOf<UltraSonic>(name,new Connector(idx+1),publisher);
-                break;
-            }
-            }
-        }
+	}
 
-    }
-
-    config.save();
+	config.save();
 }
