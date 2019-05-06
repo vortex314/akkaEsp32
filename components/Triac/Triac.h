@@ -13,10 +13,12 @@
 #include <Publisher.h>
 
 class Triac : public Actor {
-    Connector* _uext;
+    Connector* _connector;
     Label _measureTimer;
     ActorRef& _publisher;
     DigitalIn& _zeroDetect;
+    DigitalOut& _triacGate;
+    ADC& _currentSense;
     uint32_t _zeroCounter;
 
   public:

@@ -8,24 +8,28 @@
 #include "Triac.h"
 #include "driver/gpio.h" // to get the IRAM_ATTR
 
- void IRAM_ATTR Triac::zeroDetectHandler(void* me) {
-	Triac* triac=(Triac*)me;
+void IRAM_ATTR Triac::zeroDetectHandler(void* me) {
+	Triac* triac = (Triac*) me;
 	triac->_zeroCounter++;
 }
 
 Triac::Triac(Connector* connector, ActorRef& publisher) :
-		_publisher(publisher), _zeroDetect(connector->getDigitalIn(LP_SCL)) {
-	_uext = connector;
+		_publisher(publisher), _zeroDetect(connector->getDigitalIn(LP_SCL)), _triacGate(
+				connector->getDigitalOut(LP_TXD)),_currentSense(connector->getADC(LP_SDA)) {
+	_connector = connector;
 	_zeroCounter = 0;
 }
 
 Triac::~Triac() {
-	delete _uext;
+	delete _connector;
 }
 
 void Triac::preStart() {
-	_zeroDetect.onChange(DigitalIn::DIN_FALL, zeroDetectHandler, this);
+	_zeroDetect.onChange(DigitalIn::DIN_RAISE, zeroDetectHandler, this);
 	_zeroDetect.init();
+	_triacGate.init();
+	_triacGate.write(1);
+	_currentSense.init();
 	_measureTimer = timers().startPeriodicTimer("measureTimer",
 			Msg("measureTimer"), 1000);
 }
@@ -35,7 +39,15 @@ Receive& Triac::createReceive() {
 
 	.match(MsgClass("measureTimer"),
 			[this](Msg& msg) {
-				INFO(" zeroCounter : %u",_zeroCounter);
+				static bool triacGate=false;
+				if ( triacGate ) {
+					_triacGate.write(1);
+					triacGate=false;
+				} else {
+					_triacGate.write(0);
+					triacGate=true;
+				}
+				INFO(" zeroCounter : %u current : %d",_zeroCounter,_currentSense.getValue());
 				_publisher.tell(msgBuilder(Publisher::Publish)("zeroDetect",_zeroDetect.read())("zeros",_zeroCounter),self());
 			})
 
