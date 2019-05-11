@@ -12,6 +12,8 @@ class System : public Actor {
 		ActorRef& _mqtt;
 
 	public:
+		static MsgClass LedPulseOn;
+		static MsgClass LedPulseOff;
 		System(ActorRef& mqtt);
 		~System();
 		void preStart();

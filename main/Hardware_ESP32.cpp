@@ -355,7 +355,8 @@ struct AdcEntry {
 } AdcTable[] = { { 32, ADC1_CHANNEL_4, ADC1 }, { 33, ADC1_CHANNEL_5, ADC1 }, {
 		34, ADC1_CHANNEL_6, ADC1 }, { 35, ADC1_CHANNEL_7, ADC1 }, { 13,
 		ADC2_GPIO13_CHANNEL, ADC2 }, { 15, ADC2_GPIO15_CHANNEL, ADC2 }, { 36,
-		ADC1_GPIO36_CHANNEL, ADC1 }, { 39, ADC1_GPIO39_CHANNEL, ADC1 },{25,ADC2_GPIO25_CHANNEL,ADC1 }}; // INCOMPLETE !!
+		ADC1_GPIO36_CHANNEL, ADC1 }, { 39, ADC1_GPIO39_CHANNEL, ADC1 }, { 25,
+		ADC2_GPIO25_CHANNEL, ADC1 } }; // INCOMPLETE !!
 
 class ADC_ESP32: public ADC {
 		PhysicalPin _pin;
@@ -465,14 +466,14 @@ class SPI_ESP32: public Spi {
 			_spi = 0;
 			_onExchange = 0;
 		}
-		;
 
 		Erc init() {
-			DEBUG(" SPI_ESP32 : miso : %d, mosi : %d , sck : %d , cs : %d ", _miso, _mosi, _sck, _cs);
+			INFO(" SPI_ESP32 : miso : %d, mosi : %d , sck : %d , cs : %d ", _miso, _mosi, _sck, _cs);
 
 			esp_err_t ret;
 
 			spi_bus_config_t buscfg;
+			bzero(&buscfg, sizeof(buscfg));
 			buscfg.miso_io_num = _miso;
 			buscfg.mosi_io_num = _mosi;
 			buscfg.sclk_io_num = _sck;
@@ -531,15 +532,24 @@ class SPI_ESP32: public Spi {
 			t.rx_buffer = inData;
 			//    t.flags = SPI_TRANS_USE_RXDATA;
 			t.user = (void*) 1; // D/C needs to be set to 1
-			ret = spi_device_queue_trans(_spi, &t, 1000);
-			if (ret) {
-				ERROR("spi_device_queue_trans(_spi, &t, 1000) = %d ", ret);
-				return EIO;
-			}
-			ret = spi_device_get_trans_result(_spi, &pTrans, 1000);
-			if (ret) {
-				ERROR("spi_device_get_trans_result(_spi, &pTrans, 1000) = %d ", ret);
-				return EIO;
+			if (false) {
+				ret = spi_device_polling_transmit(_spi, &t);
+				if (ret) {
+					ERROR("spi_device_polling_transmit(_spi, &t) = %d ", ret);
+					return EIO;
+				}
+
+			} else {
+				ret = spi_device_queue_trans(_spi, &t, 1000);
+				if (ret) {
+					ERROR("spi_device_queue_trans(_spi, &t, 1000) = %d ", ret);
+					return EIO;
+				}
+				ret = spi_device_get_trans_result(_spi, &pTrans, 1000);
+				if (ret) {
+					ERROR("spi_device_get_trans_result(_spi, &pTrans, 1000) = %d ", ret);
+					return EIO;
+				}
 			}
 			in.clear();
 			for (int i = 0; i < out.length(); i++) {
@@ -880,7 +890,7 @@ const char* sLogicalPin[] = { "TXD", "RXD", "SCL", "SDA", "MISO", "MOSI", "SCK",
 		"CS" };
 
 PhysicalPin Connector::toPin(uint32_t logicalPin) {
-	INFO(" UEXT%d %s[%d] => GPIO_%d",_connectorIdx, sLogicalPin[logicalPin], logicalPin, _physicalPins[logicalPin]);
+	INFO(" UEXT%d %s[%d] => GPIO_%d", _connectorIdx, sLogicalPin[logicalPin], logicalPin, _physicalPins[logicalPin]);
 	return _physicalPins[logicalPin];
 }
 

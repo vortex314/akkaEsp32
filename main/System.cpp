@@ -6,6 +6,8 @@
 #include "esp_task_wdt.h"
 #include "esp_spi_flash.h"
 
+MsgClass System::LedPulseOn("LedPulseOn");
+MsgClass System::LedPulseOff("LedPulseOff");
 
 void logHeap() {
 	INFO(" heap:%d stack:%d heap free :%d largest block : %d ",
