@@ -31,19 +31,10 @@ enum {
 
 uint64_t STM32::_timeout = 0;
 
-void bytes_to_hex_string(std::string& ret, uint8_t* input, uint32_t length) {
-	static const char characters[] = "0123456789ABCDEF";
-	for (uint32_t i = 0; i < length; i++) {
-		ret += (characters[input[i] >> 4]);
-		ret += characters[input[i] & 0x0F];
-		ret += ' ';
-	}
-}
-
 void logBytes(const char* location, Bytes& bytes) {
 	std::string str;
-	bytes_to_hex_string(str, bytes.data(), bytes.length());
-	INFO(" %s = %d : %s", location,bytes.length(), str.c_str());
+	bytesToHex(str, bytes.data(), bytes.length());
+	INFO(" %s = %d : %s", location, bytes.length(), str.c_str());
 }
 
 /*
@@ -59,24 +50,25 @@ STM32::STM32(UART& uart, DigitalOut& reset, DigitalOut& program) :
 		_uart(uart), _reset(reset), _program(program), _in(1024) {
 	_usartRxd = 0;
 	_mode = M_UNDEFINED;
-	_baudrate=9600;
-	_byteDelay=(10*1000/_baudrate)==0 ? 1 : (10*1000/_baudrate);
+	_baudrate = 9600;
+	_byteDelay = (10 * 1000 / _baudrate) == 0 ? 1 : (10 * 1000 / _baudrate);
 }
 
 void STM32::init() {
 	INFO("STM32 init UART ");
-	Erc erc = _uart.setClock(115200*8);
-	if ( erc ) ERROR("_uart.setClock(9600)=%d",erc);
+	Erc erc = _uart.setClock(115200 * 8);
+	if (erc)
+		ERROR("_uart.setClock(9600)=%d", erc);
 	erc = _uart.mode("8E1");
-	if ( erc ) ERROR("_uart.mode('8E1')=%d",erc);
+	if (erc)
+		ERROR("_uart.mode('8E1')=%d", erc);
 	erc = _uart.init();
-	if ( erc ) ERROR("_uart.init()=%d",erc);
+	if (erc)
+		ERROR("_uart.init()=%d", erc);
 	_reset.init();
 	_program.init();
 	_reset.write(1);
 	resetSystem();
-	_mode = M_SYSTEM;
-//	setAltSerial(true);
 }
 
 Erc STM32::boot0Flash() {
@@ -89,11 +81,10 @@ Erc STM32::boot0System() {
 	return E_OK;
 }
 
-
 //Bytes in(300);
 
 Erc STM32::waitAck(Bytes& out, Bytes& in, uint32_t time) {
-	_uart.write(out.data(), out.length());
+	if ( out.length())_uart.write(out.data(), out.length());
 	timeout(time);
 	while (true) {
 		if (timeout()) {
@@ -142,7 +133,7 @@ Erc STM32::read(Bytes& in, uint32_t count, uint32_t time) {
 
 void STM32::flush() {
 	while (_uart.hasData()) {
-		INFO(" flush : 0x%X ",_uart.read());
+		INFO(" flush : 0x%X ", _uart.read());
 	};
 	_in.clear();
 }
@@ -172,17 +163,19 @@ Erc STM32::resetFlash() {
 }
 
 Erc STM32::resetSystem() {
-	if ( _mode == M_SYSTEM ) return E_OK;
+	if (_mode == M_SYSTEM)
+		return E_OK;
 	boot0System();
 	_reset.write(0);
 	Sys::delay(10);
 	_reset.write(1);
 	Sys::delay(10);
 	INFO(" syncing with STM32");
-	uint8_t sync[]={0x7F};
-	Bytes syncBytes(sync,1);
-	Erc erc=waitAck(syncBytes,_in,DELAY);
-	if ( erc ) ERROR(" sync with STM32 failed ");
+	uint8_t sync[] = { 0x7F };
+	Bytes syncBytes(sync, 1);
+	Erc erc = waitAck(syncBytes, _in, DELAY);
+	if (erc)
+		ERROR(" sync with STM32 failed ");
 	_mode = M_SYSTEM;
 	return E_OK;
 }
@@ -191,11 +184,11 @@ Erc STM32::getId(uint16_t& id) {
 	uint8_t GET_ID[] = { BL_GET_ID, XOR(BL_GET_ID) };
 	Bytes out(GET_ID, 2);
 	flush();
-	Erc erc = waitAck(out, _in,  DELAY);
-	if ( erc == E_OK) {
+	Erc erc = waitAck(out, _in, DELAY);
+	if (erc == E_OK) {
 		_in.clear();
 		erc = readVar(_in, 4, DELAY);
-		if ( erc== E_OK) {
+		if (erc == E_OK) {
 			id = _in.peek(1) * 256 + _in.peek(0);
 		} else {
 			ERROR("readVar failed");
@@ -211,15 +204,23 @@ Erc STM32::get(uint8_t& version, Bytes& cmds) {
 	Bytes buffer(30);
 	Bytes out(GET, 2);
 	flush();
-	Erc erc = E_OK;
-	if ((erc = waitAck(out, cmds,  DELAY)) == E_OK) {
-		cmds.clear();
-		if ((erc = readVar(buffer, 30, DELAY)) == E_OK) {
+	Erc erc = waitAck(out, _in, DELAY);
+	if (erc == E_OK) {
+		_in.clear();
+		erc = readVar(buffer, 1, DELAY);
+		int length =  buffer.peek(0);
+		buffer.clear();
+		erc = readVar(buffer, length+2, DELAY);
+		if (erc == E_OK) {
 			buffer.offset(0);
 			version = buffer.read();
 			while (buffer.hasData())
 				cmds.write(buffer.read());
+		} else {
+			ERROR("readVar failed");
 		}
+	} else {
+		ERROR("waitAck failed");
 	}
 	return erc;
 }
@@ -233,7 +234,7 @@ Erc STM32::getVersion(uint8_t& version) {
 	Erc erc = E_OK;
 	if ((erc = waitAck(out, in, DELAY)) == E_OK) {
 		in.clear();
-		if ((erc = waitAck(noData, in,  DELAY)) == E_OK) {
+		if ((erc = waitAck(noData, in, DELAY)) == E_OK) {
 			version = in.peek(0);
 		}
 	}
@@ -248,14 +249,14 @@ Erc STM32::writeMemory(uint32_t address, Bytes& data) {
 	Bytes noData(0);
 	flush();
 	Erc erc = E_OK;
-	if ((erc = waitAck(out.map(GET, 2), _in,  DELAY)) == E_OK) {
+	if ((erc = waitAck(out.map(GET, 2), _in, DELAY)) == E_OK) {
 		if ((erc = waitAck(out.map(ADDRESS, 5), _in, DELAY)) == E_OK) {
 			_uart.write(data.length() - 1);
 			_uart.write(data.data(), data.length());
 			_uart.write(
 					((uint8_t) (data.length() - 1))
 							^ xorBytes(data.data(), data.length()));
-			if ((erc = waitAck(noData, _in,  200)) == E_OK) {
+			if ((erc = waitAck(noData, _in, 200)) == E_OK) {
 
 			}
 		}
@@ -275,12 +276,12 @@ Erc STM32::readMemory(uint32_t address, uint32_t length, Bytes& data) {
 	if (erc)
 		return erc;
 	ADDRESS[4] = xorBytes(ADDRESS, 4);
-	erc = waitAck(out.map(ADDRESS, 5), _in,  DELAY);
+	erc = waitAck(out.map(ADDRESS, 5), _in, DELAY);
 	if (erc)
 		return erc;
 	_uart.write(length - 1);
 	_uart.write(XOR(length - 1));
-	erc = waitAck(noData, _in,  DELAY);
+	erc = waitAck(noData, _in, DELAY);
 	if (erc)
 		return erc;
 	if ((erc = read(data, length, 200)) == E_OK) {
@@ -296,7 +297,7 @@ Erc STM32::go(uint32_t address) {
 	Bytes noData(0);
 	flush();
 	Erc erc = E_OK;
-	erc = waitAck(out.map(GO, 2), _in,  DELAY);
+	erc = waitAck(out.map(GO, 2), _in, DELAY);
 	if (erc)
 		return erc;
 	ADDRESS[4] = xorBytes(ADDRESS, 4);
@@ -348,7 +349,7 @@ Erc STM32::extendedEraseMemory() {
 	erc = waitAck(out.map(EXTENDED_ERASE_MEMORY, 2), _in, DELAY);
 	if (erc)
 		return erc;
-	erc = waitAck(out.map(ALL_PAGES, 3), _in,  200);
+	erc = waitAck(out.map(ALL_PAGES, 3), _in, 200);
 	return erc;
 }
 
@@ -367,7 +368,7 @@ Erc STM32::writeProtect(Bytes& sectors) {
 	_uart.write(
 			((uint8_t) (sectors.length() - 1))
 					^ xorBytes(sectors.data(), sectors.length()));
-	erc = waitAck(noData, _in,  200);
+	erc = waitAck(noData, _in, 200);
 	return erc;
 }
 
@@ -393,7 +394,7 @@ Erc STM32::readoutProtect() {
 	erc = waitAck(out.map(RDP, 2), _in, DELAY);
 	if (erc)
 		return erc;
-	erc = waitAck(noData, _in,  DELAY);
+	erc = waitAck(noData, _in, DELAY);
 	return erc;
 }
 
@@ -411,7 +412,7 @@ Erc STM32::readoutUnprotect() {
 }
 
 bool STM32::timeout() {
-	return  Sys::millis() > _timeout;
+	return Sys::millis() > _timeout;
 }
 
 void STM32::timeout(uint32_t delta) {

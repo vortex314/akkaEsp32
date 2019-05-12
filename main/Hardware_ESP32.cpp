@@ -683,7 +683,7 @@ public:
 		uart_config.baud_rate = _baudrate;
 		uart_config.flow_ctrl = UART_HW_FLOWCTRL_DISABLE;
 		uart_config.use_ref_tick = false;
-		uart_config.rx_flow_ctrl_thresh = 2;
+		uart_config.rx_flow_ctrl_thresh = 1;
 
 		int rc = uart_param_config(_uartNum, &uart_config);
 		if ( rc ) ERROR(" uart_param_config() failed : %d  ",rc);
