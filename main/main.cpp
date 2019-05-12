@@ -51,6 +51,7 @@ const static int CONNECTED_BIT = BIT0;
 #include <DigitalCompass.h>
 #include <Triac.h>
 #include <DWM1000_Tag.h>
+#include <Programmer.h>
 
 using namespace std;
 
@@ -75,8 +76,11 @@ extern "C" void app_main() {
 
 	Sys::init();
 	nvs_flash_init();
-	INFO("Starting Akka on %s heap : %d ", Sys::getProcessor(), Sys::getFreeHeap());
+	INFO("Starting Akka on %s heap : %d ", Sys::getProcessor(),
+			Sys::getFreeHeap());
 	std::string output;
+	std::string conf4 =
+			"{\"uext\":[\"programmer\"],\"programmer\":{\"class\":\"Programmer\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
 	std::string conf3 =
 			"{\"uext\":[\"dwm1000Tag\"],\"dwm1000Tag\":{\"class\":\"DWM1000_Tag\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
 	std::string conf2 =
@@ -85,7 +89,7 @@ extern "C" void app_main() {
 			"{\"uext\":[\"gps\",\"us\"],\"gps\":{\"class\":\"NEO6M\"},\"us\":{\"class\":\"UltraSonic\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
 	std::string conf =
 			"{\"uext\":[\"triac\"],\"triac\":{\"class\":\"Triac\"},\"us\":{\"class\":\"UltraSonic\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
-	config.load(conf3);
+	config.load(conf4);
 
 	static MessageDispatcher defaultDispatcher(4, 6000, tskIDLE_PRIORITY + 1);
 	static ActorSystem actorSystem(Sys::hostname(), defaultDispatcher);
@@ -93,8 +97,8 @@ extern "C" void app_main() {
 //    actorSystem.actorOf<Sender>("sender");
 	ActorRef& wifi = actorSystem.actorOf<Wifi>("wifi");
 
-	ActorRef& mqtt =
-			actorSystem.actorOf<Mqtt>("mqtt", wifi, "tcp://limero.ddns.net:1883");
+	ActorRef& mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi,
+			"tcp://limero.ddns.net:1883");
 	ActorRef& bridge = actorSystem.actorOf<Bridge>("bridge", mqtt);
 //	defaultDispatcher.unhandled(bridge.cell())
 	actorSystem.actorOf<System>("system", mqtt);
@@ -109,37 +113,47 @@ extern "C" void app_main() {
 		const char* peripheral = cfg[name]["class"] | "";
 		if (strlen(peripheral) > 0) {
 			switch (H(peripheral)) {
-				case H("DWM1000_Tag"): {
-					actorSystem.actorOf<DWM1000_Tag>(name, new Connector(idx), publisher);
-					break;
-				}
-				case H("Compass"): {
-					actorSystem.actorOf<DigitalCompass>(name, new Connector(idx), publisher);
-					break;
-				}
-				case H("LSM303C"): {
-					actorSystem.actorOf<LSM303C>(name, new Connector(idx), publisher);
-					break;
-				}
-				case H("NEO6M"): {
-					actorSystem.actorOf<Neo6m>(name, new Connector(idx), publisher);
-					break;
-				}
-				case H("DigitalCompass"): {
-					actorSystem.actorOf<DigitalCompass>(name, new Connector(idx), publisher);
-					break;
-				}
-				case H("UltraSonic"): {
-					actorSystem.actorOf<UltraSonic>(name, new Connector(idx), publisher);
-					break;
-				}
-				case H("Triac"): {
-					actorSystem.actorOf<Triac>(name, new Connector(idx), publisher);
-					break;
-				}
-				default: {
-					ERROR("peripheral '%s' not found", peripheral);
-				}
+			case H("Programmer"): {
+				actorSystem.actorOf<Programmer>(name, new Connector(idx),
+						publisher);
+				break;
+			}
+			case H("DWM1000_Tag"): {
+				actorSystem.actorOf<DWM1000_Tag>(name, new Connector(idx),
+						publisher);
+				break;
+			}
+			case H("Compass"): {
+				actorSystem.actorOf<DigitalCompass>(name, new Connector(idx),
+						publisher);
+				break;
+			}
+			case H("LSM303C"): {
+				actorSystem.actorOf<LSM303C>(name, new Connector(idx),
+						publisher);
+				break;
+			}
+			case H("NEO6M"): {
+				actorSystem.actorOf<Neo6m>(name, new Connector(idx), publisher);
+				break;
+			}
+			case H("DigitalCompass"): {
+				actorSystem.actorOf<DigitalCompass>(name, new Connector(idx),
+						publisher);
+				break;
+			}
+			case H("UltraSonic"): {
+				actorSystem.actorOf<UltraSonic>(name, new Connector(idx),
+						publisher);
+				break;
+			}
+			case H("Triac"): {
+				actorSystem.actorOf<Triac>(name, new Connector(idx), publisher);
+				break;
+			}
+			default: {
+				ERROR("peripheral '%s' not found", peripheral);
+			}
 			}
 		} else {
 			ERROR("peripheral '%s' class not found ", peripheral);

@@ -303,7 +303,7 @@ void DWM1000_Tag::updateAnchors(BlinkMsg& blinkMsg) {
 		little_endian(rap->_x, blinkMsg.x);
 		little_endian(rap->_y, blinkMsg.y);
 		little_endian(rap->_distance, blinkMsg.distance);
-		INFO(" +1 anchor : %d x:%d y:%d dist: %d", address, rap->_x, rap->_y, rap
+		INFO_ISR(" +1 anchor : %d x:%d y:%d dist: %d", address, rap->_x, rap->_y, rap
 				->_distance);
 	} else {
 		rap->update(blinkMsg);

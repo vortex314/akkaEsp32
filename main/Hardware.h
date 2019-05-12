@@ -31,6 +31,7 @@ class Driver {
 class UART : public Driver {
   public:
     static UART& create(PhysicalPin txd, PhysicalPin rxd);
+    virtual Erc mode(const char*)=0;
     virtual Erc init() = 0;
     virtual Erc deInit() = 0;
     virtual Erc setClock(uint32_t clock) = 0;
