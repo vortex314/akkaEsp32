@@ -100,7 +100,6 @@ extern "C" void app_main() {
 	ActorRef& mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi,
 			"tcp://limero.ddns.net:1883");
 	ActorRef& bridge = actorSystem.actorOf<Bridge>("bridge", mqtt);
-//	defaultDispatcher.unhandled(bridge.cell())
 	actorSystem.actorOf<System>("system", mqtt);
 	actorSystem.actorOf<ConfigActor>("config");
 	ActorRef& publisher = actorSystem.actorOf<Publisher>("publisher", mqtt);

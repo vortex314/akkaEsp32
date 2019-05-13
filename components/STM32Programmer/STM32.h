@@ -13,6 +13,7 @@
 #include <Hardware.h>
 #include <Log.h>
 #include <Bytes.h>
+#include <vector>
 
 class STM32 {
 	UART& _uart;
@@ -23,10 +24,31 @@ class STM32 {
 	Bytes _in;
 	uint32_t _byteDelay;
 	uint32_t _baudrate;
+
 public:
+	typedef enum {
+		BL_GET = 0,
+		BL_GET_VERSION = 1,
+		BL_GET_ID = 2,
+		BL_READ_MEMORY = 0x11,
+		BL_GO = 0x21,
+		BL_WRITE_MEMORY = 0x31,
+		BL_ERASE_MEMORY = 0x43,
+		BL_EXTENDED_ERASE_MEMORY = 0x44,
+		BL_WRITE_PROTECT = 0x63,
+		BL_WRITE_UNPROTECT = 0x73,
+		BL_READOUT_PROTECT = 0x82,
+		BL_READOUT_UNPROTECT = 0x92
+	} BootLoaderCommand;
 	typedef enum {
 		M_UNDEFINED,M_SYSTEM, M_FLASH
 	} Mode;
+	typedef struct {
+			BootLoaderCommand cmdByte;
+			const char* cmdString;
+	} Symbol;
+	static Symbol symbols[];
+	static void loadSymbols();
 private:
 	Mode _mode;
 public:
@@ -62,7 +84,8 @@ public:
 		return _mode;
 	}
 
-	void loop();
+	const char* findSymbol(uint8_t);
+
 
 	Erc waitAck(Bytes& out, Bytes& in,  uint32_t timeout);
 	Erc readVar(Bytes& in, uint32_t max, uint32_t timeout);
