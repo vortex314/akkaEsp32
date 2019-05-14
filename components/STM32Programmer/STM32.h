@@ -41,7 +41,7 @@ public:
 		BL_READOUT_UNPROTECT = 0x92
 	} BootLoaderCommand;
 	typedef enum {
-		M_UNDEFINED,M_SYSTEM, M_FLASH
+		M_UNDEFINED=0,M_SYSTEM, M_FLASH
 	} Mode;
 	typedef struct {
 			BootLoaderCommand cmdByte;

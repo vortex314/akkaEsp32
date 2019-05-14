@@ -96,7 +96,6 @@ extern "C" void app_main() {
 
 //    actorSystem.actorOf<Sender>("sender");
 	ActorRef& wifi = actorSystem.actorOf<Wifi>("wifi");
-
 	ActorRef& mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi,
 			"tcp://limero.ddns.net:1883");
 	ActorRef& bridge = actorSystem.actorOf<Bridge>("bridge", mqtt);
