@@ -26,6 +26,10 @@ void Programmer::preStart() {
 Receive& Programmer::createReceive() {
 	return receiveBuilder()
 
+	.match(LABEL("ping"), [this](Msg& msg) {
+		sender().tell(replyBuilder(msg));
+	})
+
 	.match(LABEL("getId"), [this](Msg& msg) {
 		_stm32.resetSystem();
 		uint16_t id;
@@ -122,5 +126,5 @@ Receive& Programmer::createReceive() {
 		sender().tell(replyBuilder(msg)("mode",modes[_stm32.getMode()]),self());
 	})
 
-		.build();
+	.build();
 }
