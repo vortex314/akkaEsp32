@@ -114,7 +114,7 @@ extern "C" void app_main() {
 			switch (H(peripheral)) {
 			case H("Programmer"): {
 				actorSystem.actorOf<Programmer>(name, new Connector(idx),
-						publisher);
+						mqtt);
 				break;
 			}
 			case H("DWM1000_Tag"): {

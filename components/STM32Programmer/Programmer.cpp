@@ -8,10 +8,9 @@
 #include "Programmer.h"
 #include "Base64.h"
 
-Programmer::Programmer(Connector* connector, ActorRef& publisher)
-		: _connector(connector), _publisher(publisher), _stm32(connector
-				->getUART(), connector->getDigitalOut(LP_SCL), connector
-				->getDigitalOut(LP_SDA)) {
+Programmer::Programmer(Connector* connector, ActorRef& mqtt)
+		: _connector(connector), _mqtt(mqtt), _stm32(connector->getUART(), connector
+				->getDigitalOut(LP_SCL), connector->getDigitalOut(LP_SDA)) {
 }
 
 Programmer::~Programmer() {
@@ -19,7 +18,7 @@ Programmer::~Programmer() {
 
 void Programmer::preStart() {
 	_stm32.init();
-	_timer1 = timers().startPeriodicTimer("timer1", Msg("timer1"), 10000);
+	_timer1 = timers().startPeriodicTimer("timer1", Msg("timer1"), 100);
 
 }
 
@@ -111,6 +110,16 @@ Receive& Programmer::createReceive() {
 	})
 
 	.match(MsgClass("timer1"), [this](Msg& msg) {
+		if ( _stm32.getMode()==STM32::M_FLASH) {
+			Bytes data(1024);
+			_stm32.read(data,1024,10);
+			if ( data.length() ) {
+				std::string s((char*)data.data(),data.length());
+//				Base64::encode(s,data);
+				_mqtt.tell(msgBuilder(Mqtt::Publish)
+						("topic","src/ESP32-12857/programmer/uart")("message",s),self());
+			}
+		}
 	})
 
 	.match(MsgClass::Properties(), [this](Msg& msg) {
