@@ -36,7 +36,7 @@ static const char MERROR[] = "Mag Error";
 // End SPI pin definitions
 
 typedef struct {
-		float x,y,z;
+	float x,y,z;
 } Vector3D;
 
 template <typename T> class Range {
@@ -44,11 +44,11 @@ template <typename T> class Range {
 		T _max;
 
 	public:
-		Range(){
+		Range() {
 			_min=INT16_MAX;
 			_max=INT16_MIN;
 		}
-		void learn(T v ){
+		void learn(T v ) {
 			if ( v < _min ) _min=v;
 			if ( v> _max) _max=v;
 		}
@@ -60,7 +60,7 @@ template <typename T> class Range {
 		}
 };
 
-class LSM303C : public Actor{
+class LSM303C : public Actor {
 	public:
 		// These are the only methods are the only methods the user can use w/o mods
 		LSM303C(Connector* connector,ActorRef& publisher);
@@ -68,7 +68,7 @@ class LSM303C : public Actor{
 		status_t begin(void);
 		// Begin contains hardware specific code (Pro Mini)
 		status_t begin(MAG_DO_t, MAG_FS_t, MAG_BDU_t, MAG_OMXY_t, MAG_OMZ_t,
-				MAG_MD_t, ACC_FS_t, ACC_BDU_t, uint8_t, ACC_ODR_t);
+		               MAG_MD_t, ACC_FS_t, ACC_BDU_t, uint8_t, ACC_ODR_t);
 		float readAccelX(void);
 		float readAccelY(void);
 		float readAccelZ(void);

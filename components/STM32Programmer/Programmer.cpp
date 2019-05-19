@@ -79,7 +79,6 @@ Receive& Programmer::createReceive() {
 
 	.match(LABEL("writeMemory"), [this](Msg& msg) {
 		std::string addressHex,data;
-		INFO(" writeMemory %s",msg.toString().c_str());
 		if ( msg.get(H("addressHex"),addressHex)==0 && msg.get("data",data)==0) {
 			_stm32.resetSystem();
 			Bytes bytes(256);
@@ -89,8 +88,10 @@ Receive& Programmer::createReceive() {
 			sscanf(addressHex.c_str(),"%X",&addr);
 			Erc erc =_stm32.writeMemory(addr,bytes);
 			sender().tell(replyBuilder(msg)("erc",erc)("addressHex",addressHex));
+			INFO(" writeMemory addr : %s = %d ",addressHex.c_str(),erc);
 		} else {
 			sender().tell(replyBuilder(msg)("erc",ENOENT));
+			WARN("cannot read arguments : %s ",((Xdr)msg).toString().c_str());
 		}
 	})
 

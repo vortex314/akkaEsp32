@@ -33,7 +33,7 @@ class Mqtt : public Actor
 {
 
     bool _connected;
-    StaticJsonDocument<2000> _jsonBuffer;
+    StaticJsonDocument<3000> _jsonBuffer;
     std::string _clientId;
     std::string _address;
     esp_mqtt_client_handle_t _mqttClient;

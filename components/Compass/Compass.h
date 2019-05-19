@@ -12,7 +12,7 @@ class Compass : public Actor {
 		ActorRef& _publisher;
 		Label _measureTimer;
 	public:
-		Compass(Connector* ,ActorRef& );
+		Compass(Connector*,ActorRef& );
 		virtual ~Compass() ;
 		void preStart();
 		Receive& createReceive();
