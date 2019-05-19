@@ -63,9 +63,9 @@ STM32::STM32(UART& uart, DigitalOut& reset, DigitalOut& program)
 
 void STM32::init() {
 	INFO("STM32 init UART ");
-	Erc erc = _uart.setClock(115200 * 8);
+	Erc erc = _uart.setClock(115200 * 4);
 	if (erc)
-	ERROR("_uart.setClock(9600)=%d", erc);
+	ERROR("_uart.setClock(115200*8)=%d", erc);
 	erc = _uart.mode("8E1");
 	if (erc)
 	ERROR("_uart.mode('8E1')=%d", erc);
@@ -169,8 +169,8 @@ Erc STM32::resetFlash() {
 }
 
 Erc STM32::resetSystem() {
-	if (_mode == M_SYSTEM) return E_OK;
 	boot0System();
+	flush();
 	_reset.write(0);
 	Sys::delay(10);
 	_reset.write(1);

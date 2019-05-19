@@ -78,6 +78,7 @@ extern "C" void app_main() {
 	nvs_flash_init();
 	INFO("Starting Akka on %s heap : %d ", Sys::getProcessor(),
 			Sys::getFreeHeap());
+	INFO(" hash test : %d vs %d ",H("$dst"),H("ESP32-12857/wifi"));
 	std::string output;
 	std::string conf4 =
 			"{\"uext\":[\"programmer\"],\"programmer\":{\"class\":\"Programmer\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";

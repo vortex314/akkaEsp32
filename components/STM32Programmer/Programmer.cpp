@@ -31,14 +31,12 @@ Receive& Programmer::createReceive() {
 	})
 
 	.match(LABEL("getId"), [this](Msg& msg) {
-		_stm32.resetSystem();
 		uint16_t id;
 		Erc erc = _stm32.getId(id);
 		sender().tell(replyBuilder(msg)("erc",erc)("id",id));
 	})
 
 	.match(LABEL("getVersion"), [this](Msg& msg) {
-		_stm32.resetSystem();
 		uint8_t version;
 		Erc erc =_stm32.getVersion(version);
 		std::string str;
@@ -47,7 +45,6 @@ Receive& Programmer::createReceive() {
 	})
 
 	.match(LABEL("get"), [this](Msg& msg) {uint8_t version;
-		_stm32.resetSystem();
 		Bytes cmds(100);
 		std::string response;
 		Erc erc = _stm32.get(version,cmds);
@@ -63,7 +60,6 @@ Receive& Programmer::createReceive() {
 		std::string address;
 		INFO(" readMemory %s",msg.toString().c_str());
 		if ( msg.get(H("addressHex"),address)==0) {
-			_stm32.resetSystem();
 			INFO(" readMemory addr : %s ",address.c_str());
 			uint32_t addr;
 			sscanf(address.c_str(),"%X",&addr);
@@ -80,7 +76,6 @@ Receive& Programmer::createReceive() {
 	.match(LABEL("writeMemory"), [this](Msg& msg) {
 		std::string addressHex,data;
 		if ( msg.get(H("addressHex"),addressHex)==0 && msg.get("data",data)==0) {
-			_stm32.resetSystem();
 			Bytes bytes(256);
 			Base64::decode(bytes,data);
 			INFO(" writeMemory addr : %s ",addressHex.c_str());
@@ -96,22 +91,18 @@ Receive& Programmer::createReceive() {
 	})
 
 	.match(LABEL("writeUnprotect"), [this](Msg& msg) {
-		_stm32.resetSystem();
 		sender().tell(replyBuilder(msg)("erc",_stm32.writeUnprotect()));
 	})
 
 	.match(LABEL("readUnprotect"), [this](Msg& msg) {
-		_stm32.resetSystem();
 		sender().tell(replyBuilder(msg)("erc",_stm32.readoutUnprotect()));
 	})
 
 	.match(LABEL("eraseAll"), [this](Msg& msg) {
-		_stm32.resetSystem();
 		sender().tell(replyBuilder(msg)("erc",_stm32.eraseAll()));
 	})
 
 	.match(LABEL("resetFlash"), [this](Msg& msg) {
-		_stm32.resetSystem();
 		sender().tell(replyBuilder(msg)("erc",_stm32.resetFlash()));
 	})
 

@@ -117,12 +117,30 @@ esp_err_t Mqtt::mqtt_event_handler(esp_mqtt_event_handle_t event) {
 			bool busy = false;
 			if (!busy) {
 				busy = true;
-				std::string topic(event->topic, event->topic_len);
-				std::string data(event->data, event->data_len);
-				INFO("RXD : %s = %s", topic.c_str(), data.c_str());
-				Msg pub(PublishRcvd);
-				pub("topic", topic)("message", data).src(me.self().id());
-				eb.publish(pub);
+				static std::string topic;
+				static std::string data;
+				bool ready = true;
+				if (event->data_len != event->total_data_len) {
+					if (event->current_data_offset == 0) {
+						topic = std::string(event->topic, event->topic_len);
+						data = std::string(event->data, event->data_len);
+						ready = false;
+					} else {
+						data.append(event->data, event->data_len);
+						if (data.length() != event->total_data_len) {
+							ready = false;
+						}
+					}
+				} else {
+					topic = std::string(event->topic, event->topic_len);
+					data = std::string(event->data, event->data_len);
+				}
+				if (ready) {
+					INFO("RXD : %s = %s", topic.c_str(), data.c_str());
+					Msg pub(PublishRcvd);
+					pub("topic", topic)("message", data).src(me.self().id());
+					eb.publish(pub);
+				}
 				busy = false;
 			} else {
 				WARN(" sorry ! MQTT reception busy ");
