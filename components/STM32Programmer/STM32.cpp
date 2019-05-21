@@ -11,7 +11,7 @@
 #define PIN_BOOT0 5 // GPIO5 D1
 #define ACK 0x79
 #define NACK 0x1F
-#define DELAY 1000
+#define DELAY 100
 
 STM32::Symbol STM32::symbols[] = { { BL_GET, "get" }, //
 		{ BL_GET_ID, "getId" }, //
@@ -57,13 +57,13 @@ STM32::STM32(UART& uart, DigitalOut& reset, DigitalOut& program)
 		: _uart(uart), _reset(reset), _program(program), _in(1024) {
 	_usartRxd = 0;
 	_mode = M_UNDEFINED;
-	_baudrate = 9600;
+	_baudrate = 8 * 115200;
 	_byteDelay = (10 * 1000 / _baudrate) == 0 ? 1 : (10 * 1000 / _baudrate);
 }
 
 void STM32::init() {
 	INFO("STM32 init UART ");
-	Erc erc = _uart.setClock(115200 * 4);
+	Erc erc = _uart.setClock(8 * 115200);
 	if (erc)
 	ERROR("_uart.setClock(115200*8)=%d", erc);
 	erc = _uart.mode("8E1");
@@ -75,7 +75,7 @@ void STM32::init() {
 	_reset.init();
 	_program.init();
 	_reset.write(1);
-	resetSystem();
+	resetFlash();
 }
 
 Erc STM32::boot0Flash() {
@@ -159,6 +159,7 @@ uint8_t slice(uint32_t word, int offset) {
 }
 
 Erc STM32::resetFlash() {
+	INFO("resetFlash");
 	boot0Flash();
 	_reset.write(0);
 	Sys::delay(10);
@@ -169,20 +170,29 @@ Erc STM32::resetFlash() {
 }
 
 Erc STM32::resetSystem() {
-	boot0System();
-	flush();
-	_reset.write(0);
-	Sys::delay(10);
-	_reset.write(1);
-	Sys::delay(10);
-	INFO(" syncing with STM32");
-	uint8_t sync[] = { 0x7F };
-	Bytes syncBytes(sync, 1);
-	Erc erc = waitAck(syncBytes, _in, DELAY);
-	if (erc)
-	ERROR(" sync with STM32 failed ");
+
+	Erc erc = E_OK;
+	for (uint32_t i = 0; i < 3; i++) {
+		INFO("resetSystem");
+		_uart.deInit(); // reset UART needed for succesfull sync ? trial&error?
+		boot0System();
+		_reset.write(0);
+		Sys::delay(100);
+		_reset.write(1);
+		Sys::delay(500);
+		_uart.init();
+		INFO(" syncing with STM32");
+		uint8_t sync[] = { 0x7F };
+		Bytes syncBytes(sync, 1);
+		flush();
+		erc = waitAck(syncBytes, _in, DELAY);
+		if (erc) {
+			ERROR(" sync with STM32 failed ");
+		} else
+			break;
+	}
 	_mode = M_SYSTEM;
-	return E_OK;
+	return erc;
 }
 
 Erc STM32::getId(uint16_t& id) {

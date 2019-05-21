@@ -90,7 +90,7 @@ public:
 	Erc deInit() {
 		return E_OK;
 	}
-	;
+
 	Erc setMode(DigitalIn::Mode m) {
 		_mode = m;
 		return E_OK;
@@ -633,6 +633,7 @@ class UART_ESP32: public UART {
 	CircBuf _rxdBuf;
 	uint32_t _driver;
 	uart_config_t uart_config;
+	TaskHandle_t  _taskHandle;
 
 public:
 	UART_ESP32(uint32_t driver, PhysicalPin txd, PhysicalPin rxd) :
@@ -646,6 +647,7 @@ public:
 		uart_config.parity = UART_PARITY_DISABLE;
 		uart_config.stop_bits = UART_STOP_BITS_1;
 		uart_config.flow_ctrl = UART_HW_FLOWCTRL_DISABLE;
+		_taskHandle=0;
 	}
 
 	virtual ~UART_ESP32() {
@@ -703,11 +705,13 @@ public:
 		std::string taskName;
 		string_format(taskName, "uart_event_task_%d", _driver);
 		xTaskCreate(uart_event_task, taskName.c_str(), 3120, this,
-				tskIDLE_PRIORITY + 2, NULL);
+				tskIDLE_PRIORITY + 2, &_taskHandle);
 		return E_OK;
 	}
 
 	Erc deInit() {
+		int rc = uart_driver_delete(_uartNum);
+		vTaskDelete(_taskHandle);
 		return E_OK;
 	}
 

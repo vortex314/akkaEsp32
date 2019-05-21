@@ -10,6 +10,7 @@ class System : public Actor {
 		DigitalOut& _ledGpio;
 		uint32_t _interval = 100;
 		ActorRef& _mqtt;
+		uint32_t _propertyIndex;
 
 	public:
 		static MsgClass LedPulseOn;

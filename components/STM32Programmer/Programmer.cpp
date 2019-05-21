@@ -77,7 +77,6 @@ Receive& Programmer::createReceive() {
 		if ( msg.get(H("addressHex"),addressHex)==0 && msg.get("data",data)==0) {
 			Bytes bytes(256);
 			Base64::decode(bytes,data);
-			INFO(" writeMemory addr : %s ",addressHex.c_str());
 			uint32_t addr;
 			sscanf(addressHex.c_str(),"%X",&addr);
 			Erc erc =_stm32.writeMemory(addr,bytes);
