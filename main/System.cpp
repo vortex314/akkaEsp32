@@ -15,7 +15,6 @@ void logHeap() {
 
 System::System(ActorRef& mqtt)
 		: _ledGpio(DigitalOut::create(2)), _mqtt(mqtt) {
-	_propertyIndex = 0;
 }
 
 System::~System() {
@@ -49,28 +48,17 @@ Receive& System::createReceive() {
 	.match(MsgClass::Properties(), [this](Msg& msg) {
 		esp_chip_info_t chip_info;
 		esp_chip_info(&chip_info);
-		Msg& reply=replyBuilder(msg);
-		switch (_propertyIndex ) {
-			case 0 : {reply("build", __DATE__ " " __TIME__);
-				break;}
-			case 2: {reply("cpu", "ESP32");
-				break;}
-			case 3: {reply( "cores", chip_info.cores);
-				break;}
-			case 4: {reply("upTime", Sys::millis())("ram", 500000);
-				break;}
-			case 5: {reply( "heap", xPortGetFreeHeapSize());
-				break;}
-			case 6: {reply("flash",spi_flash_get_chip_size());
-				break;}
-			case 7: {reply("stack", (uint32_t)uxTaskGetStackHighWaterMark(NULL));
-				break;}
-			case 1: {reply("revision",chip_info.revision);
-				break;}
-			default:
-			_propertyIndex=-1;
-		};
-		_propertyIndex++;
+		Msg& reply=replyBuilder(msg)
+		("build", __DATE__ " " __TIME__)
+		("cpu", "ESP32")
+		( "cores", chip_info.cores)
+		("upTime", Sys::millis())
+		("ram", 500000)
+		( "heap", xPortGetFreeHeapSize())
+		("flash",spi_flash_get_chip_size())
+		("stack", (uint32_t)uxTaskGetStackHighWaterMark(NULL))
+		("revision",chip_info.revision);
+
 		sender().tell(reply, self());
 	}).build();
 }
