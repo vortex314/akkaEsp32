@@ -174,13 +174,13 @@ Erc STM32::resetSystem() {
 	Erc erc = E_OK;
 	for (uint32_t i = 0; i < 3; i++) {
 		INFO("resetSystem");
-//		_uart.deInit(); // reset UART needed for succesfull sync ? trial&error?
+		_uart.deInit(); // reset UART needed for succesfull sync ? trial&error?
 		boot0System();
 		_reset.write(0);
 		Sys::delay(100);
 		_reset.write(1);
 		Sys::delay(200);
-//		_uart.init();
+		_uart.init();
 		INFO(" syncing with STM32");
 		uint8_t sync[] = { 0x7F };
 		Bytes syncBytes(sync, 1);
