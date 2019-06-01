@@ -46,7 +46,7 @@ Receive& Controller::createReceive() {
 	})
 
 	.match(MsgClass("measureTimer"),	[this](Msg& timer) {
-		float weight = 0.1;
+		float weight = 0.2;
 		_potLeft = _potLeft*(1-weight) + weight*_pot_left.getValue();
 		_potRight = _potRight*(1-weight) + weight*_pot_right.getValue();
 	})
