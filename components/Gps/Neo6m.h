@@ -3,7 +3,7 @@
 #include <Hardware.h>
 #include <Log.h>
 #include <Akka.h>
-#include <Publisher.h>
+#include <Bridge.h>
 class Neo6m : public Actor {
 		Connector* _connector;
 		UART& _uart;

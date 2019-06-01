@@ -5,7 +5,7 @@
 #include <Log.h>
 #include <Hardware.h>
 #include <Akka.h>
-#include <Publisher.h>
+#include <Bridge.h>
 
 #include "../Compass_LSM303C/IMU.h"
 #include "../Compass_LSM303C/LSM303CTypes.h"
@@ -85,7 +85,7 @@ class LSM303C : public Actor {
 	protected:
 		Connector* _uext;
 		MsgClass _measureTimer;
-		ActorRef& _publisher;
+		ActorRef& _bridge;
 		I2C& _i2c;
 
 		float _temp;

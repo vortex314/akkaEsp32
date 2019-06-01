@@ -1,12 +1,12 @@
 #include "Compass.h"
 
-Compass::Compass(Connector* connector,ActorRef& publisher) :  _v( { 0, 0, 0 }),_publisher(publisher) {
+Compass::Compass(Connector* connector,ActorRef& bridge) :  _v( { 0, 0, 0 }),_bridge(bridge) {
 	_uext=connector;
 	_hmc = new 	HMC5883L(*_uext);
 	_x=_y=_z=0;
 };
 
-Compass::~Compass(){
+Compass::~Compass() {
 	delete _uext;
 }
 void Compass::preStart() {
@@ -40,7 +40,7 @@ Receive& Compass::createReceive() {
 		_x = _x + (_v.x - _x) / 4;
 		_y = _y + (_v.y - _y) / 4;
 		_z = _z + (_v.z - _z) / 4;
-		_publisher.tell(msgBuilder(Publisher::Publish)("e",1),self());
+		_bridge.tell(msgBuilder(Bridge::Publish)("e",1),self());
 	})
 	.match(MsgClass::Properties(),[this](Msg& msg) {sender().tell(replyBuilder(msg)("x",_x)("y",_y)("z",_z),self());})
 	.build();

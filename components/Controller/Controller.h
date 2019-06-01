@@ -3,7 +3,7 @@
 #include <Hardware.h>
 #include <Log.h>
 #include <Akka.h>
-#include <Publisher.h>
+#include <Bridge.h>
 #include <Led.h>
 #include <Pot.h>
 #define MEDIAN_SAMPLES 7
@@ -12,7 +12,7 @@
 
 
 class Controller : public Actor {
-		ActorRef& _publisher;
+		ActorRef& _bridge;
 		Label _measureTimer;
 		Led _led_right;
 		Led _led_left;

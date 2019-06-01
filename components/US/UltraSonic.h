@@ -3,7 +3,7 @@
 
 #include "HCSR04.h"
 #include <Akka.h>
-#include <Publisher.h>
+#include <Bridge.h>
 
 class UltraSonic : public Actor {
 		Connector* _uext;
@@ -11,7 +11,7 @@ class UltraSonic : public Actor {
 		int32_t _distance;
 		int32_t _delay;
 		Label _measureTimer;
-		ActorRef& _publisher;
+		ActorRef& _bridge;
 
 	public:
 		UltraSonic(Connector*,ActorRef& );

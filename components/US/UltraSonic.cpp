@@ -1,14 +1,14 @@
 #include "UltraSonic.h"
 
-UltraSonic::UltraSonic(Connector* connector,ActorRef& publisher ) : _publisher(publisher) {
+UltraSonic::UltraSonic(Connector* connector,ActorRef& bridge ) : _bridge(bridge) {
 	_uext=connector;
 	_hcsr = new HCSR04(*_uext);
 	_distance=0;
 	_delay=0;
 }
 
-UltraSonic::~UltraSonic(){
-delete _uext;
+UltraSonic::~UltraSonic() {
+	delete _uext;
 }
 
 void UltraSonic::preStart() {
@@ -25,7 +25,7 @@ Receive& UltraSonic::createReceive() {
 			_delay = _delay + (_hcsr->getTime() - _delay) / 2;
 		}
 		_hcsr->trigger();
-		_publisher.tell(msgBuilder(Publisher::Publish)("distance",_distance),self());
+		_bridge.tell(msgBuilder(Bridge::Publish)("distance",_distance),self());
 	})
 	.match(MsgClass::Properties(),[this](Msg& msg) {sender().tell(replyBuilder(msg)("distance",_distance),self());})
 	.build();

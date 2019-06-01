@@ -2,8 +2,8 @@
 
 #include "stdint.h"
 
-LSM303C::LSM303C(Connector* connector, ActorRef& publisher)
-	: _publisher(publisher), _i2c(connector->getI2C()) {
+LSM303C::LSM303C(Connector* connector, ActorRef& bridge)
+	: _bridge(bridge), _i2c(connector->getI2C()) {
 	_uext = connector;
 	_mag= {};
 	_accel= {};
@@ -20,9 +20,9 @@ void LSM303C::preStart() {
 }
 
 void LSM303C::mqttPublish(Label name, float value) {
-	Msg msg(Publisher::Publish);
+	Msg msg(Bridge::Publish);
 	msg(name, value);
-	_publisher.tell(msg, self());
+	_bridge.tell(msg, self());
 }
 
 Receive& LSM303C::createReceive() {

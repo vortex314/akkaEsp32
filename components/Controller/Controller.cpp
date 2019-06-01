@@ -2,7 +2,7 @@
 
 MsgClass Controller::LedCommand("led");
 
-Controller::Controller(ActorRef& publisher)  : _publisher(publisher),
+Controller::Controller(ActorRef& bridge)  : _bridge(bridge),
 	_led_right(23),
 	_led_left(32),
 	_pot_left(36),
@@ -38,11 +38,11 @@ void Controller::preStart() {
 Receive& Controller::createReceive() {
 	return receiveBuilder()
 	.match(MsgClass("reportTimer"),	[this](Msg& timer) {
-		Msg msg(Publisher::Publish);
+		Msg msg(Bridge::Publish);
 		msg("potLeft",_potLeft)("potRight",_potRight);
 		msg("buttonLeft",_leftSwitch.read()==1?false:true);
 		msg("buttonRight",_rightSwitch.read()==1?false:true);
-		_publisher.tell(msg,self());
+		_bridge.tell(msg,self());
 	})
 
 	.match(MsgClass("measureTimer"),	[this](Msg& timer) {

@@ -13,31 +13,31 @@
 #include <HMC5883L.h>
 #include <Kalman.h>
 #include <Akka.h>
-#include <Publisher.h>
+#include <Bridge.h>
 
 class DigitalCompass : public Actor {
-	Connector* _connector;
-	ActorRef& _publisher;
-	HMC5883L* _hmc;
-	MPU6050* _mpu;
-	I2C& _i2c;
-	MsgClass _measureTimer;
-    float ax,ay,az,gx,gy,gz;
-    float pitch, roll;
-    float fpitch, froll;
+		Connector* _connector;
+		ActorRef& _publisher;
+		HMC5883L* _hmc;
+		MPU6050* _mpu;
+		I2C& _i2c;
+		MsgClass _measureTimer;
+		float ax,ay,az,gx,gy,gz;
+		float pitch, roll;
+		float fpitch, froll;
 
-    KALMAN pfilter;
-    KALMAN rfilter;
+		KALMAN pfilter;
+		KALMAN rfilter;
 
-    uint32_t lasttime = 0;
-    Vector<int16_t> vMag;
+		uint32_t lasttime = 0;
+		Vector<int16_t> vMag;
 
-public:
-	DigitalCompass(Connector* ,ActorRef& );
-	virtual ~DigitalCompass() ;
-	void preStart();
-	Receive& createReceive();
-	int16_t calc();
+	public:
+		DigitalCompass(Connector*,ActorRef& );
+		virtual ~DigitalCompass() ;
+		void preStart();
+		Receive& createReceive();
+		int16_t calc();
 };
 
 #endif /* DIGITALCOMPASS_H_ */

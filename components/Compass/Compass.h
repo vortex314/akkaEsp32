@@ -2,14 +2,14 @@
 #define COMPASS_H
 #include <Akka.h>
 #include <HMC5883L.h>
-#include <Publisher.h>
+#include <Bridge.h>
 
 class Compass : public Actor {
 		Connector* _uext;
 		HMC5883L* _hmc;
 		struct Vector<float> _v;
 		int32_t _x,_y,_z;
-		ActorRef& _publisher;
+		ActorRef& _bridge;
 		Label _measureTimer;
 	public:
 		Compass(Connector*,ActorRef& );

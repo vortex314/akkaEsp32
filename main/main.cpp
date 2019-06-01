@@ -41,7 +41,6 @@ const static int CONNECTED_BIT = BIT0;
 #include <Sender.cpp>
 #include <System.h>
 #include <Wifi.h>
-#include <Publisher.cpp>
 #include <ConfigActor.cpp>
 #include <Config.h>
 #include <UltraSonic.h>
@@ -104,7 +103,6 @@ extern "C" void app_main() {
 	ActorRef& bridge = actorSystem.actorOf<Bridge>("bridge", mqtt);
 	actorSystem.actorOf<System>("system", mqtt);
 	actorSystem.actorOf<ConfigActor>("config");
-	ActorRef& publisher = actorSystem.actorOf<Publisher>("publisher", mqtt);
 
 	JsonObject cfg = config.root();
 	JsonArray uexts = cfg["uext"].as<JsonArray>();
@@ -115,7 +113,7 @@ extern "C" void app_main() {
 		if (strlen(peripheral) > 0) {
 			switch (H(peripheral)) {
 				case H("Controller"): {
-						actorSystem.actorOf<Controller>(name,publisher);
+						actorSystem.actorOf<Controller>(name,bridge);
 						break;
 					}
 				case H("Programmer"): {
@@ -125,35 +123,35 @@ extern "C" void app_main() {
 					}
 				case H("DWM1000_Tag"): {
 						actorSystem.actorOf<DWM1000_Tag>(name, new Connector(idx),
-						                                 publisher);
+						                                 bridge);
 						break;
 					}
 				case H("Compass"): {
 						actorSystem.actorOf<DigitalCompass>(name, new Connector(idx),
-						                                    publisher);
+						                                    bridge);
 						break;
 					}
 				case H("LSM303C"): {
 						actorSystem.actorOf<LSM303C>(name, new Connector(idx),
-						                             publisher);
+						                             bridge);
 						break;
 					}
 				case H("NEO6M"): {
-						actorSystem.actorOf<Neo6m>(name, new Connector(idx), publisher);
+						actorSystem.actorOf<Neo6m>(name, new Connector(idx), bridge);
 						break;
 					}
 				case H("DigitalCompass"): {
 						actorSystem.actorOf<DigitalCompass>(name, new Connector(idx),
-						                                    publisher);
+						                                    bridge);
 						break;
 					}
 				case H("UltraSonic"): {
 						actorSystem.actorOf<UltraSonic>(name, new Connector(idx),
-						                                publisher);
+						                                bridge);
 						break;
 					}
 				case H("Triac"): {
-						actorSystem.actorOf<Triac>(name, new Connector(idx), publisher);
+						actorSystem.actorOf<Triac>(name, new Connector(idx), bridge);
 						break;
 					}
 				default: {
