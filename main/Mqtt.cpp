@@ -64,7 +64,7 @@ Receive& Mqtt::createReceive() {
 	.match(Mqtt::Publish, [this](Msg& msg) {
 		std::string topic;
 		std::string message;
-		while ( msg.getNext("topic",topic)==0 && msg.getNext("message",message)==0 ) {
+		while ( msg.getNext("topic",topic) && msg.getNext("message",message) ) {
 			mqttPublish(topic.c_str(),message.c_str());
 		}
 	})

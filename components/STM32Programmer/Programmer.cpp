@@ -58,7 +58,7 @@ Receive& Programmer::createReceive() {
 	.match(LABEL("readMemory"), [this](Msg& msg) {
 		std::string address;
 		INFO(" readMemory %s",msg.toString().c_str());
-		if ( msg.get(H("addressHex"),address)==0) {
+		if ( msg.get(H("addressHex"),address)) {
 			INFO(" readMemory addr : %s ",address.c_str());
 			uint32_t addr;
 			sscanf(address.c_str(),"%X",&addr);
@@ -74,7 +74,7 @@ Receive& Programmer::createReceive() {
 
 	.match(LABEL("writeMemory"), [this](Msg& msg) {
 		std::string addressHex,data;
-		if ( msg.get(H("addressHex"),addressHex)==0 && msg.get("data",data)==0) {
+		if ( msg.get(H("addressHex"),addressHex) && msg.get("data",data)) {
 			Bytes bytes(256);
 			Base64::decode(bytes,data);
 			uint32_t addr;

@@ -48,8 +48,8 @@ Receive& Controller::createReceive() {
 		if ( _buttonRightOld != _rightSwitch.read() ) 	msg("buttonRight",_rightSwitch.read()==1?false:true);
 		_potLeftOld = _potLeft;
 		_potRightOld= _potRight;
-		_buttonLeftOld=_leftSwitch.read()==1?false:true;
-		_buttonRightOld=_rightSwitch.read()==1?false:true;
+		_buttonLeftOld=_leftSwitch.read();
+		_buttonRightOld=_rightSwitch.read();
 		_bridge.tell(msg,self());
 	})
 
@@ -62,7 +62,7 @@ Receive& Controller::createReceive() {
 	.match(Controller::LedLeft,[this](Msg& msg) {
 		bool b;
 		INFO(" LedLeft %s",msg.toString().c_str());
-		if ( msg.get("data",b)==0) {
+		if ( msg.get("data",b)) {
 			if ( b ) _led_left.on();
 			else _led_left.off();
 		} else {
@@ -74,7 +74,7 @@ Receive& Controller::createReceive() {
 		bool b;
 		INFO(" LedRight %s",msg.toString().c_str());
 
-		if ( msg.get("data",b)==0) {
+		if ( msg.get("data",b)) {
 			if ( b ) _led_right.on();
 			else _led_right.off();
 		} else {
@@ -85,7 +85,7 @@ Receive& Controller::createReceive() {
 	.match(Controller::LedCommand,[this](Msg& msg) {
 		INFO(" led command ");
 		std::string ledName,mode;
-		if ( msg.get("led",ledName)==0 && msg.get("mode",mode)==0) {
+		if ( msg.get("led",ledName) && msg.get("mode",mode)) {
 			if ( ledName=="left" ) {
 				if (  mode=="on" ) {
 					_led_left.on();
