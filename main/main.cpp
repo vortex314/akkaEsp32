@@ -66,103 +66,104 @@ ActorMsgBus eb;
 
 extern void XdrTester(uint32_t max);
 
-extern "C" void app_main() {
-	esp_log_level_set("*", ESP_LOG_WARN);
-	/*	esp_log_level_set("MQTT_CLIENT", ESP_LOG_DEBUG);
-		esp_log_level_set("TRANSPORT_TCP", ESP_LOG_DEBUG);
-		esp_log_level_set("TRANSPORT_SSL", ESP_LOG_VERBOSE);
-		esp_log_level_set("TRANSPORT", ESP_LOG_VERBOSE);
-		esp_log_level_set("OUTBOX", ESP_LOG_VERBOSE);
-		*/
+extern "C" void app_main()
+{
+    esp_log_level_set("*", ESP_LOG_WARN);
+    /*	esp_log_level_set("MQTT_CLIENT", ESP_LOG_DEBUG);
+    	esp_log_level_set("TRANSPORT_TCP", ESP_LOG_DEBUG);
+    	esp_log_level_set("TRANSPORT_SSL", ESP_LOG_VERBOSE);
+    	esp_log_level_set("TRANSPORT", ESP_LOG_VERBOSE);
+    	esp_log_level_set("OUTBOX", ESP_LOG_VERBOSE);
+    	*/
 
-	Sys::init();
-	nvs_flash_init();
-	INFO("Starting Akka on %s heap : %d ", Sys::getProcessor(),Sys::getFreeHeap());
-	INFO(" hash test : %d vs %d ",H("$dst"),H("ESP32-12857/wifi"));
-	std::string output;
-	std::string conf5 =
-	    "{\"uext\":[\"controller\"],\"controller\":{\"class\":\"Controller\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
-	std::string conf4 =
-	    "{\"uext\":[\"programmer\"],\"programmer\":{\"class\":\"Programmer\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
-	std::string conf3 =
-	    "{\"uext\":[\"dwm1000Tag\"],\"dwm1000Tag\":{\"class\":\"DWM1000_Tag\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
-	std::string conf2 =
-	    "{\"uext\":[\"compass\",\"us\"],\"compass\":{\"class\":\"DigitalCompass\"},\"us\":{\"class\":\"UltraSonic\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
-	std::string conf1 =
-	    "{\"uext\":[\"gps\",\"us\"],\"gps\":{\"class\":\"NEO6M\"},\"us\":{\"class\":\"UltraSonic\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
-	std::string conf =
-	    "{\"uext\":[\"triac\"],\"triac\":{\"class\":\"Triac\"},\"us\":{\"class\":\"UltraSonic\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
-	config.load(conf5.c_str());
-	INFO(" config %s",conf5.c_str());
+    Sys::init();
+    nvs_flash_init();
+    INFO("Starting Akka on %s heap : %d ", Sys::getProcessor(),Sys::getFreeHeap());
+    INFO(" hash test : %d vs %d ",H("$dst"),H("ESP32-12857/wifi"));
+    std::string output;
+    std::string conf5 =
+        "{\"uext\":[\"controller\"],\"controller\":{\"class\":\"Controller\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
+    std::string conf4 =
+        "{\"uext\":[\"programmer\"],\"programmer\":{\"class\":\"Programmer\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
+    std::string conf3 =
+        "{\"uext\":[\"dwm1000Tag\"],\"dwm1000Tag\":{\"class\":\"DWM1000_Tag\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
+    std::string conf2 =
+        "{\"uext\":[\"compass\",\"us\"],\"compass\":{\"class\":\"DigitalCompass\"},\"us\":{\"class\":\"UltraSonic\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
+    std::string conf1 =
+        "{\"uext\":[\"gps\",\"us\"],\"gps\":{\"class\":\"NEO6M\"},\"us\":{\"class\":\"UltraSonic\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
+    std::string conf =
+        "{\"uext\":[\"triac\"],\"triac\":{\"class\":\"Triac\"},\"us\":{\"class\":\"UltraSonic\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
+    config.load(conf3.c_str());
+    INFO(" config %s",conf3.c_str());
 
-	static MessageDispatcher defaultDispatcher(4, 6000, tskIDLE_PRIORITY + 1);
-	static ActorSystem actorSystem(Sys::hostname(), defaultDispatcher);
+    static MessageDispatcher defaultDispatcher(4, 6000, tskIDLE_PRIORITY + 1);
+    static ActorSystem actorSystem(Sys::hostname(), defaultDispatcher);
 
-	ActorRef& wifi = actorSystem.actorOf<Wifi>("wifi");
-	ActorRef& mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi,"tcp://limero.ddns.net:1883");
-	ActorRef& bridge = actorSystem.actorOf<Bridge>("bridge", mqtt);
-	actorSystem.actorOf<System>("system", mqtt);
-	actorSystem.actorOf<ConfigActor>("config");
+    ActorRef& wifi = actorSystem.actorOf<Wifi>("wifi");
+    ActorRef& mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi,"tcp://limero.ddns.net:1883");
+    ActorRef& bridge = actorSystem.actorOf<Bridge>("bridge", mqtt);
+    actorSystem.actorOf<System>("system", mqtt);
+    actorSystem.actorOf<ConfigActor>("config");
 
-	JsonObject cfg = config.root();
-	JsonArray uexts = cfg["uext"].as<JsonArray>();
-	int idx = 0;
-	for (const char* name : uexts) {
-		idx++;				// starts at 1
-		const char* peripheral = cfg[name]["class"] | "";
-		if (strlen(peripheral) > 0) {
-			switch (H(peripheral)) {
-				case H("Controller"): {
-						actorSystem.actorOf<Controller>(name,bridge);
-						break;
-					}
-				case H("Programmer"): {
-						actorSystem.actorOf<Programmer>(name, new Connector(idx),
-						                                mqtt);
-						break;
-					}
-				case H("DWM1000_Tag"): {
-						actorSystem.actorOf<DWM1000_Tag>(name, new Connector(idx),
-						                                 bridge);
-						break;
-					}
-				case H("Compass"): {
-						actorSystem.actorOf<DigitalCompass>(name, new Connector(idx),
-						                                    bridge);
-						break;
-					}
-				case H("LSM303C"): {
-						actorSystem.actorOf<LSM303C>(name, new Connector(idx),
-						                             bridge);
-						break;
-					}
-				case H("NEO6M"): {
-						actorSystem.actorOf<Neo6m>(name, new Connector(idx), bridge);
-						break;
-					}
-				case H("DigitalCompass"): {
-						actorSystem.actorOf<DigitalCompass>(name, new Connector(idx),
-						                                    bridge);
-						break;
-					}
-				case H("UltraSonic"): {
-						actorSystem.actorOf<UltraSonic>(name, new Connector(idx),
-						                                bridge);
-						break;
-					}
-				case H("Triac"): {
-						actorSystem.actorOf<Triac>(name, new Connector(idx), bridge);
-						break;
-					}
-				default: {
-						ERROR("peripheral '%s' not found", peripheral);
-					}
-			}
-		} else {
-			ERROR("peripheral '%s' class not found ", peripheral);
-		}
+    JsonObject cfg = config.root();
+    JsonArray uexts = cfg["uext"].as<JsonArray>();
+    int idx = 0;
+    for (const char* name : uexts) {
+        idx++;				// starts at 1
+        const char* peripheral = cfg[name]["class"] | "";
+        if (strlen(peripheral) > 0) {
+            switch (H(peripheral)) {
+            case H("Controller"): {
+                actorSystem.actorOf<Controller>(name,bridge);
+                break;
+            }
+            case H("Programmer"): {
+                actorSystem.actorOf<Programmer>(name, new Connector(idx),
+                                                mqtt);
+                break;
+            }
+            case H("DWM1000_Tag"): {
+                actorSystem.actorOf<DWM1000_Tag>(name, new Connector(idx),
+                                                 bridge);
+                break;
+            }
+            case H("Compass"): {
+                actorSystem.actorOf<DigitalCompass>(name, new Connector(idx),
+                                                    bridge);
+                break;
+            }
+            case H("LSM303C"): {
+                actorSystem.actorOf<LSM303C>(name, new Connector(idx),
+                                             bridge);
+                break;
+            }
+            case H("NEO6M"): {
+                actorSystem.actorOf<Neo6m>(name, new Connector(idx), bridge);
+                break;
+            }
+            case H("DigitalCompass"): {
+                actorSystem.actorOf<DigitalCompass>(name, new Connector(idx),
+                                                    bridge);
+                break;
+            }
+            case H("UltraSonic"): {
+                actorSystem.actorOf<UltraSonic>(name, new Connector(idx),
+                                                bridge);
+                break;
+            }
+            case H("Triac"): {
+                actorSystem.actorOf<Triac>(name, new Connector(idx), bridge);
+                break;
+            }
+            default: {
+                ERROR("peripheral '%s' not found", peripheral);
+            }
+            }
+        } else {
+            ERROR("peripheral '%s' class not found ", peripheral);
+        }
 
-	}
+    }
 
-	config.save();
+    config.save();
 }
