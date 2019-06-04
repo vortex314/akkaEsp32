@@ -78,7 +78,7 @@
       <File Name="components/Gps/Neo6m.cpp"/>
       <File Name="components/Gps/Neo6m.h"/>
     </VirtualDirectory>
-    <VirtualDirectory Name="MotorControl">
+    <VirtualDirectory Name="MotorSpeed">
       <File Name="components/MotorControl/component.mk"/>
       <File Name="components/MotorControl/MotorSpeed.h"/>
       <File Name="components/MotorControl/MotorSpeed.cpp"/>

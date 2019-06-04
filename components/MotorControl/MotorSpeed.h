@@ -34,6 +34,7 @@ class MotorSpeed : public Actor {
 		uint32_t _pinPwmRight;
 		uint32_t _pinTachoA;
 		DigitalIn& _dInTachoB;
+		ActorRef& _bridge;
 		uint32_t _pinTachoB;
 		mcpwm_unit_t _mcpwm_num;
 		mcpwm_timer_t _timer_num;
@@ -67,11 +68,11 @@ class MotorSpeed : public Actor {
 		Label _controlTimer;
 
 	public:
-		MotorSpeed( Connector& connector);
+		MotorSpeed( Connector* connector,ActorRef& bridge);
 		MotorSpeed( uint32_t pinLeftIS, uint32_t pinrightIS,
 		            uint32_t pinLeftEnable, uint32_t pinRightEnable,
 		            uint32_t pinLeftPwm, uint32_t pinRightPwm, uint32_t pinTachoA,
-		            uint32_t pinTachoB);
+		            uint32_t pinTachoB,ActorRef& bridge);
 		~MotorSpeed();
 		static void onRaise(void*);
 		static void isrHandler(void*);

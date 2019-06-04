@@ -52,7 +52,7 @@ const static int CONNECTED_BIT = BIT0;
 #include <DWM1000_Tag.h>
 #include <Programmer.h>
 #include <Controller.h>
-
+#include <MotorSpeed.h>
 using namespace std;
 
 /*
@@ -81,7 +81,7 @@ extern "C" void app_main() {
 	INFO(" hash test : %d vs %d ",H("$dst"),H("ESP32-12857/wifi"));
 	std::string output;
 	std::string conf5 =
-	    "{\"uext\":[\"controller\"],\"controller\":{\"class\":\"Controller\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
+	    "{\"uext\":[\"controller\"],\"controller\":{\"class\":\"Controller\"},\"system\":{\"hostname\":\"remote\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
 	std::string conf4 =
 	    "{\"uext\":[\"programmer\"],\"programmer\":{\"class\":\"Programmer\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
 	std::string conf3 =
@@ -93,6 +93,10 @@ extern "C" void app_main() {
 	std::string conf =
 	    "{\"uext\":[\"triac\"],\"triac\":{\"class\":\"Triac\"},\"us\":{\"class\":\"UltraSonic\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
 	config.load(conf5.c_str());
+	std::string hostname;
+	config.setNameSpace("system");
+	config.get("hostname",hostname,Sys::hostname());
+	Sys::setHostname(hostname.c_str());
 	INFO(" config %s",conf5.c_str());
 
 	static MessageDispatcher defaultDispatcher(4, 6000, tskIDLE_PRIORITY + 1);
@@ -134,6 +138,10 @@ extern "C" void app_main() {
 				case H("LSM303C"): {
 						actorSystem.actorOf<LSM303C>(name, new Connector(idx),
 						                             bridge);
+						break;
+					}
+				case H("MotorSpeed"): {
+						actorSystem.actorOf<MotorSpeed>(name, new Connector(idx), bridge);
 						break;
 					}
 				case H("NEO6M"): {

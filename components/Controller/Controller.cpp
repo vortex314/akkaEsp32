@@ -1,6 +1,8 @@
 #include "Controller.h"
 
 MsgClass Controller::LedCommand("led");
+MsgClass Controller::LedLeft("ledLeft");
+MsgClass Controller::LedRight("ledRight");
 
 Controller::Controller(ActorRef& bridge)  : _bridge(bridge),
 	_led_right(23),
@@ -11,8 +13,7 @@ Controller::Controller(ActorRef& bridge)  : _bridge(bridge),
 	_rightSwitch(DigitalIn::create(16))
 
 {
-	_potLeftFilter=new AverageFilter<uint32_t>();
-	_potRightFilter=new AverageFilter<uint32_t>();
+
 }
 
 Controller::~Controller() {
@@ -31,17 +32,24 @@ void Controller::preStart() {
 	_leftSwitch.init();
 	_rightSwitch.init();
 
-	timers().startPeriodicTimer("reportTimer", Msg("reportTimer"), 300);
+	timers().startPeriodicTimer("reportTimer", Msg("reportTimer"), 100);
 	timers().startPeriodicTimer("measureTimer", Msg("measureTimer"), 50);
 }
 
 Receive& Controller::createReceive() {
 	return receiveBuilder()
 	.match(MsgClass("reportTimer"),	[this](Msg& timer) {
+		static float _potLeftOld,_potRightOld;
+		static bool _buttonLeftOld,_buttonRightOld;
 		Msg msg(Bridge::Publish);
-		msg("potLeft",_potLeft)("potRight",_potRight);
-		msg("buttonLeft",_leftSwitch.read()==1?false:true);
-		msg("buttonRight",_rightSwitch.read()==1?false:true);
+		if ( _potLeft != _potLeftOld )	msg("potLeft",_potLeft);
+		if ( _potRight!= _potRightOld )	msg("potRight",_potRight);
+		if ( _buttonLeftOld != _leftSwitch.read())	msg("buttonLeft",_leftSwitch.read()==1?false:true);
+		if ( _buttonRightOld != _rightSwitch.read() ) 	msg("buttonRight",_rightSwitch.read()==1?false:true);
+		_potLeftOld = _potLeft;
+		_potRightOld= _potRight;
+		_buttonLeftOld=_leftSwitch.read()==1?false:true;
+		_buttonRightOld=_rightSwitch.read()==1?false:true;
 		_bridge.tell(msg,self());
 	})
 
@@ -49,6 +57,29 @@ Receive& Controller::createReceive() {
 		float weight = 0.2;
 		_potLeft = _potLeft*(1-weight) + weight*_pot_left.getValue();
 		_potRight = _potRight*(1-weight) + weight*_pot_right.getValue();
+	})
+
+	.match(Controller::LedLeft,[this](Msg& msg) {
+		bool b;
+		INFO(" LedLeft %s",msg.toString().c_str());
+		if ( msg.get("data",b)==0) {
+			if ( b ) _led_left.on();
+			else _led_left.off();
+		} else {
+			WARN(" no data ");
+		}
+	})
+
+	.match(Controller::LedRight,[this](Msg& msg) {
+		bool b;
+		INFO(" LedRight %s",msg.toString().c_str());
+
+		if ( msg.get("data",b)==0) {
+			if ( b ) _led_right.on();
+			else _led_right.off();
+		} else {
+			WARN(" no data ");
+		}
 	})
 
 	.match(Controller::LedCommand,[this](Msg& msg) {

@@ -7,7 +7,6 @@
 #include <Led.h>
 #include <Pot.h>
 #define MEDIAN_SAMPLES 7
-#include <MedianFilter.hpp>
 
 
 
@@ -22,10 +21,11 @@ class Controller : public Actor {
 		uint32_t _potRight;
 		DigitalIn& _leftSwitch;
 		DigitalIn& _rightSwitch;
-		AverageFilter<uint32_t>* _potLeftFilter;
-		AverageFilter<uint32_t>* _potRightFilter;
 	public:
 		static MsgClass LedCommand;
+		static MsgClass LedLeft;
+		static MsgClass LedRight;
+
 		Controller(ActorRef& publisher);
 		virtual ~Controller();
 		int init();

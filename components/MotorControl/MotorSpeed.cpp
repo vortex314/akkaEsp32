@@ -27,41 +27,41 @@
 static mcpwm_dev_t* MCPWM[2] = {&MCPWM0, &MCPWM1};
 
 MotorSpeed::MotorSpeed( uint32_t pinLeftIS,
-                       uint32_t pinRightIS, uint32_t pinLeftEnable,
-                       uint32_t pinRightEnable, uint32_t pinLeftPwm,
-                       uint32_t pinRightPwm, uint32_t pinTachoA,
-                       uint32_t pinTachoB)
+                        uint32_t pinRightIS, uint32_t pinLeftEnable,
+                        uint32_t pinRightEnable, uint32_t pinLeftPwm,
+                        uint32_t pinRightPwm, uint32_t pinTachoA,
+                        uint32_t pinTachoB,ActorRef& bridge)
 	: _adcLeftIS(ADC::create(pinLeftIS)), _adcRightIS(ADC::create(pinRightIS)),
 	  _pinLeftEnable(DigitalOut::create(pinLeftEnable)),
 	  _pinRightEnable(DigitalOut::create(pinRightEnable)),
 	  _pinPwmLeft(pinLeftPwm), _pinPwmRight(pinRightPwm), _pinTachoA(pinTachoA),
-	  _dInTachoB(DigitalIn::create(pinTachoB)) {
+	  _dInTachoB(DigitalIn::create(pinTachoB)),_bridge(bridge) {
 	_isrCounter = 0;
 	_rpmMeasuredFilter = new AverageFilter<float>();
 	_rpmTarget = 50;
 }
 
-MotorSpeed::MotorSpeed(Connector& uext)
-	: MotorSpeed(uext.toPin(LP_SCL), uext.toPin(LP_MISO),
-	             uext.toPin(LP_MOSI), uext.toPin(LP_CS), uext.toPin(LP_TXD),
-	             uext.toPin(LP_SCK), uext.toPin(LP_RXD), uext.toPin(LP_SDA)) {
+MotorSpeed::MotorSpeed(Connector* uext,ActorRef& bridge)
+	: MotorSpeed(uext->toPin(LP_SCL), uext->toPin(LP_MISO),
+	             uext->toPin(LP_MOSI), uext->toPin(LP_CS), uext->toPin(LP_TXD),
+	             uext->toPin(LP_SCK), uext->toPin(LP_RXD), uext->toPin(LP_SDA),bridge) {
 	INFO(" Drive/Sensor = UEXT GPIO ");
 	INFO("         L_IS = %s GPIO_%d ", Connector::uextPin(LP_SCL),
-	     uext.toPin(LP_SCL));
+	     uext->toPin(LP_SCL));
 	INFO("         R_IS = %s GPIO_%d ", Connector::uextPin(LP_MISO),
-	     uext.toPin(LP_MISO));
+	     uext->toPin(LP_MISO));
 	INFO("         L_EN = %s GPIO_%d ", Connector::uextPin(LP_MOSI),
-	     uext.toPin(LP_MOSI));
+	     uext->toPin(LP_MOSI));
 	INFO("         R_EN = %s GPIO_%d ", Connector::uextPin(LP_CS),
-	     uext.toPin(LP_CS));
+	     uext->toPin(LP_CS));
 	INFO("        L_PWM = %s GPIO_%d ", Connector::uextPin(LP_TXD),
-	     uext.toPin(LP_TXD));
+	     uext->toPin(LP_TXD));
 	INFO("        R_PWM = %s GPIO_%d ", Connector::uextPin(LP_SCK),
-	     uext.toPin(LP_SCK));
+	     uext->toPin(LP_SCK));
 	INFO(" Tacho Chan A = %s GPIO_%d ", Connector::uextPin(LP_RXD),
-	     uext.toPin(LP_RXD));
+	     uext->toPin(LP_RXD));
 	INFO(" Tacho Chan B = %s GPIO_%d ", Connector::uextPin(LP_SDA),
-	     uext.toPin(LP_SDA));
+	     uext->toPin(LP_SDA));
 }
 
 MotorSpeed::~MotorSpeed() {}
