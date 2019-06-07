@@ -17,10 +17,11 @@ class Controller : public Actor {
 		Led _led_left;
 		Pot _pot_left;
 		Pot _pot_right;
-		uint32_t _potLeft;
-		uint32_t _potRight;
 		DigitalIn& _leftSwitch;
 		DigitalIn& _rightSwitch;
+
+		uint32_t _potLeft,_potRight,_potLeftPrev,_potRightPrev;
+		bool _buttonLeft,_buttonLeftPrev,_buttonRight,_buttonRightPrev;
 	public:
 		static MsgClass LedCommand;
 		static MsgClass LedLeft;
@@ -32,8 +33,10 @@ class Controller : public Actor {
 		void handleRxd();
 		void preStart();
 		Receive& createReceive();
-		void start();
-		void run();
+
+		void savePrev();
+		void measure();
+
 };
 
 

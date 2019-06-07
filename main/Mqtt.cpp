@@ -49,7 +49,7 @@ void Mqtt::preStart() {
 	mqtt_cfg.buffer_size = 10240;
 	mqtt_cfg.lwt_topic = _lwt_topic.c_str();
 	mqtt_cfg.lwt_msg = _lwt_message.c_str();
-	mqtt_cfg.lwt_qos=0;
+	mqtt_cfg.lwt_qos=1;
 	mqtt_cfg.lwt_msg_len=5;
 	mqtt_cfg.keepalive=5;
 	_mqttClient = esp_mqtt_client_init(&mqtt_cfg);
@@ -173,7 +173,7 @@ esp_err_t Mqtt::mqtt_event_handler(esp_mqtt_event_handle_t event) {
 void Mqtt::mqttPublish(const char* topic, const char* message) {
 	if (_connected == false) return;
 	INFO("PUB : %s = %s", topic, message);
-	int id = esp_mqtt_client_publish(_mqttClient, topic, message, 0, 0, 0);
+	int id = esp_mqtt_client_publish(_mqttClient, topic, message, 0, 1, 0);
 	if (id < 0)
 		WARN("esp_mqtt_client_publish() failed.");
 }

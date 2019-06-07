@@ -32,31 +32,53 @@ void Controller::preStart() {
 	_leftSwitch.init();
 	_rightSwitch.init();
 
-	timers().startPeriodicTimer("reportTimer", Msg("reportTimer"), 100);
+	timers().startPeriodicTimer("reportTimer", Msg("reportTimer"), 1000);
 	timers().startPeriodicTimer("measureTimer", Msg("measureTimer"), 50);
+}
+#include <cmath>
+bool delta(float a,float b,float max) {
+	if ( abs(a-b)>max) return true;
+	return false;
+}
+
+void Controller::savePrev() {
+	_potLeftPrev = _potLeft;
+	_potRightPrev= _potRight;
+	_buttonLeftPrev=_buttonLeft;
+	_buttonRightPrev=_buttonRight;
+}
+
+void Controller::measure() {
+	const int weight=0.2;
+	_potLeft = _pot_left.getValue()*(1-weight)+_potLeftPrev*weight;
+	_potRight= _pot_right.getValue()*(1-weight)+_potRightPrev*weight;
+
+	_buttonLeft = _leftSwitch.read()==1?false:true;
+	_buttonRight = _rightSwitch.read()==1?false:true;
 }
 
 Receive& Controller::createReceive() {
 	return receiveBuilder()
-	.match(MsgClass("reportTimer"),	[this](Msg& timer) {
-		static float _potLeftOld,_potRightOld;
-		static bool _buttonLeftOld,_buttonRightOld;
+	.match(MsgClass("measureTimer"),	[this](Msg& timer) {
 		Msg msg(Bridge::Publish);
-		if ( _potLeft != _potLeftOld )	msg("potLeft",_potLeft);
-		if ( _potRight!= _potRightOld )	msg("potRight",_potRight);
-		if ( _buttonLeftOld != _leftSwitch.read())	msg("buttonLeft",_leftSwitch.read()==1?false:true);
-		if ( _buttonRightOld != _rightSwitch.read() ) 	msg("buttonRight",_rightSwitch.read()==1?false:true);
-		_potLeftOld = _potLeft;
-		_potRightOld= _potRight;
-		_buttonLeftOld=_leftSwitch.read();
-		_buttonRightOld=_rightSwitch.read();
+		measure();
+		if ( delta(_potLeft, _potLeftPrev,2 ))	msg("potLeft",round(_potLeft));
+		if ( delta(_potRight, _potRightPrev,2) ) msg("potRight",round(_potRight));
+		if ( _buttonLeftPrev != _buttonLeft) msg("buttonLeft",_buttonLeft);
+		if ( _buttonRightPrev != _buttonRight ) msg("buttonRight",_buttonRight);
 		_bridge.tell(msg,self());
+		savePrev();
 	})
 
-	.match(MsgClass("measureTimer"),	[this](Msg& timer) {
-		float weight = 0.2;
-		_potLeft = _potLeft*(1-weight) + weight*_pot_left.getValue();
-		_potRight = _potRight*(1-weight) + weight*_pot_right.getValue();
+	.match(MsgClass("reportTimer"),	[this](Msg& timer) {
+		measure();
+		Msg msg(Bridge::Publish);
+		msg("potLeft",round(_potLeft));
+		msg("potRight",round(_potRight));
+		msg("buttonLeft",_buttonLeft);
+		msg("buttonRight",_buttonRight);
+		_bridge.tell(msg,self());
+		savePrev();
 	})
 
 	.match(Controller::LedLeft,[this](Msg& msg) {
