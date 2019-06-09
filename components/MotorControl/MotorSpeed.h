@@ -51,11 +51,11 @@ class MotorSpeed : public Actor
     uint32_t _isrCounter;
     int _direction = 1;
     int _directionPrev=1;
-    float _rpmMeasured;
-    float _rpmTarget = 0;
+    int _rpmMeasured;
+    int _rpmTarget = 0;
     float _rpmFiltered;
-    float _KP = 0.1;
-    float _KI = 10;
+    float _KP = 1;
+    float _KI = 0.1;
     float _KD = 0;
     float _bias = 0;
     float _error = 0;
@@ -90,6 +90,9 @@ public:
     void round(float& f, float resol);
     void preStart();
     Receive& createReceive();
+
+    int32_t deltaToRpm(uint32_t delta,int direction);
+    void measureCurrent();
 };
 
 #endif // MOTORSPEED_H

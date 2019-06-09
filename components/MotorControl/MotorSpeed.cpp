@@ -1,7 +1,7 @@
 #include "MotorSpeed.h"
 #include "soc/rtc.h"
 
-#define MAX_PWM 40
+#define MAX_PWM 25
 /*
  * CAPTURE :
  * Rotary sensor generates 400 pulses per rotation
@@ -20,13 +20,10 @@
  *
  * */
 
-#define SAMPLE_TIME_USEC 100000 // 0.1 sec
-#define CAPTURE_DELTA 8000000   // ((SAMPLE_TIME_USEC*80) / APB_CLK_FREQ)
-#define WAIT_TIME 150           // ((SAMPLE_TIME_USEC/10000)*15 )  // 150 msec
-
 #define CAPTURE_FREQ 80000000
 #define PULSE_PER_ROTATION 400
-#define CAPTURE_DIVIDER 10
+#define CAPTURE_DIVIDER 1
+#define CONTROL_INTERVAL_MS 20
 
 static mcpwm_dev_t* MCPWM[2] = {&MCPWM0, &MCPWM1};
 MsgClass MotorSpeed::targetSpeed("targetSpeed");
@@ -50,7 +47,7 @@ MotorSpeed::MotorSpeed( uint32_t pinLeftIS,
 {
     _isrCounter = 0;
     _rpmMeasuredFilter = new AverageFilter<float>();
-    _rpmTarget = 50;
+    _rpmTarget = -100;
 }
 
 MotorSpeed::MotorSpeed(Connector* uext,ActorRef& bridge)
@@ -128,11 +125,24 @@ void MotorSpeed::preStart()
     }
 
     _controlTimer =
-        timers().startPeriodicTimer("controlTimer", Msg("controlTimer"), 100);
-    timers().startPeriodicTimer("reportTimer", Msg("reportTimer"), 1000);
+        timers().startPeriodicTimer("controlTimer", Msg("controlTimer"), CONTROL_INTERVAL_MS);
+    timers().startPeriodicTimer("reportTimer", Msg("reportTimer"), 100);
 
     _pinLeftEnable.write(1);
     _pinRightEnable.write(1);
+}
+
+int32_t MotorSpeed::deltaToRpm(uint32_t delta,int32_t direction)
+{
+    int rpm=0;
+    if ( delta != _deltaPrev ) {
+        float t = ( 60.0 * CAPTURE_FREQ * CAPTURE_DIVIDER)/(delta*PULSE_PER_ROTATION);
+        _deltaPrev=delta;
+        rpm =  ((int32_t)t)*_direction;
+    } else {
+        _deltaPrev=delta;
+    }
+    return rpm;
 }
 
 Receive& MotorSpeed::createReceive()
@@ -154,83 +164,40 @@ Receive& MotorSpeed::createReceive()
         INFO(" targetSpeed message ");
         if ( msg.get("data",target)) {
             INFO(" targetSpeed : %f",target);
-            setOutput(target*10);
+            _rpmTarget=target*40;
             sender().tell(replyBuilder(msg)("rc",0),self());
+            _bridge.tell(msgBuilder(Bridge::Publish)("rpmTarget",_rpmTarget),self());
         }
     })
 
     .match(MsgClass("reportTimer"),
     [this](Msg& msg) {
-        Msg& m = msgBuilder(Bridge::Publish)("leftCurrent",_adcLeftIS.getValue())("rightCurrent",_adcRightIS.getValue());
+        Msg& m = msgBuilder(Bridge::Publish)("leftCurrent",_currentLeft)("rightCurrent",_currentRight);
         if ( _direction != _directionPrev) {
             m("direction",_direction);
             _directionPrev = _direction;
         }
         /*       _sample_time = _delta;
-               _sample_time /= APB_CLK_FREQ;
-               float tickTime = _sample_time / _isrCounter;*/
-        if ( _delta != _deltaPrev ) {
-            m("delta",_delta);
-            _deltaPrev=_delta;
-            float t = ( 60.0 * CAPTURE_FREQ * CAPTURE_DIVIDER)/(_delta*PULSE_PER_ROTATION);
-            _rpmMeasured =  (uint32_t)t;
-            m("rpmMeasured",_rpmMeasured);
-        } else {
-            _rpmMeasured=0;
-        }
+               _sample_time /= APB_CLK_FREQ;*/
+        m("rpmMeasured",_rpmMeasured);
         _bridge.tell(m,self());
     })
 
     .match(MsgClass("controlTimer"),
     [this](Msg& msg) {
-        return;
-        uint32_t loopCount = 0;
-        _sample_time = _delta;
-        _sample_time /= APB_CLK_FREQ;
-        float tickTime = _sample_time / _isrCounter;
-
-        if (true) {
-            _rpmMeasured =
-                60.0 / (tickTime *
-                        600.0); // 600 * tickTime => time per
-            // rotation, 1/tpr => rps , *60 = rpm
-        } else {
-            _rpmMeasured = 1234;
-        }
-        _rpmMeasured = _direction * _rpmMeasured;
-        //       _rpmMeasured =
-        //       _rpmMeasuredFilter->filter(_rpmMeasured);
-        //       _rpmFiltered =  _rpmMeasured;
-
-        _currentLeft = (_adcLeftIS.getValue() * 3.9 / 1024.0) * 0.85;
-        _currentRight =
-            (_adcRightIS.getValue() * 3.9 / 1024.0) * 0.85;
-
-        round(_currentLeft, 0.1);
-        round(_currentRight, 0.1);
-
+        static uint32_t loopCount=0;
+        _rpmMeasured =  deltaToRpm(_delta,_direction);
+        measureCurrent();
         _error = _rpmTarget - _rpmMeasured;
-
-        _output = PID(_error, _sample_time);
-        //        _output *= -1;
-        if (_currentLeft > 4.0 || _currentRight > 4.0) {
-            _output = 0;
-        }
+        _output = PID(_error, CONTROL_INTERVAL_MS/1000.0);
         setOutput(_output);
 
-        if (((loopCount++) % 16) == 0) {
-            //            printf(" %d %d %d %f %f
-            //            \n",_delta,_isrCounter,APB_CLK_FREQ,tickTime,_rpmMeasured);
-            printf(" %d %.2f/%.2f rpm, %d %.4f sec,%.2f/%.2f A,  "
-                   "%.5g sec, "
-                   "%.1f error, %f == P:%f + I:%f + D:%f \n",
-                   _direction, _rpmMeasured, _rpmTarget, _isrCounter,
-                   _sample_time, _currentLeft, _currentRight,
-                   tickTime, _error, _output, _error * _KP,
-                   _integral * _KI, _derivative * _KD);
-        }
-        _delta = 0;
-        _isrCounter = 0;
+        printf("PID %d/%d rpm,  %2.2f/%2.2f A,  "
+               "%3.1f error, %5f == P:%5f + I:%5f + D:%5f \n",
+               _rpmMeasured, _rpmTarget,
+               _currentLeft, _currentRight,
+               _error, _output, _error * _KP,
+               _integral * _KI, _derivative * _KD);
     })
 
     .build();
@@ -253,12 +220,20 @@ void IRAM_ATTR MotorSpeed::isrHandler(void* pv) // ATTENTION no float calculatio
                             MCPWM_SELECT_CAP0); // get capture signal counter value
         ms->_capture = capt;
         ms->_delta = (ms->_delta*(100-weight)+weight*(ms->_capture - ms->_prevCapture))/100;
-        if (ms->_delta > CAPTURE_DELTA) {
-//            ms->signal(SIG_CAPTURED);
-        }; // 10 msec ?
     }
 
     MCPWM[MCPWM_UNIT_0]->int_clr.val = mcpwm_intr_status;
+}
+
+
+void MotorSpeed::measureCurrent()
+{
+    _currentLeft = (_adcLeftIS.getValue() * 3.9 / 1024.0) * 0.85;
+    _currentRight =
+        (_adcRightIS.getValue() * 3.9 / 1024.0) * 0.85;
+
+    round(_currentLeft, 0.1);
+    round(_currentRight, 0.1);
 }
 /*
 void MotorSpeed::onRaise(void* pv)
