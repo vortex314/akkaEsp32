@@ -60,6 +60,7 @@ using namespace std;
  */
 
 #define MOTOR
+//#define GENERIC
 //#define DWM1000_TAG 1
 
 Log logger(256);
@@ -84,6 +85,12 @@ extern "C" void app_main()
     INFO("Starting Akka on %s heap : %d ", Sys::getProcessor(),Sys::getFreeHeap());
     INFO(" hash test : %d vs %d ",H("$dst"),H("ESP32-12857/wifi"));
     std::string output;
+#ifdef GENERIC
+    std::string conf =
+        "{\"uext\":[],\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
+    config.setNameSpace("system");
+    config.set("hostname",Sys::hostname());
+#endif
 #ifdef MOTOR
     std::string conf =
         "{\"uext\":[\"motor\"],\"motor\":{\"class\":\"MotorSpeed\"},\"system\":{\"hostname\":\"drive\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";

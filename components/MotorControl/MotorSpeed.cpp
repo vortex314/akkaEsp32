@@ -47,7 +47,7 @@ MotorSpeed::MotorSpeed( uint32_t pinLeftIS,
 {
     _isrCounter = 0;
     _rpmMeasuredFilter = new AverageFilter<float>();
-    _rpmTarget = -100;
+    _rpmTarget = 0;
 }
 
 MotorSpeed::MotorSpeed(Connector* uext,ActorRef& bridge)
@@ -208,7 +208,7 @@ void IRAM_ATTR MotorSpeed::isrHandler(void* pv) // ATTENTION no float calculatio
     MotorSpeed* ms = (MotorSpeed*)pv;
     uint32_t mcpwm_intr_status;
     int b = ms->_dInTachoB.read();          // check encoder B when encoder A has isr, indicates phase or rotation direction
-    ms->_direction = (b == 1) ? -1 : 1;
+    ms->_direction = (b == 1) ? 1 : -1;
 
     mcpwm_intr_status = MCPWM[MCPWM_UNIT_0]->int_st.val; // Read interrupt
     // status
