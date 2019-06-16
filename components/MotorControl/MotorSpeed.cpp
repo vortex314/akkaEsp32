@@ -1,7 +1,7 @@
 #include "MotorSpeed.h"
 #include "soc/rtc.h"
 
-#define MAX_PWM 25
+#define MAX_PWM 35
 /*
  * CAPTURE :
  * Rotary sensor generates 400 pulses per rotation
@@ -48,6 +48,7 @@ MotorSpeed::MotorSpeed( uint32_t pinLeftIS,
     _isrCounter = 0;
     _rpmMeasuredFilter = new AverageFilter<float>();
     _rpmTarget = 0;
+    _watchdogCounter=0;
 }
 
 MotorSpeed::MotorSpeed(Connector* uext,ActorRef& bridge)
@@ -124,9 +125,9 @@ void MotorSpeed::preStart()
         WARN("mcpwm_capture_enable() : %d", rc);
     }
 
-    _controlTimer =
-        timers().startPeriodicTimer("controlTimer", Msg("controlTimer"), CONTROL_INTERVAL_MS);
-    timers().startPeriodicTimer("reportTimer", Msg("reportTimer"), 100);
+    timers().startPeriodicTimer("controlTimer", Msg("controlTimer"), CONTROL_INTERVAL_MS);
+    timers().startPeriodicTimer("reportTimer", Msg("reportTimer"), 500);
+    timers().startPeriodicTimer("watchdogTimer", Msg("watchdogTimer"), 2000);
 
     _pinLeftEnable.write(1);
     _pinRightEnable.write(1);
@@ -159,6 +160,17 @@ Receive& MotorSpeed::createReceive()
                       self());
     })
 
+    .match(MsgClass("keepGoing"),  [this](Msg& msg) {
+        _watchdogCounter++;
+    })
+
+    .match(MsgClass("watchdogTimer"),  [this](Msg& msg) {
+        if ( _watchdogCounter == 0 ) {
+            _rpmTarget=0;
+        }
+        _watchdogCounter=0;
+    })
+
     .match(targetSpeed,  [this](Msg& msg) {
         double target;
         INFO(" targetSpeed message ");
@@ -180,24 +192,29 @@ Receive& MotorSpeed::createReceive()
         /*       _sample_time = _delta;
                _sample_time /= APB_CLK_FREQ;*/
         m("rpmMeasured",_rpmMeasured);
+        m("delta",_delta);
         _bridge.tell(m,self());
     })
 
     .match(MsgClass("controlTimer"),
     [this](Msg& msg) {
         static uint32_t loopCount=0;
-        _rpmMeasured =  deltaToRpm(_delta,_direction);
+        static float newOutput;
+        static float w =0.5;
+        if ( _delta ) _rpmMeasured =  deltaToRpm(_delta,_direction);
         measureCurrent();
         _error = _rpmTarget - _rpmMeasured;
-        _output = PID(_error, CONTROL_INTERVAL_MS/1000.0);
+        newOutput = PID(_error, CONTROL_INTERVAL_MS/1000.0);
+        if ( _rpmTarget ==0 ) newOutput=0;
+        newOutput = newOutput*_pwmSign;
+        _output =  ( 1-w) * _output + w * newOutput;
         setOutput(_output);
 
-        printf("PID %d/%d rpm,  %2.2f/%2.2f A,  "
-               "%3.1f error, %5f == P:%5f + I:%5f + D:%5f \n",
-               _rpmMeasured, _rpmTarget,
-               _currentLeft, _currentRight,
-               _error, _output, _error * _KP,
-               _integral * _KI, _derivative * _KD);
+        if ( loopCount++ % 10 ==0 )
+            INFO("PID %3d/%3d rpm err:%3.1f pwm: %5f == P:%5f + I:%5f + D:%5f  %2.2f/%2.2f A, ",
+                 _rpmMeasured, _rpmTarget,
+                 _error, _output, _error * _KP,
+                 _integral * _KI, _derivative * _KD,_currentLeft, _currentRight);
     })
 
     .build();
@@ -208,7 +225,7 @@ void IRAM_ATTR MotorSpeed::isrHandler(void* pv) // ATTENTION no float calculatio
     MotorSpeed* ms = (MotorSpeed*)pv;
     uint32_t mcpwm_intr_status;
     int b = ms->_dInTachoB.read();          // check encoder B when encoder A has isr, indicates phase or rotation direction
-    ms->_direction = (b == 1) ? 1 : -1;
+    ms->_direction = (b == 1) ? (0- ms->_directionSign) : ms->_directionSign;
 
     mcpwm_intr_status = MCPWM[MCPWM_UNIT_0]->int_st.val; // Read interrupt
     // status
@@ -254,16 +271,12 @@ void MotorSpeed::left(float duty_cycle)
     mcpwm_set_signal_low(_mcpwm_num, _timer_num, MCPWM_OPR_B);
     mcpwm_set_duty(_mcpwm_num, _timer_num, MCPWM_OPR_A, duty_cycle);
     mcpwm_set_duty_type(_mcpwm_num, _timer_num, MCPWM_OPR_A,
-                        MCPWM_DUTY_MODE_0); // call this each time, if operator
+                        MCPWM_DUTY_MODE_0);
+    // call this each time, if operator
     // was previously in low/high state
 }
 
-/**
- * @brief motor moves in backward direction, with duty cycle = duty %MESSAGE:
-Entering directory `/home/lieven/workspace/vertx-esp32' /bin/sh -c 'make'
-----------Building project:[ vertx-esp32 - Debug ]----------
 
- */
 void MotorSpeed::right(float duty_cycle)
 {
     if (duty_cycle > MAX_PWM)
@@ -271,7 +284,8 @@ void MotorSpeed::right(float duty_cycle)
     mcpwm_set_signal_low(_mcpwm_num, _timer_num, MCPWM_OPR_A);
     mcpwm_set_duty(_mcpwm_num, _timer_num, MCPWM_OPR_B, duty_cycle);
     mcpwm_set_duty_type(_mcpwm_num, _timer_num, MCPWM_OPR_B,
-                        MCPWM_DUTY_MODE_0); // call this each time, if operator
+                        MCPWM_DUTY_MODE_0);
+    // call this each time, if operator
     // was previously in low/high state
 }
 

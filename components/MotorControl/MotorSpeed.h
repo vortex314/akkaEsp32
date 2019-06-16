@@ -70,6 +70,11 @@ class MotorSpeed : public Actor
     float _currentLeft, _currentRight;
     AverageFilter<float>* _rpmMeasuredFilter;
     Label _controlTimer;
+    int _watchdogCounter;
+
+    int _directionSign=-1;
+    int _pwmSign=1;
+
 
 public:
     static MsgClass targetSpeed;
