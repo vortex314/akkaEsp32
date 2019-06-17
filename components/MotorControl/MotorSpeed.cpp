@@ -1,7 +1,7 @@
 #include "MotorSpeed.h"
 #include "soc/rtc.h"
 
-#define MAX_PWM 35
+#define MAX_PWM 60
 /*
  * CAPTURE :
  * Rotary sensor generates 400 pulses per rotation
@@ -23,7 +23,7 @@
 #define CAPTURE_FREQ 80000000
 #define PULSE_PER_ROTATION 400
 #define CAPTURE_DIVIDER 1
-#define CONTROL_INTERVAL_MS 20
+#define CONTROL_INTERVAL_MS 50
 
 static mcpwm_dev_t* MCPWM[2] = {&MCPWM0, &MCPWM1};
 MsgClass MotorSpeed::targetSpeed("targetSpeed");
@@ -49,6 +49,7 @@ MotorSpeed::MotorSpeed( uint32_t pinLeftIS,
     _rpmMeasuredFilter = new AverageFilter<float>();
     _rpmTarget = 0;
     _watchdogCounter=0;
+    _directionTargetLast=0;
 }
 
 MotorSpeed::MotorSpeed(Connector* uext,ActorRef& bridge)
@@ -268,10 +269,8 @@ void MotorSpeed::left(float duty_cycle)
 {
     if (duty_cycle > MAX_PWM)
         duty_cycle = MAX_PWM;
-    mcpwm_set_signal_low(_mcpwm_num, _timer_num, MCPWM_OPR_B);
     mcpwm_set_duty(_mcpwm_num, _timer_num, MCPWM_OPR_A, duty_cycle);
-    mcpwm_set_duty_type(_mcpwm_num, _timer_num, MCPWM_OPR_A,
-                        MCPWM_DUTY_MODE_0);
+
     // call this each time, if operator
     // was previously in low/high state
 }
@@ -281,10 +280,8 @@ void MotorSpeed::right(float duty_cycle)
 {
     if (duty_cycle > MAX_PWM)
         duty_cycle = MAX_PWM;
-    mcpwm_set_signal_low(_mcpwm_num, _timer_num, MCPWM_OPR_A);
     mcpwm_set_duty(_mcpwm_num, _timer_num, MCPWM_OPR_B, duty_cycle);
-    mcpwm_set_duty_type(_mcpwm_num, _timer_num, MCPWM_OPR_B,
-                        MCPWM_DUTY_MODE_0);
+
     // call this each time, if operator
     // was previously in low/high state
 }
@@ -296,6 +293,22 @@ float MotorSpeed::PID(float err, float interval)
     float output = _KP * err + _KI * _integral + _KD * _derivative + _bias;
     _errorPrior = err;
     return output;
+}
+
+
+void MotorSpeed::setDirection(float output)
+{
+    if ( output < 0 && _directionTargetLast >= 0 ) {
+        mcpwm_set_signal_low(_mcpwm_num, _timer_num, MCPWM_OPR_B);
+        mcpwm_set_duty_type(_mcpwm_num, _timer_num, MCPWM_OPR_A,
+                            MCPWM_DUTY_MODE_0);
+        _directionTargetLast=-1;
+    } else if ( output > 0 && _directionTargetLast <= 0 ) {
+        mcpwm_set_signal_low(_mcpwm_num, _timer_num, MCPWM_OPR_A);
+        mcpwm_set_duty_type(_mcpwm_num, _timer_num, MCPWM_OPR_B,
+                            MCPWM_DUTY_MODE_0);
+        _directionTargetLast=+1;
+    }
 }
 
 void MotorSpeed::setOutput(float output)

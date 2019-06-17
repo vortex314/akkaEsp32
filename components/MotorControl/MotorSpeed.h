@@ -53,9 +53,10 @@ class MotorSpeed : public Actor
     int _directionPrev=1;
     int _rpmMeasured;
     int _rpmTarget = 0;
+    int _directionTargetLast;
     float _rpmFiltered;
     float _KP = 1;
-    float _KI = 0.1;
+    float _KI = 0.2;
     float _KD = 0;
     float _bias = 0;
     float _error = 0;
@@ -90,6 +91,7 @@ public:
     float PID(float error, float interval);
     void left(float);
     void right(float);
+    void setDirection(float output);
     void setOutput(float output);
     float filter(float inp);
     void round(float& f, float resol);
