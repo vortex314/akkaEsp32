@@ -1,7 +1,7 @@
 #include "MotorSpeed.h"
 #include "soc/rtc.h"
 
-#define MAX_PWM 60
+#define MAX_PWM 50
 /*
  * CAPTURE :
  * Rotary sensor generates 400 pulses per rotation
@@ -214,7 +214,7 @@ Receive& MotorSpeed::createReceive()
         if ( loopCount++ % 10 ==0 )
             INFO("PID %3d/%3d rpm err:%3.1f pwm: %5f == P:%5f + I:%5f + D:%5f  %2.2f/%2.2f A, ",
                  _rpmMeasured, _rpmTarget,
-                 _error, _output, _error * _KP,
+                 _error, newOutput, _error * _KP,
                  _integral * _KI, _derivative * _KD,_currentLeft, _currentRight);
     })
 
