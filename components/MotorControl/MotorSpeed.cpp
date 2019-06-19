@@ -46,7 +46,7 @@ MotorSpeed::MotorSpeed( uint32_t pinLeftIS,
       _dInTachoB(DigitalIn::create(pinTachoB)),_bridge(bridge)
 {
     _isrCounter = 0;
-    _rpmMeasuredFilter = new AverageFilter<float>();
+    //_rpmMeasuredFilter = new AverageFilter<float>();
     _rpmTarget = 0;
     _watchdogCounter=0;
     _directionTargetLast=0;

@@ -57,6 +57,7 @@
       <File Name="components/DWM1000/DWM1000.cpp"/>
     </VirtualDirectory>
     <VirtualDirectory Name="Controller">
+      <File Name="components/Controller/MedianFilter.h"/>
       <File Name="components/Controller/Led.cpp"/>
       <File Name="components/Controller/Led.h"/>
       <File Name="components/Controller/Pot.cpp"/>
@@ -82,7 +83,6 @@
       <File Name="components/MotorControl/component.mk"/>
       <File Name="components/MotorControl/MotorSpeed.h"/>
       <File Name="components/MotorControl/MotorSpeed.cpp"/>
-      <File Name="components/MotorControl/MedianFilter.hpp"/>
       <File Name="components/MotorControl/BTS7960.h"/>
       <File Name="components/MotorControl/BTS7960.cpp"/>
     </VirtualDirectory>

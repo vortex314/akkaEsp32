@@ -5,7 +5,7 @@
 #include <Hardware.h>
 #include <Bridge.h>
 
-#include <MedianFilter.hpp>
+#include <MedianFilter.h>
 
 #include "driver/mcpwm.h"
 #include "driver/pcnt.h"
@@ -69,7 +69,7 @@ class MotorSpeed : public Actor
     uint32_t _indexSample = 0;
     float _angleFiltered;
     float _currentLeft, _currentRight;
-    AverageFilter<float>* _rpmMeasuredFilter;
+    //AverageFilter<float>* _rpmMeasuredFilter;
     Label _controlTimer;
     int _watchdogCounter;
 

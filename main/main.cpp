@@ -58,10 +58,15 @@ using namespace std;
 /*
  * ATTENTION : TIMER_TASK_PRIORITY needs to be raised to avoid wdt trigger on load test
  */
+#define CONTROLLER  "{\"uext\":[\"controller\"],\"controller\":{\"class\":\"Controller\"},\"system\":{\"hostname\":\"remote\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
+#define MOTOR "{\"uext\":[\"motor\"],\"motor\":{\"class\":\"MotorSpeed\"},\"system\":{\"hostname\":\"drive\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
 
-#define MOTOR
-//#define GENERIC
-//#define DWM1000_TAG 1
+
+#define GENERIC         "{\"uext\":[],\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
+#define DWM1000_TAG "{\"uext\":[\"dwm1000Tag\"],\"dwm1000Tag\":{\"class\":\"DWM1000_Tag\"},\"system\":{\"hostname\":\"tag\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
+
+
+#define CONFIGURATION CONTROLLER
 
 Log logger(256);
 ActorMsgBus eb;
@@ -91,25 +96,18 @@ extern "C" void app_main()
     config.setNameSpace("system");
     config.set("hostname",Sys::hostname());
 #endif
-#ifdef MOTOR
-    std::string conf =
-        "{\"uext\":[\"motor\"],\"motor\":{\"class\":\"MotorSpeed\"},\"system\":{\"hostname\":\"drive\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
-#endif
-    std::string conf5 =
-        "{\"uext\":[\"controller\"],\"controller\":{\"class\":\"Controller\"},\"system\":{\"hostname\":\"remote\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
+
+
     std::string conf4 =
         "{\"uext\":[\"programmer\"],\"programmer\":{\"class\":\"Programmer\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
-#ifdef DWM1000_TAG
-    std::string conf =
-        "{\"uext\":[\"dwm1000Tag\"],\"dwm1000Tag\":{\"class\":\"DWM1000_Tag\"},\"system\":{\"hostname\":\"tag\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
-#endif
+
     std::string conf2 =
         "{\"uext\":[\"compass\",\"us\"],\"compass\":{\"class\":\"DigitalCompass\"},\"us\":{\"class\":\"UltraSonic\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
     std::string conf1 =
         "{\"uext\":[\"gps\",\"us\"],\"gps\":{\"class\":\"NEO6M\"},\"us\":{\"class\":\"UltraSonic\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
     std::string conf0 =
         "{\"uext\":[\"triac\"],\"triac\":{\"class\":\"Triac\"},\"us\":{\"class\":\"UltraSonic\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}";
-    config.load(conf.c_str());
+    config.load(CONFIGURATION);
     std::string hostname;
     config.setNameSpace("system");
     config.get("hostname",hostname,Sys::hostname());

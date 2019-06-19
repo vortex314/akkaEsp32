@@ -6,36 +6,39 @@
 #include <Bridge.h>
 #include <Led.h>
 #include <Pot.h>
+#include <MedianFilter.h>
 #define MEDIAN_SAMPLES 7
 
 
 
-class Controller : public Actor {
-		ActorRef& _bridge;
-		Label _measureTimer;
-		Led _led_right;
-		Led _led_left;
-		Pot _pot_left;
-		Pot _pot_right;
-		DigitalIn& _leftSwitch;
-		DigitalIn& _rightSwitch;
+class Controller : public Actor
+{
+    ActorRef& _bridge;
+    Label _measureTimer;
+    Led _led_right;
+    Led _led_left;
+    Pot _pot_left;
+    Pot _pot_right;
+    DigitalIn& _leftSwitch;
+    DigitalIn& _rightSwitch;
 
-		uint32_t _potLeft,_potRight,_potLeftPrev,_potRightPrev;
-		bool _buttonLeft,_buttonLeftPrev,_buttonRight,_buttonRightPrev;
-	public:
-		static MsgClass LedCommand;
-		static MsgClass LedLeft;
-		static MsgClass LedRight;
+    uint32_t _potLeft,_potRight,_potLeftPrev,_potRightPrev;
+    bool _buttonLeft,_buttonLeftPrev,_buttonRight,_buttonRightPrev;
+    MedianFilter<int,11> _potLeftFilter,_potRightFilter;
+public:
+    static MsgClass LedCommand;
+    static MsgClass LedLeft;
+    static MsgClass LedRight;
 
-		Controller(ActorRef& publisher);
-		virtual ~Controller();
-		int init();
-		void handleRxd();
-		void preStart();
-		Receive& createReceive();
+    Controller(ActorRef& publisher);
+    virtual ~Controller();
+    int init();
+    void handleRxd();
+    void preStart();
+    Receive& createReceive();
 
-		void savePrev();
-		void measure();
+    void savePrev();
+    void measure();
 
 };
 
@@ -61,28 +64,29 @@ Series: Prentice-Hall Series in Automatic Computation
 
 
 #define ELEM_SWAP(a,b) { register T t=(a);(a)=(b);(b)=t; }
-template <typename T >T kth_smallest(T a[], int n, int k) {
-	register int i,j,l,m ;
-	register T x ;
-	l=0 ;
-	m=n-1 ;
-	while (l<m) {
-		x=a[k] ;
-		i=l ;
-		j=m ;
-		do {
-			while (a[i]<x) i++ ;
-			while (x<a[j]) j-- ;
-			if (i<=j) {
-				ELEM_SWAP(a[i],a[j]) ;
-				i++ ;
-				j-- ;
-			}
-		} while (i<=j) ;
-		if (j<k) l=i ;
-		if (k<i) m=j ;
-	}
-	return a[k] ;
+template <typename T >T kth_smallest(T a[], int n, int k)
+{
+    register int i,j,l,m ;
+    register T x ;
+    l=0 ;
+    m=n-1 ;
+    while (l<m) {
+        x=a[k] ;
+        i=l ;
+        j=m ;
+        do {
+            while (a[i]<x) i++ ;
+            while (x<a[j]) j-- ;
+            if (i<=j) {
+                ELEM_SWAP(a[i],a[j]) ;
+                i++ ;
+                j-- ;
+            }
+        } while (i<=j) ;
+        if (j<k) l=i ;
+        if (k<i) m=j ;
+    }
+    return a[k] ;
 }
 #define median(a,n) kth_smallest(a,n,(((n)&1)?((n)/2):(((n)/2)-1)))
 
