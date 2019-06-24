@@ -66,7 +66,7 @@ using namespace std;
 #define DWM1000_TAG "{\"uext\":[\"dwm1000Tag\"],\"dwm1000Tag\":{\"class\":\"DWM1000_Tag\"},\"system\":{\"hostname\":\"tag\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
 
 
-#define CONFIGURATION CONTROLLER
+#define CONFIGURATION MOTOR
 
 Log logger(256);
 ActorMsgBus eb;

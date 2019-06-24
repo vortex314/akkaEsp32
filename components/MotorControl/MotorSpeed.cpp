@@ -1,7 +1,7 @@
 #include "MotorSpeed.h"
 #include "soc/rtc.h"
 
-#define MAX_PWM 50
+#define MAX_PWM 80
 /*
  * CAPTURE :
  * Rotary sensor generates 400 pulses per rotation
@@ -23,7 +23,7 @@
 #define CAPTURE_FREQ 80000000
 #define PULSE_PER_ROTATION 400
 #define CAPTURE_DIVIDER 1
-#define CONTROL_INTERVAL_MS 50
+#define CONTROL_INTERVAL_MS 100
 
 static mcpwm_dev_t* MCPWM[2] = {&MCPWM0, &MCPWM1};
 MsgClass MotorSpeed::targetSpeed("targetSpeed");
@@ -127,8 +127,11 @@ void MotorSpeed::preStart()
     }
 
     timers().startPeriodicTimer("controlTimer", Msg("controlTimer"), CONTROL_INTERVAL_MS);
-    timers().startPeriodicTimer("reportTimer", Msg("reportTimer"), 500);
+    timers().startPeriodicTimer("reportTimer", Msg("reportTimer"), 100);
     timers().startPeriodicTimer("watchdogTimer", Msg("watchdogTimer"), 2000);
+
+    timers().startPeriodicTimer("pulseTimer", Msg("pulseTimer"), 5000);
+
 
     _pinLeftEnable.write(1);
     _pinRightEnable.write(1);
@@ -155,7 +158,6 @@ Receive& MotorSpeed::createReceive()
     [this](Msg& msg) {
         sender().tell(replyBuilder(msg)("rpmTarget", _rpmTarget)(
                           "rpmMeasured", _rpmMeasured)(
-                          "rpmFiltered", _rpmFiltered)(
                           "delta", _delta)("direction", _direction)(
                           "KP", _KP)("KI", _KI)("KD", _KD),
                       self());
@@ -167,9 +169,21 @@ Receive& MotorSpeed::createReceive()
 
     .match(MsgClass("watchdogTimer"),  [this](Msg& msg) {
         if ( _watchdogCounter == 0 ) {
-            _rpmTarget=0;
+//            _rpmTarget=0;
         }
         _watchdogCounter=0;
+    })
+
+    .match(MsgClass("pulseTimer"),  [this](Msg& msg) {
+
+        static uint32_t pulse=0;
+        static int rpmTargets[]= {0,30,50,100,150,100,80,40,0,-40,-80,-30,0};
+        _rpmTarget = rpmTargets[pulse];
+        pulse++;
+        pulse %= (sizeof(rpmTargets)/sizeof(int));
+        INFO("%ld;%d;%d;",Sys::millis(),_rpmTarget,_rpmMeasured);
+
+        _bridge.tell(msgBuilder(Bridge::Publish)("rpmTarget",_rpmTarget)("rpmMeasured",_rpmMeasured),self());
     })
 
     .match(targetSpeed,  [this](Msg& msg) {
@@ -193,29 +207,32 @@ Receive& MotorSpeed::createReceive()
         /*       _sample_time = _delta;
                _sample_time /= APB_CLK_FREQ;*/
         m("rpmMeasured",_rpmMeasured);
+        m("rpmTarget",_rpmTarget);
+        m("PWM",_output);
         m("delta",_delta);
         _bridge.tell(m,self());
     })
 
     .match(MsgClass("controlTimer"),
     [this](Msg& msg) {
-        static uint32_t loopCount=0;
+//        static uint32_t loopCount=0;
         static float newOutput;
-        static float w =0.5;
+//        static float w =0.5;
         if ( _delta ) _rpmMeasured =  deltaToRpm(_delta,_direction);
         measureCurrent();
         _error = _rpmTarget - _rpmMeasured;
-        newOutput = PID(_error, CONTROL_INTERVAL_MS/1000.0);
+        newOutput = PID(_error, CONTROL_INTERVAL_MS);
         if ( _rpmTarget ==0 ) newOutput=0;
         newOutput = newOutput*_pwmSign;
-        _output =  ( 1-w) * _output + w * newOutput;
+        _output =   newOutput;
         setOutput(_output);
 
-        if ( loopCount++ % 10 ==0 )
-            INFO("PID %3d/%3d rpm err:%3.1f pwm: %5f == P:%5f + I:%5f + D:%5f  %2.2f/%2.2f A, ",
-                 _rpmMeasured, _rpmTarget,
-                 _error, newOutput, _error * _KP,
-                 _integral * _KI, _derivative * _KD,_currentLeft, _currentRight);
+//       if ( loopCount++ % 10 ==0 )
+//       INFO("PID %ld;%5f;%d;",Sys::millis(),_output,_rpmMeasured);
+        INFO("PID %3d/%3d rpm err:%3.1f pwm:%5f == P:%5f + I:%5f + D:%5f  %2.2f/%2.2f A, ",
+             _rpmMeasured, _rpmTarget,
+             _error, _output, _error * _KP,
+             _integral * _KI, _derivative * _KD,_currentLeft, _currentRight);
     })
 
     .build();
