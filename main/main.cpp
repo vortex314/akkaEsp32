@@ -53,6 +53,7 @@ const static int CONNECTED_BIT = BIT0;
 #include <Programmer.h>
 #include <Controller.h>
 #include <MotorSpeed.h>
+#include <MotorServo.h>
 using namespace std;
 
 /*
@@ -60,13 +61,14 @@ using namespace std;
  */
 #define CONTROLLER  "{\"uext\":[\"controller\"],\"controller\":{\"class\":\"Controller\"},\"system\":{\"hostname\":\"remote\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
 #define MOTOR "{\"uext\":[\"motor\"],\"motor\":{\"class\":\"MotorSpeed\"},\"system\":{\"hostname\":\"drive\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
+#define SERVO "{\"uext\":[\"servo\"],\"servo\":{\"class\":\"MotorServo\"},\"system\":{\"hostname\":\"drive\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
 
 
 #define GENERIC         "{\"uext\":[],\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
 #define DWM1000_TAG "{\"uext\":[\"dwm1000Tag\"],\"dwm1000Tag\":{\"class\":\"DWM1000_Tag\"},\"system\":{\"hostname\":\"tag\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
 
 
-#define CONFIGURATION MOTOR
+#define CONFIGURATION SERVO
 
 Log logger(256);
 ActorMsgBus eb;
@@ -157,6 +159,10 @@ extern "C" void app_main()
             }
             case H("MotorSpeed"): {
                 actorSystem.actorOf<MotorSpeed>(name, new Connector(idx), bridge);
+                break;
+            }
+            case H("MotorServo"): {
+                actorSystem.actorOf<MotorServo>(name, new Connector(idx), bridge);
                 break;
             }
             case H("NEO6M"): {
