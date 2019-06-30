@@ -1,31 +1,33 @@
 #include "MotorServo.h"
 
-#define MAX_PWM 20
+#define MAX_PWM 50
+#define CONTROL_INTERVAL_MS 100
 
-MotorServo::MotorServo(uint32_t pinLeftIS, uint32_t pinRightIS,
+MsgClass MotorServo::targetAngle("targetAngle");
+
+
+MotorServo::MotorServo(uint32_t pinPot, uint32_t pinIS,
                        uint32_t pinLeftEnable, uint32_t pinRightEnable,
                        uint32_t pinLeftPwm, uint32_t pinRightPwm,
-                       uint32_t pinPot,ActorRef& bridge) :
-    _adcLeftIS(ADC::create(pinLeftIS)),
-    _adcRightIS(ADC::create(pinRightIS)),
+                       ActorRef& bridge) :
+    _adcPot(ADC::create(pinPot)),
+    _adcIS(ADC::create(pinIS)),
     _pinLeftEnable(DigitalOut::create(pinLeftEnable)),
     _pinRightEnable(DigitalOut::create(pinRightEnable)),
     _pinPwmLeft(pinLeftPwm), _pinPwmRight(pinRightPwm),
-    _adcPot(ADC::create(pinPot)),_bridge(bridge)
+    _bridge(bridge)
 {
 }
 
 MotorServo::MotorServo(Connector* uext,ActorRef& bridge) : MotorServo(
-        uext->toPin(LP_RXD),
-        uext->toPin(LP_MISO),
+        uext->toPin(LP_RXD), //only ADC capable pins
+        uext->toPin(LP_MISO), // "
 
         uext->toPin(LP_MOSI),
         uext->toPin(LP_CS),
 
         uext->toPin(LP_TXD),
-        uext->toPin(LP_SCK),
-
-        uext->toPin(LP_SCL),bridge)
+        uext->toPin(LP_SCK),bridge)
 {
 
 }
@@ -39,8 +41,7 @@ void MotorServo::preStart()
 {
     for(uint32_t i=0; i<SERVO_MAX_SAMPLES; i++)
         _angleSamples[i]=0;
-    _adcLeftIS.init();
-    _adcRightIS.init();
+    _adcIS.init();
     _adcPot.init();
     _pinLeftEnable.init();
     _pinLeftEnable.write(0);
@@ -61,6 +62,10 @@ void MotorServo::preStart()
 //    pwm_config.mcpwm_cap0_in_num   = _pinTacho;
     mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_0, &pwm_config);    //Configure PWM0A & PWM0B with above settings
 
+    timers().startPeriodicTimer("controlTimer", Msg("controlTimer"), CONTROL_INTERVAL_MS);
+    timers().startPeriodicTimer("reportTimer", Msg("reportTimer"), 100);
+    timers().startPeriodicTimer("watchdogTimer", Msg("watchdogTimer"), 2000);
+    timers().startPeriodicTimer("pulseTimer", Msg("pulseTimer"), 5000);
 //   _bts7960.init();
 
 }
@@ -71,10 +76,12 @@ Receive& MotorServo::createReceive()
 
            .match(MsgClass::Properties(),
     [this](Msg& msg) {
-        sender().tell(replyBuilder(msg)("angleTarget", _angleTarget)(
-                          "angleMeasured", _angleCurrent)(
-                          "angleFiltered", _angleFiltered)("currentLeft", _currentLeft)("currentRight", _currentRight)(
-                          "KP", _KP)("KI", _KI)("KD", _KD),
+        sender().tell(replyBuilder(msg) //
+                      ("angleTarget", _angleTarget)
+                      ("angleMeasured", _angleMeasured) //
+                      ("current", _current) //
+                      ("output", _output) //
+                      ("KP", _KP)("KI", _KI)("KD", _KD),
                       self());
     })
 
@@ -101,7 +108,26 @@ Receive& MotorServo::createReceive()
 
     .match(MsgClass("controlTimer"),
     [this](Msg& msg) {
+        INFO(" ADC pot :  %d -> %d",_adcPot.getValue(),_potFilter.getMedian());
+        _potFilter.addSample(_adcPot.getValue());
+        if ( _potFilter.isReady()) {
+            _angleMeasured = ((_potFilter.getMedian()-500.0)/300.0)*90.0;
+            _error = _angleTarget - _angleMeasured;
+//           _output = PID(_error, CONTROL_INTERVAL_MS);
+//            setOutput(_output);
+        }
+    })
 
+    .match(targetAngle,  [this](Msg& msg) {
+        double target;
+        if ( msg.get("data",target)) {
+            INFO(" targetAngle : %f",target);
+            _angleTarget=target;
+            _output=target;
+            setOutput(target);
+            sender().tell(replyBuilder(msg)("rc",0),self());
+            _bridge.tell(msgBuilder(Bridge::Publish)("angleTarget",_angleTarget)("output",_output),self());
+        }
     })
 
     .build();

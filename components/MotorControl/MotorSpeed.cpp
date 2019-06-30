@@ -129,7 +129,6 @@ void MotorSpeed::preStart()
     timers().startPeriodicTimer("controlTimer", Msg("controlTimer"), CONTROL_INTERVAL_MS);
     timers().startPeriodicTimer("reportTimer", Msg("reportTimer"), 100);
     timers().startPeriodicTimer("watchdogTimer", Msg("watchdogTimer"), 2000);
-
     timers().startPeriodicTimer("pulseTimer", Msg("pulseTimer"), 5000);
 
 

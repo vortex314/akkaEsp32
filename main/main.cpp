@@ -61,7 +61,13 @@ using namespace std;
  */
 #define CONTROLLER  "{\"uext\":[\"controller\"],\"controller\":{\"class\":\"Controller\"},\"system\":{\"hostname\":\"remote\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
 #define MOTOR "{\"uext\":[\"motor\"],\"motor\":{\"class\":\"MotorSpeed\"},\"system\":{\"hostname\":\"drive\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
-#define SERVO "{\"uext\":[\"servo\"],\"servo\":{\"class\":\"MotorServo\"},\"system\":{\"hostname\":\"drive\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
+#define SERVO "{\"uext\":[\"steer\"],\"steer\":{\"class\":\"MotorServo\"},\"system\":{\"hostname\":\"drive\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
+#define SERVO_MOTOR "{\"uext\":[\"steer\",\"motor\"], \
+        \"motor\":{\"class\":\"MotorSpeed\"}, \
+        \"steer\":{\"class\":\"MotorServo\"}, \
+        \"system\":{\"hostname\":\"drive\"}, \
+\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883}, \
+\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
 
 
 #define GENERIC         "{\"uext\":[],\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"

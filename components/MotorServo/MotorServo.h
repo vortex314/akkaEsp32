@@ -2,7 +2,9 @@
 #define MOTORSERVO_H
 
 #include <Akka.h>
+#include <Bridge.h>
 #include <Hardware.h>
+#include <MedianFilter.h>
 
 #include "driver/mcpwm.h"
 #include "soc/mcpwm_reg.h"
@@ -19,18 +21,18 @@ class MotorServo : public Actor
 // D26 : L_PWM
 // D27 : R_PWM
 // D32 : ADC POT
-    ADC& _adcLeftIS;
-    ADC& _adcRightIS;
+    ADC& _adcPot;
+    ADC& _adcIS;
     DigitalOut& _pinLeftEnable;
     DigitalOut& _pinRightEnable;
     uint32_t _pinPwmLeft;
     uint32_t _pinPwmRight;
-    ADC& _adcPot;
     ActorRef& _bridge;
+    MedianFilter<int,11> _potFilter;
 
     mcpwm_unit_t _mcpwm_num;
     mcpwm_timer_t _timer_num;
-    float _angleCurrent=0.0;
+    float _angleMeasured=0.0;
     float _angleTarget=20;
     float _KP=15;
     float _KI=0.005;
@@ -44,17 +46,17 @@ class MotorServo : public Actor
     float _output=0;
     float _angleSamples[SERVO_MAX_SAMPLES];
     uint32_t _indexSample=0;
-    float _angleFiltered;
-    float _currentLeft,_currentRight;
+    float _current;
     int _watchdogCounter;
     int _directionTargetLast;
 
 public:
+    static MsgClass targetAngle;
     MotorServo(Connector* connector,ActorRef& bridge);
-    MotorServo(uint32_t pinLeftIS, uint32_t pinrightIS,
+    MotorServo(uint32_t pinPot, uint32_t pinIS,
                uint32_t pinLeftEnable, uint32_t pinRightEnable,
                uint32_t pinLeftPwm, uint32_t pinRightPwm,
-               uint32_t pinPot,ActorRef& bridge);
+               ActorRef& bridge);
     ~MotorServo();
     void preStart();
     Receive& createReceive();
