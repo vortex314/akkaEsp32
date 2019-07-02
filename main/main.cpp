@@ -66,7 +66,7 @@ using namespace std;
         \"motor\":{\"class\":\"MotorSpeed\"}, \
         \"steer\":{\"class\":\"MotorServo\"}, \
         \"system\":{\"hostname\":\"drive\"}, \
-\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883}, \
+        \"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883}, \
 \"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
 
 

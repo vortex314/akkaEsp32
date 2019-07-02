@@ -65,9 +65,29 @@ void MotorServo::preStart()
     timers().startPeriodicTimer("controlTimer", Msg("controlTimer"), CONTROL_INTERVAL_MS);
     timers().startPeriodicTimer("reportTimer", Msg("reportTimer"), 100);
     timers().startPeriodicTimer("watchdogTimer", Msg("watchdogTimer"), 2000);
-    timers().startPeriodicTimer("pulseTimer", Msg("pulseTimer"), 5000);
+    timers().startPeriodicTimer("pulseTimer", Msg("pulseTimer"), 3000);
 //   _bts7960.init();
 
+}
+
+float MotorServo::scale(float x,float x1,float x2,float y1,float y2)
+{
+    if ( x < x1 ) x=x1;
+    if ( x > x2 ) x=x2;
+    float y= y1+(( x-x1)/(x2-x1))*(y2-y1);
+    return y;
+}
+
+bool MotorServo::measureAngle()
+{
+    int adc = _adcPot.getValue();
+    _potFilter.addSample(adc);
+    if ( _potFilter.isReady()) {
+        _angleMeasured = -scale(_potFilter.getMedian(),40,884,-90,90);
+        INFO(" ADC:%d -> MED:%d -> ANGLE:%f ",adc,_potFilter.getMedian(),_angleMeasured);
+        return true;
+    }
+    return false;
 }
 
 Receive& MotorServo::createReceive()
@@ -97,24 +117,39 @@ Receive& MotorServo::createReceive()
     })
 
     .match(MsgClass("pulseTimer"),  [this](Msg& msg) {
+        return;
+        static uint32_t pulse=0;
+        static int outputTargets[]= {-20,0,20,0};
+        _output=outputTargets[pulse];
+        setOutput(_output);
+        pulse++;
+        pulse %= (sizeof(outputTargets)/sizeof(int));
+        measureAngle();
+        INFO("%ld;%f;%f;",Sys::millis(),_output,_angleMeasured);
+
+        _bridge.tell(msgBuilder(Bridge::Publish)("angleMeasured",_angleMeasured)("angleTarget",_angleTarget),self());
     })
 
 
 
     .match(MsgClass("reportTimer"),
     [this](Msg& msg) {
-
+        measureAngle();
+        INFO("%ld;%f;%f;",Sys::millis(),_output,_angleMeasured);
+        _bridge.tell(msgBuilder(Bridge::Publish)("angleMeasured",_angleMeasured)("angleTarget",_angleTarget),self());
     })
 
     .match(MsgClass("controlTimer"),
     [this](Msg& msg) {
-        INFO(" ADC pot :  %d -> %d",_adcPot.getValue(),_potFilter.getMedian());
-        _potFilter.addSample(_adcPot.getValue());
-        if ( _potFilter.isReady()) {
-            _angleMeasured = ((_potFilter.getMedian()-500.0)/300.0)*90.0;
+
+        if ( measureAngle()) {
             _error = _angleTarget - _angleMeasured;
-//           _output = PID(_error, CONTROL_INTERVAL_MS);
+            _output = PID(_error, CONTROL_INTERVAL_MS);
 //            setOutput(_output);
+            INFO("PID  %3.1f=>%3.1f angle err:%3.1f pwm:%5f == P:%5f + I:%5f + D:%5f  ",
+                 _angleMeasured, _angleTarget,
+                 _error, _output, _error * _KP,
+                 _integral * _KI, _derivative * _KD);
         }
     })
 

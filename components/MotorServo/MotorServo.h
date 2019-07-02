@@ -34,8 +34,8 @@ class MotorServo : public Actor
     mcpwm_timer_t _timer_num;
     float _angleMeasured=0.0;
     float _angleTarget=20;
-    float _KP=15;
-    float _KI=0.005;
+    float _KP=1.18;
+    float _KI=0.00015;//06;
     float _KD=0;
     float _bias=0;
     float _error=0;
@@ -68,6 +68,9 @@ public:
     void setOutput(float output);
     float filterAngle(float inp);
     void round(float& f,float resol);
+    bool measureAngle();
+    float scale(float x,float x1,float x2,float y1,float y2);
 };
+
 
 #endif // MOTORSERVO_H
