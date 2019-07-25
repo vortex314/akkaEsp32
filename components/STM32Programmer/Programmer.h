@@ -15,7 +15,7 @@ class Programmer : public Actor {
 		Connector* _connector;
 		ActorRef& _mqtt;
 		STM32 _stm32;
-		Label _timer1;
+		Uid _timer1;
 public:
 	Programmer(Connector* ,ActorRef& );
 	virtual ~Programmer() ;

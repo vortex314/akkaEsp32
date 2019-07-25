@@ -10,7 +10,7 @@ class Compass : public Actor {
 		struct Vector<float> _v;
 		int32_t _x,_y,_z;
 		ActorRef& _bridge;
-		Label _measureTimer;
+		Uid _measureTimer;
 	public:
 		Compass(Connector*,ActorRef& );
 		virtual ~Compass() ;

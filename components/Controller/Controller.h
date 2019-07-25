@@ -14,7 +14,7 @@
 class Controller : public Actor
 {
     ActorRef& _bridge;
-    Label _measureTimer;
+    Uid _measureTimer;
     Led _led_right;
     Led _led_left;
     Pot _pot_left;

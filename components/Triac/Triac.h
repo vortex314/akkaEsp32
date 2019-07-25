@@ -14,7 +14,7 @@
 
 class Triac : public Actor {
 		Connector* _connector;
-		Label _measureTimer;
+		Uid _measureTimer;
 		ActorRef& _bridge;
 		DigitalIn& _zeroDetect;
 		DigitalOut& _triacGate;

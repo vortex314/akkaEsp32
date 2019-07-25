@@ -5,8 +5,8 @@
 #include <Hardware.h>
 
 class System : public Actor {
-		Label _ledTimer;
-		Label _reportTimer;
+		Uid _ledTimer;
+		Uid _reportTimer;
 		DigitalOut& _ledGpio;
 		uint32_t _interval = 100;
 		ActorRef& _mqtt;

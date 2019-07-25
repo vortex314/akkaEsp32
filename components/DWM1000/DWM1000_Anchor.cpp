@@ -82,10 +82,10 @@ void logAnchor(const char* s, uint32_t state, uint8_t* buffer,
 	strLogAnchor = ":";
 	for (int i = 0; i < length; i++)
 		strLogAnchor += buffer[i] + ":";
-	INFO_ISR("%s %s %s", s, Label::label(state), strLogAnchor.c_str());
+	INFO_ISR("%s %s %s", s, Uid::label(state), strLogAnchor.c_str());
 }
 DWM1000_Anchor* DWM1000_Anchor::_anchor;
-MsgClass ANCHOR_INTERRUPT(LABEL("ANCHOR_INTERRUPT"));
+MsgClass ANCHOR_INTERRUPT(UID("ANCHOR_INTERRUPT"));
 
 void anchorInterruptHandler(void* obj) {
 	DWM1000_Anchor::_anchor->_interruptStart = Sys::micros();
@@ -174,11 +174,11 @@ Receive& DWM1000_Anchor::createReceive() {
 	.match(MsgClass::Properties(), [this](Msg& msg) {
 	})
 
-	.match(MsgClass(LABEL("logTimer")), [this](Msg& msg) {
+	.match(MsgClass(UID("logTimer")), [this](Msg& msg) {
 		INFO(" interr: %d TO:%d blink: %d poll: %d resp: %d final: %d dist: %f delay: %d usec", _interrupts, _timeouts, _blinks, _polls, _resps, _finals, _distance, _interruptDelay);
 	})
 
-	.match(MsgClass(LABEL("blinkTimer")), [this](Msg& msg) {
+	.match(MsgClass(UID("blinkTimer")), [this](Msg& msg) {
 		_blinkTimerExpired=true;
 		static uint32_t _oldPolls=0;
 		if ( _polls > _oldPolls) {
@@ -188,7 +188,7 @@ Receive& DWM1000_Anchor::createReceive() {
 		_oldPolls=_polls;
 	})
 
-	.match(LABEL("checkTimer"), [this](Msg& msg) {
+	.match(UID("checkTimer"), [this](Msg& msg) {
 		static uint32_t oldInterrupts=0;
 		static uint32_t oldPolls=0;
 		if ( _polls == oldPolls || _interrupts==oldInterrupts) {
@@ -307,30 +307,30 @@ FrameType DWM1000_Anchor::readMsg(const dwt_callback_data_t* signal) {
 		if (ft == FT_BLINK) {
 			memcpy(_blinkMsg.buffer, _dwmMsg.buffer, sizeof(_blinkMsg));
 			DEBUG_ISR(" blink %d : %d : %s", _blinkMsg.getSrc(), _blinkMsg
-					.sequence, Label::label(_state));
+					.sequence, Uid::label(_state));
 			_blinks++;
 		} else if (ft == FT_POLL) {
 			memcpy(_pollMsg.buffer, _dwmMsg.buffer, sizeof(_pollMsg));
-			DEBUG_ISR(" poll %d : %d : %s", _pollMsg.getSrc(), _pollMsg.sequence, Label::label(_state));
+			DEBUG_ISR(" poll %d : %d : %s", _pollMsg.getSrc(), _pollMsg.sequence, Uid::label(_state));
 			_polls++;
 		} else if (ft == FT_RESP) {
 			memcpy(_respMsg.buffer, _dwmMsg.buffer, sizeof(_respMsg));
 			DEBUG_ISR(" resp %d : %d : %s ", _respMsg.getSrc(), _respMsg
-					.sequence, Label::label(_state));
+					.sequence, Uid::label(_state));
 			_resps++;
 		} else if (ft == FT_FINAL) {
 			memcpy(_finalMsg.buffer, _dwmMsg.buffer, sizeof(_finalMsg));
 			DEBUG_ISR(" final %d : %d : %s", _finalMsg.getSrc(), _finalMsg
-					.sequence, Label::label(_state));
+					.sequence, Uid::label(_state));
 			_finals++;
 		} else {
 			WARN_ISR("WARN unknown frame type %X:%X : %s", _dwmMsg.fc[0], _dwmMsg
-					.fc[1], Label::label(_state));
+					.fc[1], Uid::label(_state));
 		}
 		return ft;
 	} else {
 		WARN_ISR("WARN invalid length %d : hdr %X:%X : %s", frameLength, _dwmMsg
-				.fc[0], _dwmMsg.fc[1], Label::label(_state));
+				.fc[0], _dwmMsg.fc[1], Uid::label(_state));
 		return FT_UNKNOWN;
 	}
 }

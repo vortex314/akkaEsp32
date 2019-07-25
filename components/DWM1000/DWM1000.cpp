@@ -204,14 +204,14 @@ void DWM1000::init() {
 
 void DWM1000::setup() {
 
-	Label("FT_BLINK");
-	Label("FT_POLL");
-	Label("FT_RESP");
-	Label("FT_FINAL");
-	Label("FT_UNKNOWN");
-	Label("RCV_ANY");
-	Label("RCV_RESP");
-	Label("SND_FINAL");
+	Uid("FT_BLINK");
+	Uid("FT_POLL");
+	Uid("FT_RESP");
+	Uid("FT_FINAL");
+	Uid("FT_UNKNOWN");
+	Uid("RCV_ANY");
+	Uid("RCV_RESP");
+	Uid("SND_FINAL");
 	config.setNameSpace("dwm1000");
 	config.get("x", _x, 1000);
 	config.get("y", _y, 2000);

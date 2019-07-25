@@ -25,17 +25,17 @@ void Programmer::preStart() {
 Receive& Programmer::createReceive() {
 	return receiveBuilder()
 
-	.match(LABEL("ping"), [this](Msg& msg) {
+	.match(UID("ping"), [this](Msg& msg) {
 		sender().tell(replyBuilder(msg));
 	})
 
-	.match(LABEL("getId"), [this](Msg& msg) {
+	.match(UID("getId"), [this](Msg& msg) {
 		uint16_t id;
 		Erc erc = _stm32.getId(id);
 		sender().tell(replyBuilder(msg)("erc",erc)("id",id));
 	})
 
-	.match(LABEL("getVersion"), [this](Msg& msg) {
+	.match(UID("getVersion"), [this](Msg& msg) {
 		uint8_t version;
 		Erc erc =_stm32.getVersion(version);
 		std::string str;
@@ -43,7 +43,7 @@ Receive& Programmer::createReceive() {
 		sender().tell(replyBuilder(msg)("erc",erc)("version",str));
 	})
 
-	.match(LABEL("get"), [this](Msg& msg) {uint8_t version;
+	.match(UID("get"), [this](Msg& msg) {uint8_t version;
 		Bytes cmds(100);
 		std::string response;
 		Erc erc = _stm32.get(version,cmds);
@@ -55,7 +55,7 @@ Receive& Programmer::createReceive() {
 		sender().tell(replyBuilder(msg)("erc",erc)("cmds",response));
 	})
 
-	.match(LABEL("readMemory"), [this](Msg& msg) {
+	.match(UID("readMemory"), [this](Msg& msg) {
 		std::string address;
 		INFO(" readMemory %s",msg.toString().c_str());
 		if ( msg.get(H("addressHex"),address)) {
@@ -72,7 +72,7 @@ Receive& Programmer::createReceive() {
 		}
 	})
 
-	.match(LABEL("writeMemory"), [this](Msg& msg) {
+	.match(UID("writeMemory"), [this](Msg& msg) {
 		std::string addressHex,data;
 		if ( msg.get(H("addressHex"),addressHex) && msg.get("data",data)) {
 			Bytes bytes(256);
@@ -88,23 +88,23 @@ Receive& Programmer::createReceive() {
 		}
 	})
 
-	.match(LABEL("writeUnprotect"), [this](Msg& msg) {
+	.match(UID("writeUnprotect"), [this](Msg& msg) {
 		sender().tell(replyBuilder(msg)("erc",_stm32.writeUnprotect()));
 	})
 
-	.match(LABEL("readUnprotect"), [this](Msg& msg) {
+	.match(UID("readUnprotect"), [this](Msg& msg) {
 		sender().tell(replyBuilder(msg)("erc",_stm32.readoutUnprotect()));
 	})
 
-	.match(LABEL("eraseAll"), [this](Msg& msg) {
+	.match(UID("eraseAll"), [this](Msg& msg) {
 		sender().tell(replyBuilder(msg)("erc",_stm32.eraseAll()));
 	})
 
-	.match(LABEL("resetFlash"), [this](Msg& msg) {
+	.match(UID("resetFlash"), [this](Msg& msg) {
 		sender().tell(replyBuilder(msg)("erc",_stm32.resetFlash()));
 	})
 
-	.match(LABEL("resetSystem"), [this](Msg& msg) {
+	.match(UID("resetSystem"), [this](Msg& msg) {
 		sender().tell(replyBuilder(msg)("erc",_stm32.resetSystem()));
 	})
 

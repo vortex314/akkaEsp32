@@ -149,11 +149,11 @@ Receive& DWM1000_Tag::createReceive() {
 		INFO(" No more messages since some time ");
 	})
 
-	.match(LABEL("pollTimer"), [this](Msg& msg) {
+	.match(UID("pollTimer"), [this](Msg& msg) {
 		_pollTimerExpired=true;
 	})
 
-	.match(LABEL("logTimer"), [this](Msg& timerMsg) {
+	.match(UID("logTimer"), [this](Msg& timerMsg) {
 		INFO("interr: %d TO:%d blink: %d poll: %d resp: %d final:%d anchors: %d delay:%d usec", _interrupts, _timeouts, _blinks, _polls, _resps, _finals, anchorsCount(), _interruptDelay);
 		Msg msg("PropertiesReply");
 		for(int i=0;i< MAX_ANCHORS;i++) {
@@ -177,7 +177,7 @@ Receive& DWM1000_Tag::createReceive() {
 		_oldBlinks=_blinks;
 	})
 
-	.match(LABEL("checkTimer"), [this](Msg& msg) {
+	.match(UID("checkTimer"), [this](Msg& msg) {
 		static uint32_t oldInterrupts = 0;
 		if (oldInterrupts == _interrupts) {
 			INFO(" missing interrupts , lastEvent : %d lastStatus : 0x%X",lastEvent,lastStatus);
@@ -189,7 +189,7 @@ Receive& DWM1000_Tag::createReceive() {
 		oldInterrupts = _interrupts;
 	})
 
-	.match(LABEL("expireTimer"), [this](Msg& msg) {
+	.match(UID("expireTimer"), [this](Msg& msg) {
 		expireAnchors();
 	})
 
@@ -239,7 +239,7 @@ void DWM1000_Tag::diag(const char* msg) {
 	sys_mask = dwt_read32bitreg(SYS_MASK_ID);
 	sys_status = dwt_read32bitreg(SYS_STATUS_ID);
 	sys_state = dwt_read32bitreg(SYS_STATE_ID);
-	INFO(" %s SYS_MASK : %X SYS_STATUS : %X SYS_STATE: %X state : %s IRQ : %d", msg, sys_mask, sys_status, sys_state, Label::label(_state), _irq
+	INFO(" %s SYS_MASK : %X SYS_STATUS : %X SYS_STATE: %X state : %s IRQ : %d", msg, sys_mask, sys_status, sys_state, Uid::label(_state), _irq
 			.read());
 }
 
@@ -291,7 +291,7 @@ void DWM1000_Tag::handleBlinkMsg() {
  strLogTag = ":";
  for (int i = 0; i < length; i++)
  strLogTag += buffer[i] + ":";
- INFO("%s %s %s", s, Label::label(state), strLogTag.c_str());
+ INFO("%s %s %s", s, Uid::label(state), strLogTag.c_str());
  }*/
 
 void DWM1000_Tag::updateAnchors(BlinkMsg& blinkMsg) {
@@ -446,29 +446,29 @@ FrameType DWM1000_Tag::readMsg(const dwt_callback_data_t* signal) {
 		if (ft == FT_BLINK) {
 			memcpy(_blinkMsg.buffer, _dwmMsg.buffer, sizeof(_blinkMsg));
 			DEBUG_ISR(" blink %d : %d : %s", _blinkMsg.getSrc(), _blinkMsg
-					.sequence, Label::label(_state));
+					.sequence, Uid::label(_state));
 			_blinks++;
 		} else if (ft == FT_POLL) {
 			memcpy(_pollMsg.buffer, _dwmMsg.buffer, sizeof(_pollMsg));
-			DEBUG_ISR(" poll %d : %d : %s", _pollMsg.getSrc(), _pollMsg.sequence, Label::label(_state));
+			DEBUG_ISR(" poll %d : %d : %s", _pollMsg.getSrc(), _pollMsg.sequence, Uid::label(_state));
 			_polls++;
 		} else if (ft == FT_RESP) {
 			memcpy(_respMsg.buffer, _dwmMsg.buffer, sizeof(_respMsg));
 			DEBUG_ISR(" resp %d : %d : %s ", _respMsg.getSrc(), _respMsg
-					.sequence, Label::label(_state));
+					.sequence, Uid::label(_state));
 			_resps++;
 		} else if (ft == FT_FINAL) {
 			memcpy(_finalMsg.buffer, _dwmMsg.buffer, sizeof(_finalMsg));
 			DEBUG_ISR(" final %d : %d : %s", _finalMsg.getSrc(), _finalMsg
-					.sequence, Label::label(_state));
+					.sequence, Uid::label(_state));
 			_finals++;
 		} else {
-			WARN_ISR(" unknown frame type %X:%X : %s", _dwmMsg.fc[0], _dwmMsg.fc[1], Label::label(_state));
+			WARN_ISR(" unknown frame type %X:%X : %s", _dwmMsg.fc[0], _dwmMsg.fc[1], Uid::label(_state));
 		}
 		return ft;
 	} else {
 		WARN_ISR("WARN invalid length %d : hdr %X:%X : %s", frameLength, _dwmMsg
-				.fc[0], _dwmMsg.fc[1], Label::label(_state));
+				.fc[0], _dwmMsg.fc[1], Uid::label(_state));
 		return FT_UNKNOWN;
 	}
 }

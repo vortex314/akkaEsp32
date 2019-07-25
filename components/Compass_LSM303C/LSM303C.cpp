@@ -19,7 +19,7 @@ void LSM303C::preStart() {
 	    timers().startPeriodicTimer("measureTimer", Msg("measureTimer"), 300);
 }
 
-void LSM303C::mqttPublish(Label name, float value) {
+void LSM303C::mqttPublish(Uid name, float value) {
 	Msg msg(Bridge::Publish);
 	msg(name, value);
 	_bridge.tell(msg, self());

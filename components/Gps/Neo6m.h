@@ -9,7 +9,7 @@ class Neo6m : public Actor {
 		UART& _uart;
 		static void onRxd(void*);
 		ActorRef& _publisher;
-		Label _measureTimer;
+		Uid _measureTimer;
 		std::string _line;
 	public:
 		Neo6m(Connector* connector,ActorRef& mqtt);

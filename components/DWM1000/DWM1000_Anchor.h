@@ -41,7 +41,7 @@ class DWM1000_Anchor: public Actor, public DWM1000 {
 			RCV_FINAL = H("RCV_FINAL")
 		} State;
 		State _state;
-		Label _blinkTimer;
+		Uid _blinkTimer;
 		bool _blinkTimerExpired;
 		DigitalIn& _irq;
 		ActorRef& _publisher;

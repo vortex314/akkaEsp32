@@ -10,7 +10,7 @@ class UltraSonic : public Actor {
 		HCSR04* _hcsr;
 		int32_t _distance;
 		int32_t _delay;
-		Label _measureTimer;
+		Uid _measureTimer;
 		ActorRef& _bridge;
 
 	public:

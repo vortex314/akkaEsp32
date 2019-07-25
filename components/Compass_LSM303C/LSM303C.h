@@ -80,7 +80,7 @@ class LSM303C : public Actor {
 		void calc();
 		void preStart();
 		Receive& createReceive();
-		void mqttPublish(Label topic,float value);
+		void mqttPublish(Uid topic,float value);
 
 	protected:
 		Connector* _uext;
