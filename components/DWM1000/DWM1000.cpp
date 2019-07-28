@@ -22,28 +22,32 @@
 #define RX_ANT_DLY 16436
 
 /* Default communication configuration. We use here EVK1000's default mode (mode 3). */
+/*
 static dwt_config_t dwt2_config = {  //
 		2, // Channel number.
 				DWT_PRF_64M, // Pulse repetition frequency.
-				DWT_PLEN_1024, /* Preamble length. */
-				DWT_PAC32, /* Preamble acquisition chunk size. Used in RX only. */
-				9, /* TX preamble code. Used in TX only. */
-				9, /* RX preamble code. Used in RX only. */
-				1, /* Use non-standard SFD (Boolean) */
-				DWT_BR_850K, /* Data rate. */
-				DWT_PHRMODE_STD, /* PHY header mode. */
-				(1025 + 64 - 32) /* SFD timeout (preamble length + 1 + SFD length - PAC size). Used in RX only. */
-		};
-
+				DWT_PLEN_1024, // Preamble length.
+				DWT_PAC32, // Preamble acquisition chunk size Used in RX only.
+				9, // TX preamble code. Used in TX only.
+				9, // RX preamble code. Used in RX only.
+				1, // Use non-standard SFD (Boolean)
+				DWT_BR_850K, // Data rate.
+				DWT_PHRMODE_STD, // PHY header mode.
+				(1025 + 64 - 32) // SFD timeout (preamble length + 1 + SFD length - PAC size). Used in RX only.
+};
+*/
 const static struct {
-		uint16_t preambleLength;
-		uint8_t pacSize;
-} preamblePacSize[] = { { 64, 8 }, { 128, 8 }, { 256, 16 }, { 512, 16 }, { 1024,
-		32 }, { 1536, 64 }, { 2048, 64 }, { 4096, 64 } };
+	uint16_t preambleLength;
+	uint8_t pacSize;
+} preamblePacSize[] = { { 64, 8 }, { 128, 8 }, { 256, 16 }, { 512, 16 }, {
+		1024,
+		32
+	}, { 1536, 64 }, { 2048, 64 }, { 4096, 64 }
+};
 
 DWM1000::DWM1000(Spi& spi, DigitalIn& irq, DigitalOut& reset,
-		uint16_t shortAddress, uint8_t* longAddress)
-		: _spi(spi), _irq(irq), _reset(reset) {
+                 uint16_t shortAddress, uint8_t* longAddress)
+	: _spi(spi), _irq(irq), _reset(reset) {
 	_shortAddress = shortAddress;
 	memcpy(_longAddress, longAddress, 6);
 	_sequence = 0;
@@ -84,20 +88,20 @@ void DWM1000::resetChip() {
 }
 
 Register reg_sys_status("SYS_STATUS", "ICRBP HSRBP AFFREJ TXBERR HPDWARN RXSFDTO CLKPLL_LL RFPLL_LL "
-		"SLP2INIT GPIOIRQ RXPTO RXOVRR F LDEERR RXRFTO RXRFSL RXFCE RXFCG "
-		"RXDFR RXPHE RXPHD LDEDONE RXSFDD RXPRD TXFRS TXPHS TXPRS TXFRB AAT "
-		"ESYNCR CPLOCK IRQSD");
+                        "SLP2INIT GPIOIRQ RXPTO RXOVRR F LDEERR RXRFTO RXRFSL RXFCE RXFCG "
+                        "RXDFR RXPHE RXPHD LDEDONE RXSFDD RXPRD TXFRS TXPHS TXPRS TXFRB AAT "
+                        "ESYNCR CPLOCK IRQSD");
 Register ref_any("ANY", "31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0");
 
 Register reg_sys_state("SYS_STATE", "31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0");
 Register reg_sys_state2("SYS_STATE", "PMSC_STATE:23:16:INIT,IDLE,TX_WAIT,RX_WAIT,TX,RX "
-		"RX_STATE:15:8:IDLE,START_ANALOG,2,3,RX_READY,PREAMBLE_FIND,PREAMBLE_TO,SFD_FOUND,CONFIGURE_PHR_RX,PHR_RX_START,DATA_STATE_READY,DATA_RX_SEQ,CONFIG_DATA,PHR_NOT_OK,LAST_SYMBOL,WAIT_RSD_DONE,RSD_OK,RSD_NOT_OK,RECONFIG_110,WAIT110_PHR "
-		"TX_STATE:7:0:IDLE,PREAMBLE,SFD,PHR,SDE,DATA,RSP_DATA");
+                        "RX_STATE:15:8:IDLE,START_ANALOG,2,3,RX_READY,PREAMBLE_FIND,PREAMBLE_TO,SFD_FOUND,CONFIGURE_PHR_RX,PHR_RX_START,DATA_STATE_READY,DATA_RX_SEQ,CONFIG_DATA,PHR_NOT_OK,LAST_SYMBOL,WAIT_RSD_DONE,RSD_OK,RSD_NOT_OK,RECONFIG_110,WAIT110_PHR "
+                        "TX_STATE:7:0:IDLE,PREAMBLE,SFD,PHR,SDE,DATA,RSP_DATA");
 Register reg_sys_state3("SYS_STATE", "+ + + + + + + filler + + + + + + + PMSC_STATE + + + + + + + RX_STATE + + + + + + + TX_STATE");
 
 Register reg_sys_mask("SYS_MASK", "- - MAFFREJ MTXBERR MHPDWARN MRXSFDTO MPLLHILO MRFPLLLL MSLP2INIT MGPIOIRQ MRXPTO "
-		"MRXOVRR - MLDEERR MRXRFTO MRXRFSL MRXFCE MRXFCG MRXDFR MRXPHE MRXPHD MLDEDON "
-		"MRXSFDD MRXPRD MTXFRS MTXPHS MTXPRS MTXFRB MAAT MESYNCR MCPLOCK -");
+                      "MRXOVRR - MLDEERR MRXRFTO MRXRFSL MRXFCE MRXFCG MRXDFR MRXPHE MRXPHD MLDEDON "
+                      "MRXSFDD MRXPRD MTXFRS MTXPHS MTXPRS MTXFRB MAAT MESYNCR MCPLOCK -");
 
 void DWM1000::status() {
 	uint32_t sys_mask, sys_status, sys_state;
@@ -112,26 +116,27 @@ void DWM1000::status() {
 	reg_sys_state3.value(sys_state);
 	reg_sys_state3.show();
 	INFO("SYS_MASK : %X SYS_STATUS : %X SYS_STATE: %X IRQ : %d", sys_mask, sys_status, sys_state, _irq
-			.read());
+	     .read());
 }
 
 //_________________________________________________ SETUP  DWM1000
 //
 
 static const uint8_t pulseGeneratorDelay[] = { 0xFF, 0xC9, 0xC2, 0xC5, 0x95,
-		0xC0, 0xFF, 0x93 };
+                                               0xC0, 0xFF, 0x93
+                                             };
 static const struct {
-		uint8_t channel;
-		uint32_t txPower16MHZ;
-		uint32_t txPower64MHZ;
+	uint8_t channel;
+	uint32_t txPower16MHZ;
+	uint32_t txPower64MHZ;
 } txPowerSmart[] = { { 0, 0x00, 0x00 }, //
-		{ 1, 0x15355575, 0x07274767 }, //
-		{ 2, 0x15355575, 0x07274767 }, //
-		{ 3, 0x0F2F4F6F, 0x2B4B6B8B }, //
-		{ 4, 0x1F1F3F5F, 0x3A5A7A9A }, //
-		{ 5, 0x0E082848, 0x25456585 }, //
-		{ 0, 0x00, 0x00 }, //
-		{ 7, 0x32527292, 0x5171B1D1 } //
+	{ 1, 0x15355575, 0x07274767 }, //
+	{ 2, 0x15355575, 0x07274767 }, //
+	{ 3, 0x0F2F4F6F, 0x2B4B6B8B }, //
+	{ 4, 0x1F1F3F5F, 0x3A5A7A9A }, //
+	{ 5, 0x0E082848, 0x25456585 }, //
+	{ 0, 0x00, 0x00 }, //
+	{ 7, 0x32527292, 0x5171B1D1 } //
 };
 
 extern void dwt_isr();
@@ -188,7 +193,7 @@ void DWM1000::init() {
 	if (dwt_configure(&_config)) {
 		INFO(" dwt_configure failed ");
 	} else
-	INFO(" dwt_configure done.");
+		INFO(" dwt_configure done.");
 
 	spi_set_rate_high();
 
@@ -258,7 +263,7 @@ void DWM1000::createBlinkFrame(BlinkMsg& blink) {
 //=======================================================================
 
 void DWM1000::createPollMsg(PollMsg& pollMsg, uint16_t address,
-		uint8_t sequence) {
+                            uint8_t sequence) {
 	pollMsg.fc[0] = FC_1_SHORT;
 	pollMsg.fc[1] = FC_2_SHORT;
 	pollMsg.function = FUNC_POLL_MSG;

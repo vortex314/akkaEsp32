@@ -763,8 +763,8 @@ void LSM303C::calc() {
 	if(azimuth < 0) {	/* Convert Azimuth in the range (0, 2pi) */
 		azimuth = 2*M_PI + azimuth;
 	}
-	x = 32 + 24 * sin(azimuth);
-	y = 32 - 24 * cos(azimuth);
+/*	x = 32 + 24 * sin(azimuth);
+	y = 32 - 24 * cos(azimuth);*/
 
 	/* Update display */
 	INFO(" azimuth : %d pitch :%d roll:%d ", (int16_t)(azimuth * 180.0 / 3.14),(int16_t)(pitch * 180.0 / 3.14),(int16_t)(roll * 180.0 / 3.14));
