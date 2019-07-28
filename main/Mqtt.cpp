@@ -101,7 +101,7 @@ esp_err_t Mqtt::mqtt_event_handler(esp_mqtt_event_handle_t event) {
 	switch (event->event_id) {
 		case MQTT_EVENT_CONNECTED: {
 				me._connected = true;
-				INFO("MQTT_EVENT_CONNECTED");
+				INFO("MQTT_EVENT_CONNECTED to %s",me._address.c_str());
 				msg_id =
 				    esp_mqtt_client_publish(me._mqttClient, "src/limero/systems", me
 				                            .context().system().label(), 0, 1, 0);

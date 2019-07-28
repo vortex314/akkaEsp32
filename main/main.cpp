@@ -60,14 +60,27 @@ using namespace std;
 /*
  * ATTENTION : TIMER_TASK_PRIORITY needs to be raised to avoid wdt trigger on load test
  */
-#define CONTROLLER  "{\"uext\":[\"controller\"],\"controller\":{\"class\":\"Controller\"},\"system\":{\"hostname\":\"remote\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
-#define MOTOR "{\"uext\":[\"motor\"],\"motor\":{\"class\":\"MotorSpeed\"},\"system\":{\"hostname\":\"drive\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
+
+
+
+#define CONTROLLER  "{\"uext\":[\"controller\"], \
+		\"controller\":{\"class\":\"Controller\"}, \
+		\"system\":{\"hostname\":\"remote\"}, \
+		\"mqtt\":{\"url\":\"mqtt://pi2.local\"}, \
+\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
+
+#define MOTOR "{\"uext\":[\"motor\"],\"motor\":{\"class\":\"MotorSpeed\"}, \
+		\"system\":{\"hostname\":\"drive\"}, \
+		\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883}, \
+\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
+
 #define SERVO "{\"uext\":[\"steer\"],\"steer\":{\"class\":\"MotorServo\"},\"system\":{\"hostname\":\"drive\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
+
 #define SERVO_MOTOR "{\"uext\":[\"steer\",\"motor\"], \
         \"motor\":{\"class\":\"MotorSpeed\"}, \
         \"steer\":{\"class\":\"MotorServo\"}, \
         \"system\":{\"hostname\":\"drive\"}, \
-        \"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883}, \
+        \"mqtt\":{\"host\":\"pi2.local\"}, \
 \"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
 
 
@@ -79,8 +92,9 @@ using namespace std;
 #define TRIAC 	    "{\"uext\":[\"triac\"],\"triac\":{\"class\":\"Triac\"},\"us\":{\"class\":\"UltraSonic\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
 
 
+#define CONFIGURATION  CONTROLLER
+#define MQTT_TCP
 
-//#define CONFIGURATION DWM1000_TAG
 
 Log logger(256);
 ActorMsgBus eb;
@@ -114,9 +128,15 @@ extern "C" void app_main() {
 	static MessageDispatcher defaultDispatcher(4, 6000, tskIDLE_PRIORITY + 1);
 	static ActorSystem actorSystem(Sys::hostname(), defaultDispatcher);
 
-//	ActorRef& wifi = actorSystem.actorOf<Wifi>("wifi");
-//	ActorRef& mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi,"tcp://limero.ddns.net:1883");
+#ifdef MQTT_SERIAL
 	ActorRef& mqtt = actorSystem.actorOf<MqttSerial>("mqttSerial");
+#endif
+#ifdef MQTT_TCP
+	ActorRef& wifi = actorSystem.actorOf<Wifi>("wifi");
+	ActorRef& mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi,"tcp://limero.ddns.net:1883");
+#endif
+
+
 
 	ActorRef& bridge = actorSystem.actorOf<Bridge>("bridge", mqtt);
 	actorSystem.actorOf<System>("system", mqtt);

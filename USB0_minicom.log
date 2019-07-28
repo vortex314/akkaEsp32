@@ -1,25 +1,237 @@
-["0000",3,"dst/ESP32-28166"]
-["0000",3,"dst/ESP32-28166/#"]
-  3FFB7578 I |     4064 | ESP32-28166 |  MqttSerial.cpp: 164 |  pub dst/ESP32-28166/loopback = true 
-["0000",1,"dst/ESP32-28166/loopback","true",0,0]
-["0000",3,"dst/ESP32-28166"]
-["0000",3,"dst/ESP32-28166/#"]
-  3FFB7578 I |     5064 | ESP32-28166 |  MqttSerial.cpp: 164 |  pub dst/ESP32-28166/loopback = true 
-["0000",1,"dst/ESP32-28166/loopback","true",0,0]
-  3FFB7578 I |     5105 | ESP32-28166 |      System.cpp:  16 |  heap:238800 stack:3588 heap free :319844 largest block : 113804 
-["0000",3,"dst/ESP32-28166"]
-["0000",3,"dst/ESP32-28166/#"]
-  3FFB7578 I |     6065 | ESP32-28166 |  MqttSerial.cpp: 164 |  pub dst/ESP32-28166/loopback = true 
-["0000",1,"dst/ESP32-28166/loopback","true",0,0]
-["0000",3,"dst/ESP32-28166"]
-["0000",3,"dst/ESP32-28166/#"]
-  3FFB7578 I |     7064 | ESP32-28166 |  MqttSerial.cpp: 164 |  pub dst/ESP32-28166/loopback = true 
-["0000",1,"dst/ESP32-28166/loopback","true",0,0]
-["0000",3,"dst/ESP32-28166"]
-["0000",3,"dst/ESP32-28166/#"]
-  3FFB7578 I |     8064 | ESP32-28166 |  MqttSerial.cpp: 164 |  pub dst/ESP32-28166/loopback = true 
-["0000",1,"dst/ESP32-28166/loopback","true",0,0]
-["0000",3,"dst/ESP32-28166"]
-["0000",3,"dst/ESP32-28166/#"]
-  3FFB7578 I |     9064 | ESP32-28166 |  MqttSerial.cpp: 164 |  pub dst/ESP32-28166/loopback = true 
-["0000",1,"dst/ESP32-28166/loopback","true",0,0]
+0
+I (66) boot:  1 phy_init         RF data          01 01 0000f000 00001000
+I (73) boot:  2 factory          factory app      00 00 00010000 00100000
+I (81) boot: End of partition table
+I (85) esp_image: segment 0: paddr=0x00010020 vaddr=0x3f400020 size=0x2baf8 (178936) map
+I (156) esp_image: segment 1: paddr=0x0003bb20 vaddr=0x3ffb0000 size=0x0323c ( 12860) load
+I (162) esp_image: segment 2: paddr=0x0003ed64 vaddr=0x40080000 size=0x00400 (  1024) load
+I (164) esp_image: segment 3: paddr=0x0003f16c vaddr=0x40080400 size=0x00ea4 (  3748) load
+I (174) esp_image: segment 4: paddr=0x00040018 vaddr=0x400d0018 size=0xa7020 (684064) map
+I (420) esp_image: segment 5: paddr=0x000e7040 vaddr=0x400812a4 size=0x11aa0 ( 72352) load
+I (462) boot: Loaded app from partition at offset 0x10000
+I (462) boot: Disabling RNG early entropy source...
+I (462) cpu_start: Pro cpu up.
+I (466) cpu_start: Application information:
+I (471) cpu_start: Project name:     akkaEsp32
+I (476) cpu_start: App version:      v0.3-49-ge045bd0-dirty
+I (482) cpu_start: Compile time:     Jul 28 2019 23:50:04
+I (488) cpu_start: ELF file SHA256:  cf462b2d84284099...
+I (494) cpu_start: ESP-IDF:          v4.0-dev-459-gba1ff1692-dirty
+I (501) cpu_start: Starting app cpu, entry point is 0x40081250
+I (0) cpu_start: App cpu up.
+I (511) heap_init: Initializing. RAM available for dynamic allocation:
+I (518) heap_init: At 3FFAE6E0 len 00001920 (6 KiB): DRAM
+I (524) heap_init: At 3FFB9EB8 len 00026148 (152 KiB): DRAM
+I (531) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM
+I (537) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM
+I (543) heap_init: At 40092D44 len 0000D2BC (52 KiB): IRAM
+I (550) cpu_start: Pro cpu start user code
+I (123) cpu_start: Starting scheduler on PRO CPU.
+I (0) cpu_start: Starting scheduler on APP CPU.
+  3FFBCE30 I |       25 | ESP32-14936 |        main.cpp: 117 | Starting Akka on ESP8266 heap : 262844 
+  3FFBCE30 I |       31 | remote |        Akka.cpp: 786 |  ActorCell created remote/wifi mailbox [3FFC5FAC]
+I (303) phy: phy_version: 4100, 2a5dd04, Jan 23 2019, 21:00:07, 0, 0
+  3FFC87DC I |      154 | remote |        Wifi.cpp:  67 | SYSTEM_EVENT_STA_STOP
+  3FFC87DC I |      155 | remote |        Wifi.cpp:  73 | SYSTEM_EVENT_STA_START
+  3FFC87DC I |      162 | remote |        Wifi.cpp: 150 |  starting WiFi scan.
+  3FFBCE30 I |      174 | remote |        Akka.cpp: 786 |  ActorCell created remote/mqtt mailbox [3FFCF148]
+  3FFBCE30 I |      182 | remote |        Akka.cpp: 786 |  ActorCell created remote/bridge mailbox [3FFD60D8]
+  3FFBCE30 I |      190 | remote |        Akka.cpp: 786 |  ActorCell created remote/system mailbox [3FFD6690]
+  3FFBCE30 I |      197 | remote | Hardware_ESP32.cpp: 134 |  DigitalOut Init 2 
+  3FFBCE30 I |      208 | remote |        Akka.cpp: 786 |  ActorCell created remote/config mailbox [3FFCF0F4]
+  3FFBCE30 I |      217 | remote |        Akka.cpp: 786 |  ActorCell created remote/controller mailbox [3FFD71A0]
+  3FFBCE30 I |      224 | remote |  Controller.cpp:  23 |  Controller started 
+  3FFBCE30 I |      231 | remote | Hardware_ESP32.cpp: 134 |  DigitalOut Init 23 
+  3FFBCE30 I |      238 | remote | Hardware_ESP32.cpp: 134 |  DigitalOut Init 32 
+  3FFBCE30 I |      245 | remote | Hardware_ESP32.cpp: 394 |  ADC init pin 36 
+  3FFBCE30 I |      252 | remote | Hardware_ESP32.cpp: 394 |  ADC init pin 39 
+eFuse Two Point: NOT supported
+eFuse Vref: NOT supported
+  3FFBCE30 I |      264 | remote | Hardware_ESP32.cpp:  50 |  DigitalIn Init 13 
+  3FFBCE30 I |      272 | remote | Hardware_ESP32.cpp:  50 |  DigitalIn Init 16 
+  3FFBCE30 I |      284 | remote |      Config.cpp: 149 | save : {"uext":["controller"],"controller":{"class":"Controller"},"system":{"hostname":"remote"},"mqtt":{"url":"mqtt://pi2.local"},"wifi":{"ssid":"Merckx","password":"LievenMarletteEwoutRonald","prefix":"Merckx"}}
+  3FFC87DC I |     2224 | remote |        Wifi.cpp:  62 | SYSTEM_EVENT_SCAN_DONE
+  3FFC87DC I |     2224 | remote |        Wifi.cpp: 123 |  found 5 AP's 
+  3FFC87DC I |     2227 | remote |        Wifi.cpp: 134 |  Merckx2 : -76 
+  3FFC87DC I |     2233 | remote |        Wifi.cpp: 134 |  telenet-E52A7 : -86 
+  3FFC87DC I |     2240 | remote |        Wifi.cpp: 134 |  TelenetWiFree : -88 
+  3FFC87DC I |     2247 | remote |        Wifi.cpp: 134 |  TELENETHOMESPOT : -89 
+  3FFC87DC I |     2254 | remote |        Wifi.cpp: 134 |  Merckx3 : -91 
+  3FFC87DC I |     2261 | remote |        Wifi.cpp: 107 |  connecting to SSID : Merckx2
+  3FFBD620 I |     5204 | remote |      System.cpp:  16 |  heap:170460 stack:4584 heap free :224372 largest block : 113804 
+  3FFC87DC I |     7147 | remote |        Wifi.cpp:  92 | SYSTEM_EVENT_STA_DISCONNECTED
+  3FFCA050 I |     7149 | remote |        Mqtt.cpp:  88 |  WIFI DISCONNECTED !!
+W (7303) MQTT_CLIENT: Client asked to stop, but was not started
+  3FFC87DC I |     9204 | remote |        Wifi.cpp:  92 | SYSTEM_EVENT_STA_DISCONNECTED
+  3FFCA050 I |     9205 | remote |        Mqtt.cpp:  88 |  WIFI DISCONNECTED !!
+W (9363) MQTT_CLIENT: Client asked to stop, but was not started
+  3FFC87DC I |     9349 | remote |        Wifi.cpp:  88 | SYSTEM_EVENT_STA_CONNECTED
+  3FFC87DC I |    10037 | remote |        Wifi.cpp:  78 | SYSTEM_EVENT_STA_GOT_IP
+  3FFBB69C I |    10040 | remote |        Mqtt.cpp:  84 |  WIFI CONNECTED !!
+  3FFBB69C I |    10083 | remote |        Mqtt.cpp: 104 | MQTT_EVENT_CONNECTED to mqtt://pi2.local
+  3FFBB69C I |    10086 | remote |        Mqtt.cpp: 198 | Subscribing to topic dst/remote 
+["0000",true,"dst/remote"]
+  3FFBB69C I |    10093 | remote |        Mqtt.cpp: 198 | Subscribing to topic dst/remote/# 
+["0000",true,"dst/remote/#"]
+  3FFBB69C I |    10106 | remote |      Bridge.cpp: 100 |  MQTT CONNECTED
+  3FFBB69C I |    10112 | remote |        Mqtt.cpp: 123 | MQTT_EVENT_SUBSCRIBED, msg_id=2064
+  3FFBB69C I |    10122 | remote |        Mqtt.cpp: 123 | MQTT_EVENT_SUBSCRIBED, msg_id=25068
+  3FFCA050 I |    10175 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/alive = true
+["0000",true,"src/remote/system/alive","true",0,0]
+  3FFCA050 I |    10185 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/alive = true
+["0000",true,"src/remote/system/alive","true",0,0]
+  3FFC6D7C I |    10203 | remote |        Mqtt.cpp: 179 | PUB : src/remote/bridge/simple = 1123
+["0000",true,"src/remote/bridge/simple","1123",0,0]
+  3FFBD620 I |    10210 | remote |      System.cpp:  16 |  heap:162056 stack:3392 heap free :215968 largest block : 113804 
+  3FFBD620 I |    10219 | remote |        Mqtt.cpp: 179 | PUB : src/remote/bridge/complex = {"a":1,"b":true,"c":"a string","e":3.14}
+["0000",true,"src/remote/bridge/complex","{\"a\":1,\"b\":true,\"c\":\"a string\",\"e\":3.14}",0,0]
+  3FFBD620 I |    10242 | remote |        Mqtt.cpp: 179 | PUB : src/remote/mqtt/clientId = "remote/mqtt#12345"
+["0000",true,"src/remote/mqtt/clientId","\"remote/mqtt#12345\"",0,0]
+  3FFBD620 I |    10277 | remote |        Mqtt.cpp: 179 | PUB : src/remote/controller/potLeft = 207
+["0000",true,"src/remote/controller/potLeft","207",0,0]
+  3FFBD620 I |    11174 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/alive = true
+["0000",true,"src/remote/system/alive","true",0,0]
+  3FFBD620 I |    11188 | remote |        Mqtt.cpp: 179 | PUB : src/remote/bridge/txd = 0
+["0000",true,"src/remote/bridge/txd","0",0,0]
+  3FFBD620 I |    11276 | remote |        Mqtt.cpp: 179 | PUB : src/remote/controller/potLeft = 207
+["0000",true,"src/remote/controller/potLeft","207",0,0]
+  3FFBD620 I |    12175 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/alive = true
+["0000",true,"src/remote/system/alive","true",0,0]
+  3FFBD620 I |    12189 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/build = "Jul 27 2019 21:09:38"
+["0000",true,"src/remote/system/build","\"Jul 27 2019 21:09:38\"",0,0]
+  3FFBD620 I |    12276 | remote |        Mqtt.cpp: 179 | PUB : src/remote/controller/potLeft = 207
+["0000",true,"src/remote/controller/potLeft","207",0,0]
+  3FFBD620 I |    13175 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/alive = true
+["0000",true,"src/remote/system/alive","true",0,0]
+  3FFBD620 I |    13276 | remote |        Mqtt.cpp: 179 | PUB : src/remote/controller/potLeft = 207
+["0000",true,"src/remote/controller/potLeft","207",0,0]
+  3FFAFB00 I |    14174 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/alive = true
+["0000",true,"src/remote/system/alive","true",0,0]
+  3FFBD620 I |    14192 | remote |        Mqtt.cpp: 179 | PUB : src/remote/config/config = "loaded"
+["0000",true,"src/remote/config/config","\"loaded\"",0,0]
+  3FFBD620 I |    14276 | remote |        Mqtt.cpp: 179 | PUB : src/remote/controller/potLeft = 207
+["0000",true,"src/remote/controller/potLeft","207",0,0]
+  3FFBD620 I |    15174 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/alive = true
+["0000",true,"src/remote/system/alive","true",0,0]
+  3FFBD620 I |    15185 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/alive = true
+["0000",true,"src/remote/system/alive","true",0,0]
+  3FFCA050 I |    15203 | remote |        Mqtt.cpp: 179 | PUB : src/remote/bridge/simple = 1123
+["0000",true,"src/remote/bridge/simple","1123",0,0]
+  3FFBD620 I |    15210 | remote |      System.cpp:  16 |  heap:157068 stack:3272 heap free :210980 largest block : 113804 
+  3FFBD620 I |    15218 | remote |        Mqtt.cpp: 179 | PUB : src/remote/bridge/complex = {"a":1,"b":true,"c":"a string","e":3.14}
+["0000",true,"src/remote/bridge/complex","{\"a\":1,\"b\":true,\"c\":\"a string\",\"e\":3.14}",0,0]
+  3FFBD620 I |    15241 | remote |        Mqtt.cpp: 179 | PUB : src/remote/wifi/rssi = -76
+["0000",true,"src/remote/wifi/rssi","-76",0,0]
+  3FFBD620 I |    15278 | remote |        Mqtt.cpp: 179 | PUB : src/remote/controller/potLeft = 207
+["0000",true,"src/remote/controller/potLeft","207",0,0]
+  3FFBD620 I |    16175 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/alive = true
+["0000",true,"src/remote/system/alive","true",0,0]
+  3FFBB69C I |    16189 | remote |        Mqtt.cpp: 179 | PUB : src/remote/mqtt/clientId = "remote/mqtt#12345"
+["0000",true,"src/remote/mqtt/clientId","\"remote/mqtt#12345\"",0,0]
+  3FFBD620 I |    16276 | remote |        Mqtt.cpp: 179 | PUB : src/remote/controller/potLeft = 207
+["0000",true,"src/remote/controller/potLeft","207",0,0]
+  3FFBD620 I |    17174 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/alive = true
+["0000",true,"src/remote/system/alive","true",0,0]
+  3FFBB69C I |    17189 | remote |        Mqtt.cpp: 179 | PUB : src/remote/bridge/txd = 0
+["0000",true,"src/remote/bridge/txd","0",0,0]
+  3FFBD620 I |    17276 | remote |        Mqtt.cpp: 179 | PUB : src/remote/controller/potLeft = 207
+["0000",true,"src/remote/controller/potLeft","207",0,0]
+  3FFBD620 I |    18174 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/alive = true
+["0000",true,"src/remote/system/alive","true",0,0]
+  3FFBD620 I |    18190 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/build = "Jul 27 2019 21:09:38"
+["0000",true,"src/remote/system/build","\"Jul 27 2019 21:09:38\"",0,0]
+  3FFCA050 I |    18277 | remote |        Mqtt.cpp: 179 | PUB : src/remote/controller/potLeft = 207
+["0000",true,"src/remote/controller/potLeft","207",0,0]
+  3FFBD620 I |    19174 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/alive = true
+["0000",true,"src/remote/system/alive","true",0,0]
+  3FFBD620 I |    19276 | remote |        Mqtt.cpp: 179 | PUB : src/remote/controller/potLeft = 208
+["0000",true,"src/remote/controller/potLeft","208",0,0]
+  3FFBD620 I |    20174 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/alive = true
+["0000",true,"src/remote/system/alive","true",0,0]
+  3FFCA050 I |    20188 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/alive = true
+["0000",true,"src/remote/system/alive","true",0,0]
+  3FFBD620 I |    20201 | remote |        Mqtt.cpp: 179 | PUB : src/remote/bridge/simple = 1123
+["0000",true,"src/remote/bridge/simple","1123",0,0]
+  3FFBD620 I |    20208 | remote |      System.cpp:  16 |  heap:158884 stack:2884 heap free :212796 largest block : 113804 
+  3FFCA050 I |    20219 | remote |        Mqtt.cpp: 179 | PUB : src/remote/bridge/complex = {"a":1,"b":true,"c":"a string","e":3.14}
+["0000",true,"src/remote/bridge/complex","{\"a\":1,\"b\":true,\"c\":\"a string\",\"e\":3.14}",0,0]
+  3FFBD620 I |    20240 | remote |        Mqtt.cpp: 179 | PUB : src/remote/config/config = "loaded"
+["0000",true,"src/remote/config/config","\"loaded\"",0,0]
+  3FFBD620 I |    20278 | remote |        Mqtt.cpp: 179 | PUB : src/remote/controller/potLeft = 207
+["0000",true,"src/remote/controller/potLeft","207",0,0]
+  3FFBD620 I |    21175 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/alive = true
+["0000",true,"src/remote/system/alive","true",0,0]
+  3FFBD620 I |    21190 | remote |        Mqtt.cpp: 179 | PUB : src/remote/wifi/rssi = -76
+["0000",true,"src/remote/wifi/rssi","-76",0,0]
+  3FFBD620 I |    21276 | remote |        Mqtt.cpp: 179 | PUB : src/remote/controller/potLeft = 208
+["0000",true,"src/remote/controller/potLeft","208",0,0]
+  3FFBD620 I |    22175 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/alive = true
+["0000",true,"src/remote/system/alive","true",0,0]
+  3FFBB69C I |    22189 | remote |        Mqtt.cpp: 179 | PUB : src/remote/mqtt/clientId = "remote/mqtt#12345"
+["0000",true,"src/remote/mqtt/clientId","\"remote/mqtt#12345\"",0,0]
+  3FFBD620 I |    22276 | remote |        Mqtt.cpp: 179 | PUB : src/remote/controller/potLeft = 207
+["0000",true,"src/remote/controller/potLeft","207",0,0]
+  3FFBD620 I |    23174 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/alive = true
+["0000",true,"src/remote/system/alive","true",0,0]
+  3FFBB69C I |    23189 | remote |        Mqtt.cpp: 179 | PUB : src/remote/bridge/txd = 0
+["0000",true,"src/remote/bridge/txd","0",0,0]
+  3FFBD620 I |    23276 | remote |        Mqtt.cpp: 179 | PUB : src/remote/controller/potLeft = 208
+["0000",true,"src/remote/controller/potLeft","208",0,0]
+  3FFBD620 I |    24174 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/alive = true
+["0000",true,"src/remote/system/alive","true",0,0]
+  3FFBD620 I |    24190 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/build = "Jul 27 2019 21:09:38"
+["0000",true,"src/remote/system/build","\"Jul 27 2019 21:09:38\"",0,0]
+  3FFBD620 I |    24276 | remote |        Mqtt.cpp: 179 | PUB : src/remote/controller/potLeft = 208
+["0000",true,"src/remote/controller/potLeft","208",0,0]
+  3FFBD620 I |    25175 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/alive = true
+["0000",true,"src/remote/system/alive","true",0,0]
+  3FFCA050 I |    25185 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/alive = true
+["0000",true,"src/remote/system/alive","true",0,0]
+  3FFBD620 I |    25201 | remote |        Mqtt.cpp: 179 | PUB : src/remote/bridge/simple = 1123
+["0000",true,"src/remote/bridge/simple","1123",0,0]
+  3FFBD620 I |    25207 | remote |      System.cpp:  16 |  heap:158880 stack:2880 heap free :212792 largest block : 113804 
+  3FFCA050 I |    25218 | remote |        Mqtt.cpp: 179 | PUB : src/remote/bridge/complex = {"a":1,"b":true,"c":"a string","e":3.14}
+["0000",true,"src/remote/bridge/complex","{\"a\":1,\"b\":true,\"c\":\"a string\",\"e\":3.14}",0,0]
+  3FFBD620 I |    25278 | remote |        Mqtt.cpp: 179 | PUB : src/remote/controller/potLeft = 207
+["0000",true,"src/remote/controller/potLeft","207",0,0]
+  3FFBD620 I |    26175 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/alive = true
+["0000",true,"src/remote/system/alive","true",0,0]
+  3FFBB69C I |    26189 | remote |        Mqtt.cpp: 179 | PUB : src/remote/config/config = "loaded"
+["0000",true,"src/remote/config/config","\"loaded\"",0,0]
+  3FFBD620 I |    26276 | remote |        Mqtt.cpp: 179 | PUB : src/remote/controller/potLeft = 207
+["0000",true,"src/remote/controller/potLeft","207",0,0]
+  3FFBD620 I |    27174 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/alive = true
+["0000",true,"src/remote/system/alive","true",0,0]
+  3FFCA050 I |    27188 | remote |        Mqtt.cpp: 179 | PUB : src/remote/wifi/rssi = -76
+["0000",true,"src/remote/wifi/rssi","-76",0,0]
+  3FFBD620 I |    27276 | remote |        Mqtt.cpp: 179 | PUB : src/remote/controller/potLeft = 207
+["0000",true,"src/remote/controller/potLeft","207",0,0]
+  3FFBD620 I |    28174 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/alive = true
+["0000",true,"src/remote/system/alive","true",0,0]
+  3FFBD620 I |    28190 | remote |        Mqtt.cpp: 179 | PUB : src/remote/mqtt/clientId = "remote/mqtt#12345"
+["0000",true,"src/remote/mqtt/clientId","\"remote/mqtt#12345\"",0,0]
+  3FFBD620 I |    28276 | remote |        Mqtt.cpp: 179 | PUB : src/remote/controller/potLeft = 208
+["0000",true,"src/remote/controller/potLeft","208",0,0]
+  3FFBD620 I |    29175 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/alive = true
+["0000",true,"src/remote/system/alive","true",0,0]
+  3FFBB69C I |    29189 | remote |        Mqtt.cpp: 179 | PUB : src/remote/bridge/txd = 0
+["0000",true,"src/remote/bridge/txd","0",0,0]
+  3FFBD620 I |    29276 | remote |        Mqtt.cpp: 179 | PUB : src/remote/controller/potLeft = 207
+["0000",true,"src/remote/controller/potLeft","207",0,0]
+  3FFBD620 I |    30175 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/alive = true
+["0000",true,"src/remote/system/alive","true",0,0]
+  3FFCA050 I |    30185 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/alive = true
+["0000",true,"src/remote/system/alive","true",0,0]
+  3FFBD620 I |    30205 | remote |      System.cpp:  16 |  heap:160740 stack:2884 heap free :214652 largest block : 113804 
+  3FFBD620 I |    30208 | remote |        Mqtt.cpp: 179 | PUB : src/remote/bridge/simple = 1123
+["0000",true,"src/remote/bridge/simple","1123",0,0]
+  3FFBD620 I |    30224 | remote |        Mqtt.cpp: 179 | PUB : src/remote/bridge/complex = {"a":1,"b":true,"c":"a string","e":3.14}
+["0000",true,"src/remote/bridge/complex","{\"a\":1,\"b\":true,\"c\":\"a string\",\"e\":3.14}",0,0]
+  3FFBD620 I |    30244 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/build = "Jul 27 2019 21:09:38"
+["0000",true,"src/remote/system/build","\"Jul 27 2019 21:09:38\"",0,0]
+  3FFBD620 I |    30278 | remote |        Mqtt.cpp: 179 | PUB : src/remote/controller/potLeft = 207
+["0000",true,"src/remote/controller/potLeft","207",0,0]
+  3FFBD620 I |    31175 | remote |        Mqtt.cpp: 179 | PUB : src/remote/system/alive = true
+["0000",true,"src/remote/system/alive","true",0,0]
+  3FFCA050 I |    31277 | remote |        Mqtt.cpp: 179 | PUB : src/remote/controller/potLeft = 207
+["0000",true,"src/remote/controller/potLeft","207",0,0]
