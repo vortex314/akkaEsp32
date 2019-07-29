@@ -13,6 +13,7 @@
 #include <DWM1000.h>
 #include <DWM1000_Message.h>
 #include <LogIsr.h>
+#include <Bridge.h>
 
 #define ANCHOR_EXPIRE_TIME 30000
 class Anchor {

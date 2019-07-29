@@ -101,17 +101,8 @@ ActorMsgBus eb;
 
 #define BZERO(x) ::memset(&x, 0, sizeof(x))
 
-extern void XdrTester(uint32_t max);
-
 extern "C" void app_main() {
 	esp_log_level_set("*", ESP_LOG_WARN);
-	/*	esp_log_level_set("MQTT_CLIENT", ESP_LOG_DEBUG);
-		esp_log_level_set("TRANSPORT_TCP", ESP_LOG_DEBUG);
-		esp_log_level_set("TRANSPORT_SSL", ESP_LOG_VERBOSE);
-		esp_log_level_set("TRANSPORT", ESP_LOG_VERBOSE);
-		esp_log_level_set("OUTBOX", ESP_LOG_VERBOSE);
-		*/
-
 	Sys::init();
 	nvs_flash_init();
 	INFO("Starting Akka on %s heap : %d ", Sys::getProcessor(),Sys::getFreeHeap());
@@ -135,18 +126,14 @@ extern "C" void app_main() {
 	ActorRef& wifi = actorSystem.actorOf<Wifi>("wifi");
 	ActorRef& mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi,"tcp://limero.ddns.net:1883");
 #endif
-
-
-
 	ActorRef& bridge = actorSystem.actorOf<Bridge>("bridge", mqtt);
 	actorSystem.actorOf<System>("system", mqtt);
 	actorSystem.actorOf<ConfigActor>("config");
 
 	JsonObject cfg = config.root();
 	JsonArray uexts = cfg["uext"].as<JsonArray>();
-	int idx = 0;
+	int idx = 1; // starts at 1
 	for (const char* name : uexts) {
-		idx++;				// starts at 1
 		const char* peripheral = cfg[name]["class"] | "";
 		if (strlen(peripheral) > 0) {
 			switch (H(peripheral)) {
