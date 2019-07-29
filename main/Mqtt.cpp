@@ -7,11 +7,14 @@
 #define BZERO(x) ::memset(&x, 0, sizeof(x))
 #define CONFIG_BROKER_URL "mqtt://limero.ddns.net"
 
-Mqtt::Mqtt(ActorRef& wifi, const char* address)
+Mqtt::Mqtt(ActorRef& wifi, JsonObject config)
 	: _wifi(wifi), _address(address) {
 	_connected = false;
 	config.setNameSpace("mqtt");
-	config.get("url", _address, "tcp://limero.ddns.net:1883");
+	_address = "mqtt://"
+	_address += config["host"] | "limero.ddns.net";
+	_address += ":";
+	_address += config["port"] | 1883 ;
 	_mqttClient = 0;
 	_lwt_topic="src/";
 	_lwt_topic.append(Sys::hostname()).append("/system/alive");
@@ -42,6 +45,8 @@ void Mqtt::preStart() {
 
 	esp_mqtt_client_config_t mqtt_cfg;
 	BZERO(mqtt_cfg);
+	std::string url="mqtt://";
+	url += 
 	mqtt_cfg.uri = CONFIG_BROKER_URL;
 	mqtt_cfg.event_handle = mqtt_event_handler;
 	mqtt_cfg.client_id = Sys::hostname();

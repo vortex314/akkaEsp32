@@ -100,11 +100,11 @@ void DWM1000_Tag::txcallback(const dwt_callback_data_t* signal) {
 //__________________________________________________
 DWM1000_Tag* DWM1000_Tag::_tag = 0;
 
-DWM1000_Tag::DWM1000_Tag(ActorRef& publisher, Spi& spi, DigitalIn& irq,
+DWM1000_Tag::DWM1000_Tag(ActorRef& bridge, Spi& spi, DigitalIn& irq,
                          DigitalOut& reset, uint16_t shortAddress,
                          uint8_t longAddress[6])
     : DWM1000(spi, irq, reset, shortAddress, longAddress), _irq(irq),
-      _publisher(publisher) {
+      _bridge(bridge) {
     _state = RCV_ANY;
     _count = 0;
     _interrupts = 0;
@@ -126,10 +126,10 @@ DWM1000_Tag::DWM1000_Tag(ActorRef& publisher, Spi& spi, DigitalIn& irq,
     _count = 0;
 }
 
-DWM1000_Tag::DWM1000_Tag(Connector* connector, ActorRef& publisher)
-    : DWM1000_Tag(
-          publisher, connector->getSPI(), connector->getDigitalIn(LP_RXD),
-          connector->getDigitalOut(LP_TXD), 0xABCD, (uint8_t*)"ABCDEF") {}
+DWM1000_Tag::DWM1000_Tag(Connector* connector, ActorRef& bridge)
+    : DWM1000_Tag(bridge, connector->getSPI(), connector->getDigitalIn(LP_RXD),
+                  connector->getDigitalOut(LP_TXD), 0xABCD,
+                  (uint8_t*)"ABCDEF") {}
 
 DWM1000_Tag::~DWM1000_Tag() {}
 
@@ -139,6 +139,7 @@ void DWM1000_Tag::preStart() {
     timers().startPeriodicTimer("EXP", Msg("expireTimer"), 1000);
     timers().startPeriodicTimer("check", Msg("checkTimer"), 5000);
     timers().startPeriodicTimer("log", Msg("logTimer"), 1000);
+    timers().startPeriodicTimer("report", Msg("reportTimer"), 1000);
 
     _irq.onChange(DigitalIn::DIN_RAISE, tagInterruptHandler, this);
     DWM1000::setup();
@@ -165,23 +166,15 @@ Receive& DWM1000_Tag::createReceive() {
                         "anchors: %d delay:%d usec",
                         _interrupts, _timeouts, _blinks, _polls, _resps,
                         _finals, anchorsCount(), _interruptDelay);
-                   Msg msg("PropertiesReply");
+                   uint32_t count = 0;
                    for (int i = 0; i < MAX_ANCHORS; i++) {
                        if (anchors[i]._address != 0) {
-                           std::string topic;
-                           string_format(topic, "anchors/%d/x",
-                                         anchors[i]._address, anchors[i]._x);
-                           msg(topic.c_str(), anchors[i]._x);
-                           string_format(topic, "anchors/%d/y",
-                                         anchors[i]._address, anchors[i]._y);
-                           msg(topic.c_str(), anchors[i]._y);
-                           string_format(topic, "anchors/%d/distance",
-                                         anchors[i]._address,
-                                         anchors[i]._distance);
-                           msg(topic.c_str(), anchors[i]._distance);
+                           INFO(" anchor : %6d  x: %5d y: %5d distance : %5d ",
+                                anchors[i]._address, anchors[i]._x,
+                                anchors[i]._y, anchors[i]._distance)
                        }
                    }
-                   _publisher.tell(msg, self());
+
                    static uint32_t _oldBlinks = 0;
                    if (_blinks > _oldBlinks) {
                        Msg msg(System::LedPulseOn);
@@ -193,10 +186,12 @@ Receive& DWM1000_Tag::createReceive() {
 
         .match(MsgClass(H("reportTimer"), [this](Msg & msg)) {
             for (int i = 0; i < MAX_ANCHORS; i++) {
-                if (anchors[i]._address != 0) {
+                if (anchors[i]._address != 0 &&
+                    anchors[i]._expires < Sys::millis()) {
                     Xdr xdr(10);
-                    xdr("address", anchors[i]._address)("x", anchors[i]._x)("y", anchors[i]._y)("distance", anchors[i]._distance);
-                    _bridge.tell(msgBuilder(Publish)("anchor", xdr), self());
+                    xdr("address", anchors[i]._address)("x", anchors[i]._x)(
+                        "y", anchors[i]._y)("distance", anchors[i]._distance);
+                    _bridge.tell(msgBuilder(Bridge::Publish)("anchor", xdr), self());
                 }
             }
         })
@@ -402,7 +397,7 @@ bool DWM1000_Tag::pollAnchor() {
  * 				tag =============> 	anchor
  * 				POLL ===>
  * 							<====	RESP
- * 				FINAL ===>					:
+ * 				FINAL ===> :
  * calc
  * distance
  *

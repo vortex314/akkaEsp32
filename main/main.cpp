@@ -61,35 +61,45 @@ using namespace std;
  * ATTENTION : TIMER_TASK_PRIORITY needs to be raised to avoid wdt trigger on load test
  */
 
+#ifndef SSID
+#error "SSID not found "
+#endif
+
+#ifndef PASSWORD
+#error "PASSWORD not found "
+#endif
 
 
 #define CONTROLLER  "{\"uext\":[\"controller\"], \
 		\"controller\":{\"class\":\"Controller\"}, \
 		\"system\":{\"hostname\":\"remote\"}, \
-		\"mqtt\":{\"url\":\"mqtt://pi2.local\"}, \
-\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
+		\"mqtt\":{\"host\":\"limero.local\",\"port\":1883}, \
+\"wifi\":{\"ssid\":\"" ## SSID ## "\",\"password\":\"" ## PASSWORD ## "\"}}"
 
 #define MOTOR "{\"uext\":[\"motor\"],\"motor\":{\"class\":\"MotorSpeed\"}, \
 		\"system\":{\"hostname\":\"drive\"}, \
-		\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883}, \
-\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
+		\"mqtt\":{\"host\":\"limero.local\",\"port\":1883}, \
+\"wifi\":{\"ssid\":\"" ## SSID ## "\",\"password\":\"" ## PASSWORD ## "\"}}"
 
-#define SERVO "{\"uext\":[\"steer\"],\"steer\":{\"class\":\"MotorServo\"},\"system\":{\"hostname\":\"drive\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
+#define SERVO "{\"uext\":[\"steer\"],\"steer\":{\"class\":\"MotorServo\"},\"system\":{\"hostname\":\"drive\"},\"mqtt\":{\"host\":\"limero.local\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
 
 #define SERVO_MOTOR "{\"uext\":[\"steer\",\"motor\"], \
         \"motor\":{\"class\":\"MotorSpeed\"}, \
         \"steer\":{\"class\":\"MotorServo\"}, \
         \"system\":{\"hostname\":\"drive\"}, \
         \"mqtt\":{\"host\":\"pi2.local\"}, \
-\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
+\"wifi\":{\"ssid\":\"" ## SSID ## "\",\"password\":\"" ## PASSWORD ## "\"}}"
 
 
-#define GENERIC         "{\"uext\":[],\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
-#define DWM1000_TAG "{\"uext\":[\"dwm1000Tag\"],\"dwm1000Tag\":{\"class\":\"DWM1000_Tag\"},\"system\":{\"hostname\":\"tag\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
-#define GPS_US     "{\"uext\":[\"gps\",\"us\"],\"gps\":{\"class\":\"NEO6M\"},\"us\":{\"class\":\"UltraSonic\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
-#define STM32_PROGRAMMER  "{\"uext\":[\"programmer\"],\"programmer\":{\"class\":\"Programmer\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
-#define COMPASS_US 	    "{\"uext\":[\"compass\",\"us\"],\"compass\":{\"class\":\"DigitalCompass\"},\"us\":{\"class\":\"UltraSonic\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
-#define TRIAC 	    "{\"uext\":[\"triac\"],\"triac\":{\"class\":\"Triac\"},\"us\":{\"class\":\"UltraSonic\"},\"mqtt\":{\"host\":\"limero.ddns.net\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
+#define GENERIC         "{\"uext\":[],\"mqtt\":{\"host\":\"limero.local\",\"port\":1883}, \
+\"wifi\":{\"ssid\":\"" ## SSID ## "\",\"password\":\"" ## PASSWORD ## "\"}}"
+
+#define DWM1000_TAG "{\"uext\":[\"dwm1000Tag\"],\"dwm1000Tag\":{\"class\":\"DWM1000_Tag\"},\"system\":{\"hostname\":\"tag\"},\"mqtt\":{\"host\":\"limero.local\",\"port\":1883}, \
+\"wifi\":{\"ssid\":\"" ## SSID ## "\",\"password\":\"" ## PASSWORD ## "\"}}"
+#define GPS_US     "{\"uext\":[\"gps\",\"us\"],\"gps\":{\"class\":\"NEO6M\"},\"us\":{\"class\":\"UltraSonic\"},\"mqtt\":{\"host\":\"limero.local\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
+#define STM32_PROGRAMMER  "{\"uext\":[\"programmer\"],\"programmer\":{\"class\":\"Programmer\"},\"mqtt\":{\"host\":\"limero.local\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
+#define COMPASS_US 	    "{\"uext\":[\"compass\",\"us\"],\"compass\":{\"class\":\"DigitalCompass\"},\"us\":{\"class\":\"UltraSonic\"},\"mqtt\":{\"host\":\"limero.local\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
+#define TRIAC 	    "{\"uext\":[\"triac\"],\"triac\":{\"class\":\"Triac\"},\"us\":{\"class\":\"UltraSonic\"},\"mqtt\":{\"host\":\"limero.local\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
 
 
 #define CONFIGURATION  CONTROLLER
@@ -124,7 +134,7 @@ extern "C" void app_main() {
 #endif
 #ifdef MQTT_TCP
 	ActorRef& wifi = actorSystem.actorOf<Wifi>("wifi");
-	ActorRef& mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi,"tcp://limero.ddns.net:1883");
+	ActorRef& mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi,cfg["mqtt"]);
 #endif
 	ActorRef& bridge = actorSystem.actorOf<Bridge>("bridge", mqtt);
 	actorSystem.actorOf<System>("system", mqtt);
@@ -143,7 +153,7 @@ extern "C" void app_main() {
 					}
 				case H("Programmer"): {
 						actorSystem.actorOf<Programmer>(name, new Connector(idx),
-						                                mqtt);
+						                                bridge);
 						break;
 					}
 				case H("DWM1000_Tag"): {
