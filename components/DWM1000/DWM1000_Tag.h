@@ -35,7 +35,7 @@ class Anchor {
 		}
 
 		Anchor()
-				: Anchor(0, 0) {
+			: Anchor(0, 0) {
 		}
 
 		bool expired() {
@@ -95,14 +95,14 @@ class DWM1000_Tag: public Actor, public DWM1000 {
 		State _state;
 		bool _pollTimerExpired;
 		DigitalIn& _irq;
-		ActorRef& _publisher;
+		ActorRef& _bridge;
 
 	public:
 		static DWM1000_Tag* _tag;
 		uint32_t _interrupts;
 		uint64_t _interruptStart;
 		DWM1000_Tag(ActorRef& publisher,Spi& spi, DigitalIn& irq, DigitalOut& reset,
-				uint16_t shortAddress, uint8_t longAddress[6]);
+		            uint16_t shortAddress, uint8_t longAddress[6]);
 		DWM1000_Tag( Connector*,ActorRef&  );
 		~DWM1000_Tag();
 		void mode(uint32_t m);

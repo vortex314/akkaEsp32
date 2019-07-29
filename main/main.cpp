@@ -61,12 +61,12 @@ using namespace std;
  * ATTENTION : TIMER_TASK_PRIORITY needs to be raised to avoid wdt trigger on load test
  */
 
-#ifndef SSID
-#error "SSID not found "
+#ifndef WIFI_SSID
+#error "WIFI_SSID not found "
 #endif
 
-#ifndef PASSWORD
-#error "PASSWORD not found "
+#ifndef WIFI_PASS
+#error "WIFI_PASS not found "
 #endif
 
 
@@ -74,12 +74,12 @@ using namespace std;
 		\"controller\":{\"class\":\"Controller\"}, \
 		\"system\":{\"hostname\":\"remote\"}, \
 		\"mqtt\":{\"host\":\"limero.local\",\"port\":1883}, \
-\"wifi\":{\"ssid\":\"" ## SSID ## "\",\"password\":\"" ## PASSWORD ## "\"}}"
+\"wifi\":{\"ssid\":\""##WIFI_SSID##"\",\"password\":\""##WIFI_PASS##"\"}}"
 
 #define MOTOR "{\"uext\":[\"motor\"],\"motor\":{\"class\":\"MotorSpeed\"}, \
 		\"system\":{\"hostname\":\"drive\"}, \
 		\"mqtt\":{\"host\":\"limero.local\",\"port\":1883}, \
-\"wifi\":{\"ssid\":\"" ## SSID ## "\",\"password\":\"" ## PASSWORD ## "\"}}"
+\"wifi\":{\"ssid\":\""## WIFI_SSID ## "\",\"password\":\"" ## WIFI_PASS ## "\"}}"
 
 #define SERVO "{\"uext\":[\"steer\"],\"steer\":{\"class\":\"MotorServo\"},\"system\":{\"hostname\":\"drive\"},\"mqtt\":{\"host\":\"limero.local\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
 
@@ -88,14 +88,14 @@ using namespace std;
         \"steer\":{\"class\":\"MotorServo\"}, \
         \"system\":{\"hostname\":\"drive\"}, \
         \"mqtt\":{\"host\":\"pi2.local\"}, \
-\"wifi\":{\"ssid\":\"" ## SSID ## "\",\"password\":\"" ## PASSWORD ## "\"}}"
+\"wifi\":{\"ssid\":\"" ## WIFI_SSID ## "\",\"password\":\"" ## WIFI_PASS ## "\"}}"
 
 
 #define GENERIC         "{\"uext\":[],\"mqtt\":{\"host\":\"limero.local\",\"port\":1883}, \
-\"wifi\":{\"ssid\":\"" ## SSID ## "\",\"password\":\"" ## PASSWORD ## "\"}}"
+\"wifi\":{\"ssid\":\"" ## WIFI_SSID ## "\",\"password\":\"" ## WIFI_PASS ## "\"}}"
 
 #define DWM1000_TAG "{\"uext\":[\"dwm1000Tag\"],\"dwm1000Tag\":{\"class\":\"DWM1000_Tag\"},\"system\":{\"hostname\":\"tag\"},\"mqtt\":{\"host\":\"limero.local\",\"port\":1883}, \
-\"wifi\":{\"ssid\":\"" ## SSID ## "\",\"password\":\"" ## PASSWORD ## "\"}}"
+\"wifi\":{\"ssid\":\"" ## WIFI_SSID ## "\",\"password\":\"" ## WIFI_PASS ## "\"}}"
 #define GPS_US     "{\"uext\":[\"gps\",\"us\"],\"gps\":{\"class\":\"NEO6M\"},\"us\":{\"class\":\"UltraSonic\"},\"mqtt\":{\"host\":\"limero.local\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
 #define STM32_PROGRAMMER  "{\"uext\":[\"programmer\"],\"programmer\":{\"class\":\"Programmer\"},\"mqtt\":{\"host\":\"limero.local\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"
 #define COMPASS_US 	    "{\"uext\":[\"compass\",\"us\"],\"compass\":{\"class\":\"DigitalCompass\"},\"us\":{\"class\":\"UltraSonic\"},\"mqtt\":{\"host\":\"limero.local\",\"port\":1883},\"wifi\":{\"ssid\":\"Merckx\",\"password\":\"LievenMarletteEwoutRonald\"}}"

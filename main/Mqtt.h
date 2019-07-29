@@ -46,7 +46,7 @@ class Mqtt : public Actor {
 		static MsgClass Disconnected;
 		static MsgClass Publish;
 		static MsgClass Subscribe;
-		Mqtt(ActorRef&,JsonConfig config);
+		Mqtt(ActorRef&,JsonObject config);
 		~Mqtt();
 		void preStart();
 		Receive& createReceive();
