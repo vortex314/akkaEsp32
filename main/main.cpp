@@ -73,8 +73,14 @@ using namespace std;
 #define STRINGIFY(X) #X
 #define S(X) STRINGIFY(X)
 
+#ifdef MQTT_SERIAL
+#define MQTT ",mqtt:{ uart='uart1'}"
+#define WIFI ""
+#else
 #define MQTT ",mqtt:{host:'limero.local',port:1883}"
 #define WIFI ",wifi:{ssid:'" S(WIFI_PASS) "',password:'" S(WIFI_SSID) "'}"
+#endif
+
 #define SYS(xxx) ",system:{hostname:'" #xxx "'}"
 
 #define CONTROLLER 	"{uext:['controller'], controller:{class:'Controller'}" SYS(remote) MQTT WIFI "}"
