@@ -46,111 +46,109 @@ const static int CONNECTED_BIT = BIT0;
 
 using namespace std;
 
+#include <Programmer.h>
+#include <Controller.h>
+#include <DWM1000_Tag.h>
+#include <Compass.h>
+#include <LSM303C.h>
+#include <MotorSpeed.h>
+#include <MotorServo.h>
+#include <Neo6m.h>
+#include <DigitalCompass.h>
+#include <UltraSonic.h>
+#include <Triac.h>
+
+
 /*
  * ATTENTION : TIMER_TASK_PRIORITY needs to be raised to avoid wdt trigger on
  * load test
  */
 
-
-// make -DTRIAC=1 -DHOSTNAME=triac -DULTRASONIC=2
-
-
 Log logger(256);
 ActorMsgBus eb;
 
 #define BZERO(x) ::memset(&x, 0, sizeof(x))
+#define STRINGIFY(X) #X
+#define S(X) STRINGIFY(X)
 
 extern "C" void app_main() {
-    esp_log_level_set("*", ESP_LOG_WARN);
-    Sys::init();
-    nvs_flash_init();
-    INFO("Starting Akka on %s heap : %d ", Sys::getProcessor(),
-         Sys::getFreeHeap());
-#ifdef CONFIGURATION
-    config.load(CONFIGURATION);
-#else
-    config.load();
-#endif
-    std::string hostname;
-    config.setNameSpace("system");
-    config.get("hostname", hostname, Sys::hostname());
-    Sys::setHostname(hostname.c_str());
+	esp_log_level_set("*", ESP_LOG_WARN);
+	Sys::init();
+	nvs_flash_init();
+	INFO("Starting Akka on %s heap : %d ", Sys::getProcessor(),
+	     Sys::getFreeHeap());
 
-    static MessageDispatcher defaultDispatcher(4, 6000, tskIDLE_PRIORITY + 1);
-    static ActorSystem actorSystem(Sys::hostname(), defaultDispatcher);
-    JsonObject cfg = config.root();
+#ifdef HOSTNAME
+	Sys::setHostname(S(HOSTNAME));
+#else
+	std::string hostname =  config.root()["system"]["hostname"] | Sys::hostname();
+#endif
+
+
+	static MessageDispatcher defaultDispatcher(4, 6000, tskIDLE_PRIORITY + 1);
+	static ActorSystem actorSystem(Sys::hostname(), defaultDispatcher);
+	JsonObject cfg = config.root();
 
 #ifdef MQTT_SERIAL
 #include <MqttSerial.h>
 
-    ActorRef& mqtt = actorSystem.actorOf<MqttSerial>("mqttSerial");
+	ActorRef& mqtt = actorSystem.actorOf<MqttSerial>("mqttSerial");
 #else
 #include <Wifi.h>
 #include <Mqtt.h>
 
-    ActorRef& wifi = actorSystem.actorOf<Wifi>("wifi");
-    ActorRef& mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi);
+	ActorRef& wifi = actorSystem.actorOf<Wifi>("wifi");
+	ActorRef& mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi);
 #endif
-    ActorRef& bridge = actorSystem.actorOf<Bridge>("bridge", mqtt);
-    actorSystem.actorOf<System>("system", mqtt);
-    actorSystem.actorOf<ConfigActor>("config");
+	ActorRef& bridge = actorSystem.actorOf<Bridge>("bridge", mqtt);
+	actorSystem.actorOf<System>("system", mqtt);
+	actorSystem.actorOf<ConfigActor>("config");
 
 #ifdef REMOTE
-#include <Controller.h>
-    actorSystem.actorOf<Controller>("remote", bridge);
+	actorSystem.actorOf<Controller>("remote", bridge);
 #endif
 
 #ifdef PROGRAMMER
-#include <Programmer.h>
-    actorSystem.actorOf<Programmer>("programmer", new Connector(PROGRAMMER),
-                                    bridge);
+	actorSystem.actorOf<Programmer>("programmer", new Connector(PROGRAMMER),
+	                                bridge);
 #endif
 
 #ifdef DWM1000_TAG
-#include <DWM1000_Tag.h>
-    actorSystem.actorOf<DWM1000_Tag>("tag", new Connector(DWM1000_TAG), bridge);
+	actorSystem.actorOf<DWM1000_Tag>("tag", new Connector(DWM1000_TAG), bridge);
 #endif
 
 #ifdef COMPASS
-#include <Compass.h>
-    actorSystem.actorOf<DigitalCompass>("compass", new Connector(COMPASS), bridge);
+	actorSystem.actorOf<DigitalCompass>("compass", new Connector(COMPASS), bridge);
 #endif
 
 #ifdef LSM303C
-#include <LSM303C.h>
-    actorSystem.actorOf<LSM303C>("lsm303c", new Connector(LSM303C), bridge);
+	actorSystem.actorOf<LSM303C>("lsm303c", new Connector(LSM303C), bridge);
 #endif
 
 #ifdef MOTORSPEED
-#include <MotorSpeed.h>
-    actorSystem.actorOf<MotorSpeed>("speed", new Connector(MOTORSPEED), bridge);
+	actorSystem.actorOf<MotorSpeed>("speed", new Connector(MOTORSPEED), bridge);
 #endif
 
 #ifdef MOTORSERVO
-#include <MotorServo.h>
-    actorSystem.actorOf<MotorServo>("steer", new Connector(MOTORSERVO), bridge);
+	actorSystem.actorOf<MotorServo>("steer", new Connector(MOTORSERVO), bridge);
 #endif
 
 #ifdef NEO6M
-#include <Neo6m.h>
-    actorSystem.actorOf<Neo6m>("neo6m", new Connector(NEO6M), bridge);
+	actorSystem.actorOf<Neo6m>("neo6m", new Connector(NEO6M), bridge);
 #endif
 
 #ifdef DIGITAL_COMPASS
-#include <DigitalCompass.h>
-    actorSystem.actorOf<DigitalCompass>(name, new Connector(DIGITAL_COMPASS),
-                                        bridge);
+	actorSystem.actorOf<DigitalCompass>(name, new Connector(DIGITAL_COMPASS),
+	                                    bridge);
 #endif
 
 #ifdef ULTRASONIC
-#include <UltraSonic.h>
-    actorSystem.actorOf<UltraSonic>(name, new Connector(idx), bridge);
+	actorSystem.actorOf<UltraSonic>(name, new Connector(idx), bridge);
 #endif
 
 #ifdef TRIAC
-#include <Triac.h>
-    actorSystem.actorOf<Triac>(name, new Connector(idx), bridge);
+	actorSystem.actorOf<Triac>(name, new Connector(idx), bridge);
 #endif
 
-    config.save();
+	config.save();
 }

@@ -5,16 +5,18 @@
 #include <Config.h>
 // volatile MQTTAsync_token deliveredtoken;
 #define BZERO(x) ::memset(&x, 0, sizeof(x))
-#define CONFIG_BROKER_URL "mqtt://limero.ddns.net"
+//#define CONFIG_BROKER_URL "mqtt://limero.ddns.net"
 
 Mqtt::Mqtt(ActorRef& wifi)
 	: _wifi(wifi) {
-		JsonObject myConfig=config.root()["mqtt"];
+	JsonObject myConfig=config.root()["mqtt"];
 	_connected = false;
-	_address = "mqtt://";
-	_address += myConfig["host"] | "limero.ddns.net";
-	_address += ":";
-	_address += myConfig["port"] | 1883 ;
+
+	int port= myConfig["port"] | 1883 ;
+	std::string host = myConfig["host"] | "iot.eclipse.org";
+	string_format(_address,"mqtt://%s:%d",host.c_str(),port);
+	INFO("mqtt url '%s' ",_address.c_str());
+	
 	_mqttClient = 0;
 	_lwt_topic="src/";
 	_lwt_topic.append(Sys::hostname()).append("/system/alive");
@@ -45,9 +47,9 @@ void Mqtt::preStart() {
 
 	esp_mqtt_client_config_t mqtt_cfg;
 	BZERO(mqtt_cfg);
-	std::string url="mqtt://";
-	url +=
-	    mqtt_cfg.uri = CONFIG_BROKER_URL;
+	/*	std::string url="mqtt://";
+		url +=*/
+	mqtt_cfg.uri = _address.c_str();
 	mqtt_cfg.event_handle = mqtt_event_handler;
 	mqtt_cfg.client_id = Sys::hostname();
 	mqtt_cfg.user_context = this;
@@ -182,17 +184,6 @@ typedef enum {
 void Mqtt::mqttPublish(const char* topic, const char* message) {
 	if (_connected == false) return;
 	INFO("PUB : %s = %s", topic, message);
-	DynamicJsonDocument doc(2038);
-
-	doc.add("0000");
-	doc.add(PUBLISH);
-	doc.add(topic);
-	doc.add(message);
-	doc.add(0);
-	doc.add(0);
-	std::string line;
-	serializeJson(doc,line);
-	printf("%s\r\n",line.c_str());
 	int id = esp_mqtt_client_publish(_mqttClient, topic, message, 0, 1, 0);
 	if (id < 0)
 		WARN("esp_mqtt_client_publish() failed.");
@@ -204,12 +195,4 @@ void Mqtt::mqttSubscribe(const char* topic) {
 	int id = esp_mqtt_client_subscribe(_mqttClient, topic, 0);
 	if (id < 0)
 		WARN("esp_mqtt_client_subscribe() failed.");
-	DynamicJsonDocument doc(2038);
-
-	doc.add("0000");
-	doc.add(SUBSCRIBE);
-	doc.add(topic);
-	std::string line;
-	serializeJson(doc,line);
-	printf("%s\r\n",line.c_str());
 }
