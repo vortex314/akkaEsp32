@@ -83,16 +83,32 @@ using namespace std;
 
 #define SYS(xxx) ",system:{hostname:'" #xxx "'}"
 
-#define CONTROLLER 	"{uext:['controller'], controller:{class:'Controller'}" SYS(remote) MQTT WIFI "}"
-#define MOTOR   		"{uext:['motor'], motor:{class:'MotorSpeed'}" SYS(drive) MQTT WIFI "}"
-#define SERVO 		"{uext:['steer'], motor:{class:'MotorServo'}" SYS(drive) MQTT WIFI "}"
-#define SERVO_MOTOR  "{uext:['steer','motor'], steer:{class:'MotorSpeed'},motor:{class:'MotorServo'}" SYS(drive)  MQTT WIFI "}"
-#define GENERIC  	"{uext:[], system:{}" MQTT WIFI "}"
-#define DWM1000_TAG  "{uext:['dwm1000Tag'], dwm1000Tag:{class:'DWM1000_Tag'}" SYS(drive) MQTT WIFI "}"
-#define GPS_US  		"{uext:['gps','us'], gps:{class:'NEO6M'},us:{class:'UltraSonic'}" SYS(gpsus) MQTT WIFI "}"
-#define STM32_PROGRAMMER "{uext:['programmer'], programmer:{class:'Programmer'}" SYS(prog) MQTT WIFI "}"
-#define COMPASS_US   "{uext:['compass','us'], compass:{class:'DigitalCompass'},us:{class:'UltraSonic'}" SYS(gpsus) MQTT WIFI "}"
-#define TRIAC 		"{uext:['triac'], triac:{class:'Triac'}" SYS(triac) MQTT WIFI "}"                                                                 \
+#define CONTROLLER                                                             \
+    "{uext:['controller'], controller:{class:'Controller'}" SYS(remote)        \
+        MQTT WIFI "}"
+#define MOTOR                                                                  \
+    "{uext:['motor'], motor:{class:'MotorSpeed'}" SYS(drive) MQTT WIFI "}"
+#define SERVO                                                                  \
+    "{uext:['steer'], motor:{class:'MotorServo'}" SYS(drive) MQTT WIFI "}"
+#define SERVO_MOTOR                                                            \
+    "{uext:['steer','motor'], "                                                \
+    "steer:{class:'MotorSpeed'},motor:{class:'MotorServo'}" SYS(drive)         \
+        MQTT WIFI "}"
+#define GENERIC "{uext:[], system:{}" MQTT WIFI "}"
+#define DWM1000_TAG                                                            \
+    "{uext:['dwm1000Tag'], dwm1000Tag:{class:'DWM1000_Tag'}" SYS(drive)        \
+        MQTT WIFI "}"
+#define GPS_US                                                                 \
+    "{uext:['gps','us'], gps:{class:'NEO6M'},us:{class:'UltraSonic'}" SYS(     \
+        gpsus) MQTT WIFI "}"
+#define STM32_PROGRAMMER                                                       \
+    "{uext:['programmer'], programmer:{class:'Programmer'}" SYS(prog)          \
+        MQTT WIFI "}"
+#define COMPASS_US                                                             \
+    "{uext:['compass','us'], "                                                 \
+    "compass:{class:'DigitalCompass'},us:{class:'UltraSonic'}" SYS(gpsus)      \
+        MQTT WIFI "}"
+#define TRIAC "{uext:['triac'], triac:{class:'Triac'}" SYS(triac) MQTT WIFI "}"
 
 #define CONFIGURATION CONTROLLER
 #define MQTT_TCP
@@ -103,101 +119,83 @@ ActorMsgBus eb;
 #define BZERO(x) ::memset(&x, 0, sizeof(x))
 
 extern "C" void app_main() {
-	esp_log_level_set("*", ESP_LOG_WARN);
-	Sys::init();
-	nvs_flash_init();
-	INFO("Starting Akka on %s heap : %d ", Sys::getProcessor(),
-	     Sys::getFreeHeap());
+    esp_log_level_set("*", ESP_LOG_WARN);
+    Sys::init();
+    nvs_flash_init();
+    INFO("Starting Akka on %s heap : %d ", Sys::getProcessor(),
+         Sys::getFreeHeap());
 #ifdef CONFIGURATION
-	config.load(CONFIGURATION);
+    config.load(CONFIGURATION);
 #else
-	config.load();
+    config.load();
 #endif
-	std::string hostname;
-	config.setNameSpace("system");
-	config.get("hostname", hostname, Sys::hostname());
-	Sys::setHostname(hostname.c_str());
+    std::string hostname;
+    config.setNameSpace("system");
+    config.get("hostname", hostname, Sys::hostname());
+    Sys::setHostname(hostname.c_str());
 
-	static MessageDispatcher defaultDispatcher(4, 6000, tskIDLE_PRIORITY + 1);
-	static ActorSystem actorSystem(Sys::hostname(), defaultDispatcher);
-	JsonObject cfg = config.root();
-	JsonArray uexts = cfg["uext"].as<JsonArray>();
+    static MessageDispatcher defaultDispatcher(4, 6000, tskIDLE_PRIORITY + 1);
+    static ActorSystem actorSystem(Sys::hostname(), defaultDispatcher);
+    JsonObject cfg = config.root();
 
 #ifdef MQTT_SERIAL
-	ActorRef& mqtt = actorSystem.actorOf<MqttSerial>("mqttSerial");
+    ActorRef& mqtt = actorSystem.actorOf<MqttSerial>("mqttSerial");
 #endif
+
 #ifdef MQTT_TCP
-	ActorRef& wifi = actorSystem.actorOf<Wifi>("wifi");
-	ActorRef& mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi, cfg["mqtt"]);
+    ActorRef& wifi = actorSystem.actorOf<Wifi>("wifi");
+    ActorRef& mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi, cfg["mqtt"]);
 #endif
-	ActorRef& bridge = actorSystem.actorOf<Bridge>("bridge", mqtt);
-	actorSystem.actorOf<System>("system", mqtt);
-	actorSystem.actorOf<ConfigActor>("config");
+    ActorRef& bridge = actorSystem.actorOf<Bridge>("bridge", mqtt);
+    actorSystem.actorOf<System>("system", mqtt);
+    actorSystem.actorOf<ConfigActor>("config");
 
+#ifdef REMOTE
+    actorSystem.actorOf<Controller>("remote", bridge);
+#endif
 
-	int idx = 1; // starts at 1
-	for (const char* name : uexts) {
-		const char* peripheral = cfg[name]["class"] | "";
-		if (strlen(peripheral) > 0) {
-			switch (H(peripheral)) {
-				case H("Controller"): {
-						actorSystem.actorOf<Controller>(name, bridge);
-						break;
-					}
-				case H("Programmer"): {
-						actorSystem.actorOf<Programmer>(name, new Connector(idx),
-						                                bridge);
-						break;
-					}
-				case H("DWM1000_Tag"): {
-						actorSystem.actorOf<DWM1000_Tag>(name, new Connector(idx),
-						                                 bridge);
-						break;
-					}
-				case H("Compass"): {
-						actorSystem.actorOf<DigitalCompass>(name, new Connector(idx),
-						                                    bridge);
-						break;
-					}
-				case H("LSM303C"): {
-						actorSystem.actorOf<LSM303C>(name, new Connector(idx), bridge);
-						break;
-					}
-				case H("MotorSpeed"): {
-						actorSystem.actorOf<MotorSpeed>(name, new Connector(idx),
-						                                bridge);
-						break;
-					}
-				case H("MotorServo"): {
-						actorSystem.actorOf<MotorServo>(name, new Connector(idx),
-						                                bridge);
-						break;
-					}
-				case H("NEO6M"): {
-						actorSystem.actorOf<Neo6m>(name, new Connector(idx), bridge);
-						break;
-					}
-				case H("DigitalCompass"): {
-						actorSystem.actorOf<DigitalCompass>(name, new Connector(idx),
-						                                    bridge);
-						break;
-					}
-				case H("UltraSonic"): {
-						actorSystem.actorOf<UltraSonic>(name, new Connector(idx),
-						                                bridge);
-						break;
-					}
-				case H("Triac"): {
-						actorSystem.actorOf<Triac>(name, new Connector(idx), bridge);
-						break;
-					}
-				default:
-					{ ERROR("peripheral '%s' not found", peripheral); }
-			}
-		} else {
-			ERROR("peripheral '%s' class not found ", peripheral);
-		}
-	}
+#ifdef PROGRAMMER
+#include 
+    actorSystem.actorOf<Programmer>("programmer", new Connector(PROGRAMMER),
+                                    bridge);
+#endif
 
-	config.save();
+#ifdef DWM1000_TAG
+    actorSystem.actorOf<DWM1000_Tag>(name, new Connector(DWM1000_TAG), bridge);
+#endif
+
+#ifdef COMPASS
+    actorSystem.actorOf<DigitalCompass>(name, new Connector(COMPASS), bridge);
+#endif
+
+#ifdef LSM303C
+    actorSystem.actorOf<LSM303C>(name, new Connector(LSM303C), bridge);
+#endif
+
+#ifdef MOTORSPEED
+    actorSystem.actorOf<MotorSpeed>(name, new Connector(MOTORSPEED), bridge);
+#endif
+
+#ifdef MOTORSERVO
+    actorSystem.actorOf<MotorServo>(name, new Connector(MOTORSERVO), bridge);
+#endif
+
+#ifdef NEO6M
+    actorSystem.actorOf<Neo6m>(name, new Connector(NEO6M), bridge);
+#endif
+
+#ifdef DIGITAL_COMPASS
+    actorSystem.actorOf<DigitalCompass>(name, new Connector(idx), bridge);
+#endif
+
+#ifdef ULTRASONIC
+#include <UltraSonic.h>
+    actorSystem.actorOf<UltraSonic>(name, new Connector(idx), bridge);
+#endif
+
+#ifdef TRIAC
+    actorSystem.actorOf<Triac>(name, new Connector(idx), bridge);
+#endif
+
+    config.save();
 }
