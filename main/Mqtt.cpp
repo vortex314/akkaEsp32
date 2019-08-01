@@ -7,13 +7,14 @@
 #define BZERO(x) ::memset(&x, 0, sizeof(x))
 #define CONFIG_BROKER_URL "mqtt://limero.ddns.net"
 
-Mqtt::Mqtt(ActorRef& wifi, JsonObject config)
+Mqtt::Mqtt(ActorRef& wifi)
 	: _wifi(wifi) {
+		JsonObject myConfig=config.root()["mqtt"];
 	_connected = false;
 	_address = "mqtt://";
-	_address += config["host"] | "limero.ddns.net";
+	_address += myConfig["host"] | "limero.ddns.net";
 	_address += ":";
-	_address += config["port"] | 1883 ;
+	_address += myConfig["port"] | 1883 ;
 	_mqttClient = 0;
 	_lwt_topic="src/";
 	_lwt_topic.append(Sys::hostname()).append("/system/alive");

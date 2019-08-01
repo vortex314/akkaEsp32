@@ -1,6 +1,18 @@
 #include "Wifi.h"
 #include <Config.h>
 
+
+#ifndef WIFI_SSID
+#error "WIFI_SSID not found "
+#endif
+
+#ifndef WIFI_PASS
+#error "WIFI_PASS not found "
+#endif
+
+#define STRINGIFY(X) #X
+#define S(X) STRINGIFY(X)
+
 #define CHECK(x)                                                               \
 	do {                                                                       \
 		esp_err_t __err_rc = (x);                                              \
@@ -13,10 +25,10 @@ MsgClass Wifi::Connected("Connected");
 MsgClass Wifi::Disconnected("Disconnected");
 
 Wifi::Wifi() {
-	_prefix = "Merckx";
 	_rssi = 0;
-	config.setNameSpace("wifi");
-	config.get("prefix", _prefix, "Merckx");
+	JsonObject myConfig = config.root()["mqtt"];
+	_prefix = myConfig["prefix"] | S(WIFI_SSID);
+	_pswd = myConfig["password"] | S(WIFI_PASS);
 }
 
 Wifi::~Wifi() {

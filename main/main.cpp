@@ -35,26 +35,15 @@ const static int CONNECTED_BIT = BIT0;
 
 #include <Akka.cpp>
 #include <Native.cpp>
+#include <Config.h>
+#include <ConfigActor.cpp>
+
 #include <Echo.cpp>
 #include <Bridge.cpp>
-#include <Mqtt.h>
-#include <MqttSerial.h>
 #include <Sender.cpp>
 #include <System.h>
 #include <Wifi.h>
-#include <ConfigActor.cpp>
-#include <Config.h>
-#include <UltraSonic.h>
-#include <Compass.h>
-#include <Neo6m.h>
-#include <LSM303C.h>
-#include <DigitalCompass.h>
-#include <Triac.h>
-#include <DWM1000_Tag.h>
-#include <Programmer.h>
-#include <Controller.h>
-#include <MotorSpeed.h>
-#include <MotorServo.h>
+
 using namespace std;
 
 /*
@@ -62,56 +51,9 @@ using namespace std;
  * load test
  */
 
-#ifndef WIFI_SSID
-#error "WIFI_SSID not found "
-#endif
 
-#ifndef WIFI_PASS
-#error "WIFI_PASS not found "
-#endif
+// make -DTRIAC=1 -DHOSTNAME=triac -DULTRASONIC=2
 
-#define STRINGIFY(X) #X
-#define S(X) STRINGIFY(X)
-
-#ifdef MQTT_SERIAL
-#define MQTT ",mqtt:{ uart='uart1'}"
-#define WIFI ""
-#else
-#define MQTT ",mqtt:{host:'limero.local',port:1883}"
-#define WIFI ",wifi:{ssid:'" S(WIFI_PASS) "',password:'" S(WIFI_SSID) "'}"
-#endif
-
-#define SYS(xxx) ",system:{hostname:'" #xxx "'}"
-
-#define CONTROLLER                                                             \
-    "{uext:['controller'], controller:{class:'Controller'}" SYS(remote)        \
-        MQTT WIFI "}"
-#define MOTOR                                                                  \
-    "{uext:['motor'], motor:{class:'MotorSpeed'}" SYS(drive) MQTT WIFI "}"
-#define SERVO                                                                  \
-    "{uext:['steer'], motor:{class:'MotorServo'}" SYS(drive) MQTT WIFI "}"
-#define SERVO_MOTOR                                                            \
-    "{uext:['steer','motor'], "                                                \
-    "steer:{class:'MotorSpeed'},motor:{class:'MotorServo'}" SYS(drive)         \
-        MQTT WIFI "}"
-#define GENERIC "{uext:[], system:{}" MQTT WIFI "}"
-#define DWM1000_TAG                                                            \
-    "{uext:['dwm1000Tag'], dwm1000Tag:{class:'DWM1000_Tag'}" SYS(drive)        \
-        MQTT WIFI "}"
-#define GPS_US                                                                 \
-    "{uext:['gps','us'], gps:{class:'NEO6M'},us:{class:'UltraSonic'}" SYS(     \
-        gpsus) MQTT WIFI "}"
-#define STM32_PROGRAMMER                                                       \
-    "{uext:['programmer'], programmer:{class:'Programmer'}" SYS(prog)          \
-        MQTT WIFI "}"
-#define COMPASS_US                                                             \
-    "{uext:['compass','us'], "                                                 \
-    "compass:{class:'DigitalCompass'},us:{class:'UltraSonic'}" SYS(gpsus)      \
-        MQTT WIFI "}"
-#define TRIAC "{uext:['triac'], triac:{class:'Triac'}" SYS(triac) MQTT WIFI "}"
-
-#define CONFIGURATION CONTROLLER
-#define MQTT_TCP
 
 Log logger(256);
 ActorMsgBus eb;
@@ -139,53 +81,65 @@ extern "C" void app_main() {
     JsonObject cfg = config.root();
 
 #ifdef MQTT_SERIAL
-    ActorRef& mqtt = actorSystem.actorOf<MqttSerial>("mqttSerial");
-#endif
+#include <MqttSerial.h>
 
-#ifdef MQTT_TCP
+    ActorRef& mqtt = actorSystem.actorOf<MqttSerial>("mqttSerial");
+#else
+#include <Wifi.h>
+#include <Mqtt.h>
+
     ActorRef& wifi = actorSystem.actorOf<Wifi>("wifi");
-    ActorRef& mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi, cfg["mqtt"]);
+    ActorRef& mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi);
 #endif
     ActorRef& bridge = actorSystem.actorOf<Bridge>("bridge", mqtt);
     actorSystem.actorOf<System>("system", mqtt);
     actorSystem.actorOf<ConfigActor>("config");
 
 #ifdef REMOTE
+#include <Controller.h>
     actorSystem.actorOf<Controller>("remote", bridge);
 #endif
 
 #ifdef PROGRAMMER
-#include 
+#include <Programmer.h>
     actorSystem.actorOf<Programmer>("programmer", new Connector(PROGRAMMER),
                                     bridge);
 #endif
 
 #ifdef DWM1000_TAG
-    actorSystem.actorOf<DWM1000_Tag>(name, new Connector(DWM1000_TAG), bridge);
+#include <DWM1000_Tag.h>
+    actorSystem.actorOf<DWM1000_Tag>("tag", new Connector(DWM1000_TAG), bridge);
 #endif
 
 #ifdef COMPASS
-    actorSystem.actorOf<DigitalCompass>(name, new Connector(COMPASS), bridge);
+#include <Compass.h>
+    actorSystem.actorOf<DigitalCompass>("compass", new Connector(COMPASS), bridge);
 #endif
 
 #ifdef LSM303C
-    actorSystem.actorOf<LSM303C>(name, new Connector(LSM303C), bridge);
+#include <LSM303C.h>
+    actorSystem.actorOf<LSM303C>("lsm303c", new Connector(LSM303C), bridge);
 #endif
 
 #ifdef MOTORSPEED
-    actorSystem.actorOf<MotorSpeed>(name, new Connector(MOTORSPEED), bridge);
+#include <MotorSpeed.h>
+    actorSystem.actorOf<MotorSpeed>("speed", new Connector(MOTORSPEED), bridge);
 #endif
 
 #ifdef MOTORSERVO
-    actorSystem.actorOf<MotorServo>(name, new Connector(MOTORSERVO), bridge);
+#include <MotorServo.h>
+    actorSystem.actorOf<MotorServo>("steer", new Connector(MOTORSERVO), bridge);
 #endif
 
 #ifdef NEO6M
-    actorSystem.actorOf<Neo6m>(name, new Connector(NEO6M), bridge);
+#include <Neo6m.h>
+    actorSystem.actorOf<Neo6m>("neo6m", new Connector(NEO6M), bridge);
 #endif
 
 #ifdef DIGITAL_COMPASS
-    actorSystem.actorOf<DigitalCompass>(name, new Connector(idx), bridge);
+#include <DigitalCompass.h>
+    actorSystem.actorOf<DigitalCompass>(name, new Connector(DIGITAL_COMPASS),
+                                        bridge);
 #endif
 
 #ifdef ULTRASONIC
@@ -194,6 +148,7 @@ extern "C" void app_main() {
 #endif
 
 #ifdef TRIAC
+#include <Triac.h>
     actorSystem.actorOf<Triac>(name, new Connector(idx), bridge);
 #endif
 
