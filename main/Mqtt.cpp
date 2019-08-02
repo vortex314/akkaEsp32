@@ -5,6 +5,12 @@
 #include <Config.h>
 // volatile MQTTAsync_token deliveredtoken;
 #define BZERO(x) ::memset(&x, 0, sizeof(x))
+#ifndef MQTT_HOST
+#define MQTT_HOST "iot.eclipse.org"
+#endif
+#ifndef MQTT_PORT
+#define MQTT_PORT 1883
+#endif
 //#define CONFIG_BROKER_URL "mqtt://limero.ddns.net"
 
 Mqtt::Mqtt(ActorRef& wifi)
@@ -12,9 +18,9 @@ Mqtt::Mqtt(ActorRef& wifi)
 	JsonObject myConfig=config.root()["mqtt"];
 	_connected = false;
 
-	int port= myConfig["port"] | 1883 ;
-	std::string host = myConfig["host"] | "iot.eclipse.org";
-	string_format(_address,"mqtt://%s:%d",host.c_str(),port);
+	int port= myConfig["port"] | MQTT_PORT ;
+	const char* host = myConfig["host"] | MQTT_HOST;
+	string_format(_address,"mqtt://%s:%d",host,port);
 	INFO("mqtt url '%s' ",_address.c_str());
 	
 	_mqttClient = 0;
