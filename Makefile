@@ -5,7 +5,11 @@
 # ex. : touch main.cpp
 #       make flash term DEFINE="-DPROGRAMMER=1 -DHOSTNAME=prog"
 #
+<<<<<<< HEAD
+DEFINE ?= -DAAAAA=BBBBBB
+=======
 
+>>>>>>> 551219772cef8b77686da9c48d8f24fbcdd3207a
 PROJECT_NAME := akkaEsp32
 TTY ?= USB0
 DEFINE ?= -DAAAAA=BBBBBB
@@ -25,6 +29,14 @@ EXTRA_COMPONENT_DIRS =
 # LDFLAGS += -Wl,--gc-sections
 
 include $(IDF_PATH)/make/project.mk
+
+REMOTE :
+	touch main/main.cpp
+	make DEFINE="-DREMOTE=1 -DHOSTNAME=remote -DMQTT_HOST=limero.ddns.net" 
+	
+DRIVE :
+	touch main/main.cpp
+	make DEFINE="-DMOTORSPEED=1 -DMOTORSERVO=2 -DHOSTNAME=drive -DMQTT_SERIAL" 
 
 term:
 	rm -f $(TTY)_minicom.log

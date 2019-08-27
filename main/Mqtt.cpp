@@ -4,25 +4,44 @@
 #include <unistd.h>
 #include <Config.h>
 // volatile MQTTAsync_token deliveredtoken;
+<<<<<<< HEAD
+//#define BZERO(x) ::memset(&x, 0, sizeof(x))
+=======
 #define BZERO(x) ::memset(&x, 0, sizeof(x))
+>>>>>>> 551219772cef8b77686da9c48d8f24fbcdd3207a
 #ifndef MQTT_HOST
 #define MQTT_HOST "iot.eclipse.org"
 #endif
 #ifndef MQTT_PORT
 #define MQTT_PORT 1883
 #endif
+<<<<<<< HEAD
+
+=======
 //#define CONFIG_BROKER_URL "mqtt://limero.ddns.net"
+>>>>>>> 551219772cef8b77686da9c48d8f24fbcdd3207a
 
 Mqtt::Mqtt(ActorRef& wifi)
 	: _wifi(wifi) {
 	JsonObject myConfig=config.root()["mqtt"];
 	_connected = false;
 
+<<<<<<< HEAD
+	std::string ipAddr;
+	int port= myConfig["port"] | MQTT_PORT ;
+	const char* host = myConfig["host"] | S(MQTT_HOST);
+	string_format(_address,"mqtt://%s:%d",host,port);
+	INFO("mqtt url '%s' ",_address.c_str());
+	myConfig["host"]=host;
+	myConfig["port"]=port;
+
+=======
 	int port= myConfig["port"] | MQTT_PORT ;
 	const char* host = myConfig["host"] | MQTT_HOST;
 	string_format(_address,"mqtt://%s:%d",host,port);
 	INFO("mqtt url '%s' ",_address.c_str());
 	
+>>>>>>> 551219772cef8b77686da9c48d8f24fbcdd3207a
 	_mqttClient = 0;
 	_lwt_topic="src/";
 	_lwt_topic.append(Sys::hostname()).append("/system/alive");
@@ -38,6 +57,11 @@ MsgClass Mqtt::Disconnected("mqttDisconnected");
 MsgClass Mqtt::Publish("mqttPublish");
 MsgClass Mqtt::Subscribe("mqttSubscribe");
 
+<<<<<<< HEAD
+
+
+=======
+>>>>>>> 551219772cef8b77686da9c48d8f24fbcdd3207a
 void Mqtt::preStart() {
 	DEBUG(" MQTT preStart");
 	eb.subscribe(self(), MessageClassifier(_wifi, Wifi::Disconnected));
@@ -55,6 +79,10 @@ void Mqtt::preStart() {
 	BZERO(mqtt_cfg);
 	/*	std::string url="mqtt://";
 		url +=*/
+<<<<<<< HEAD
+	INFO(" uri : %s ",_address.c_str());
+=======
+>>>>>>> 551219772cef8b77686da9c48d8f24fbcdd3207a
 	mqtt_cfg.uri = _address.c_str();
 	mqtt_cfg.event_handle = mqtt_event_handler;
 	mqtt_cfg.client_id = Sys::hostname();
