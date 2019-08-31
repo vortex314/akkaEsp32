@@ -5,11 +5,7 @@
 # ex. : touch main.cpp
 #       make flash term DEFINE="-DPROGRAMMER=1 -DHOSTNAME=prog"
 #
-<<<<<<< HEAD
 DEFINE ?= -DAAAAA=BBBBBB
-=======
-
->>>>>>> 551219772cef8b77686da9c48d8f24fbcdd3207a
 PROJECT_NAME := akkaEsp32
 TTY ?= USB0
 DEFINE ?= -DAAAAA=BBBBBB
@@ -37,6 +33,10 @@ REMOTE :
 DRIVE :
 	touch main/main.cpp
 	make DEFINE="-DMOTORSPEED=1 -DMOTORSERVO=2 -DHOSTNAME=drive -DMQTT_SERIAL" 
+	
+SERIAL :
+	touch main/main.cpp
+	make DEFINE="-DMQTT_SERIAL" 
 
 term:
 	rm -f $(TTY)_minicom.log

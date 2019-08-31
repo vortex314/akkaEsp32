@@ -145,6 +145,7 @@ void MqttSerial::onRxd(void* me) {
 	Bytes bytes(100);
 	MqttSerial* mqttSerial=(MqttSerial*)me;
 	while(mqttSerial->_uart.hasData()) {
+		bytes.clear();
 		mqttSerial->_uart.read(bytes);
 		bytes.offset(0);
 		while ( bytes.hasData()) mqttSerial->handleSerial(bytes.read());

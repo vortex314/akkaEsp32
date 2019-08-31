@@ -14,7 +14,7 @@ extern "C" {
 #include "lwip/sockets.h"
 
 #include "esp_event.h"
-#include "esp_event_loop.h"
+#include "esp_event.h"
 #include "esp_log.h"
 #include "esp_system.h"
 #include "mqtt_client.h"
