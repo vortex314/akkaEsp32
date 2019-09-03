@@ -34,6 +34,14 @@ DRIVE :
 	touch main/main.cpp
 	make DEFINE="-DMOTORSPEED=1 -DMOTORSERVO=2 -DHOSTNAME=drive -DMQTT_SERIAL" 
 	
+TAG :
+	touch main/main.cpp
+	make DEFINE="-DDWM1000_TAG=1"
+	
+COMPASS :
+	touch main/main.cpp
+	make DEFINE="-DDIGITAL_COMPASS=1"
+	
 SERIAL :
 	touch main/main.cpp
 	make DEFINE="-DMQTT_SERIAL" 
