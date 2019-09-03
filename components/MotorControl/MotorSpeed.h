@@ -4,6 +4,7 @@
 #include <Akka.h>
 #include <Hardware.h>
 #include <Bridge.h>
+#include <Component.h>
 
 #include <MedianFilter.h>
 
@@ -19,7 +20,7 @@
 
 typedef enum { SIG_CAPTURED = 2 } Signal;
 
-class MotorSpeed : public Actor
+class MotorSpeed : public Actor,Component
 {
 
     // D34 : L_IS
@@ -100,6 +101,11 @@ public:
 
     int32_t deltaToRpm(uint32_t delta,int direction);
     void measureCurrent();
+
+    Erc selfTest(uint32_t level);
+    Erc initialize();
+    Erc hold();
+    Erc run();
 };
 
 #endif // MOTORSPEED_H

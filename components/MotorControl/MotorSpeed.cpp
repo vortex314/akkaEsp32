@@ -28,6 +28,7 @@
 static mcpwm_dev_t* MCPWM[2] = {&MCPWM0, &MCPWM1};
 MsgClass MotorSpeed::targetSpeed("targetSpeed");
 
+
 MotorSpeed::MotorSpeed( uint32_t pinLeftIS,
                         uint32_t pinRightIS,
                         uint32_t pinLeftEnable,
@@ -88,52 +89,17 @@ MotorSpeed::~MotorSpeed() {}
 
 void MotorSpeed::preStart()
 {
+    if ( initialize()==0) run();
+    else hold();
+
     for (uint32_t i = 0; i < MAX_SAMPLES; i++)
         _samples[i] = 0;
-    _adcLeftIS.init();
-    _adcRightIS.init();
-    _pinLeftEnable.init();
-    _pinLeftEnable.write(0);
-    _pinRightEnable.init();
-    _pinRightEnable.write(0);
-    _dInTachoB.init();
-    _timer_num = MCPWM_TIMER_0;
-    _mcpwm_num = MCPWM_UNIT_0;
-    mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM0A, _pinPwmLeft);
-    mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM0B, _pinPwmRight);
-    mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM_CAP_0, _pinTachoA);
-    //    _dInTachoB.onChange(DigitalIn::DIN_RAISE,onRaise,this);
-    INFO("Configuring Initial Parameters of mcpwm... on %d , %d ", _pinPwmLeft,
-         _pinPwmRight);
-    mcpwm_config_t pwm_config;
-    pwm_config.frequency = 10000; // frequency = 500Hz,
-    pwm_config.cmpr_a = 0;        // duty cycle of PWMxA = 0
-    pwm_config.cmpr_b = 0;        // duty cycle of PWMxb = 0
-    pwm_config.counter_mode = MCPWM_UP_COUNTER;
-    pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
-    mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_0,
-               &pwm_config); // Configure PWM0A & PWM0B with above settings
-    //   _bts7960.init();
-    esp_err_t rc = mcpwm_capture_enable(
-                       MCPWM_UNIT_0, MCPWM_SELECT_CAP0, MCPWM_NEG_EDGE,
-                       CAPTURE_DIVIDER); // capture signal on falling edge, prescale = 0 i.e. 80,000,000
-    // counts is equal to one second
-    MCPWM[MCPWM_UNIT_0]->int_ena.val =
-        CAP0_INT_EN; // Enable interrupt on  CAP0, CAP1 and CAP2 signal
-    rc = mcpwm_isr_register(MCPWM_UNIT_0, isrHandler, this, ESP_INTR_FLAG_IRAM,
-                            NULL); // Set ISR Handler
-    if (rc) {
-        WARN("mcpwm_capture_enable() : %d", rc);
-    }
 
     timers().startPeriodicTimer("controlTimer", Msg("controlTimer"), CONTROL_INTERVAL_MS);
     timers().startPeriodicTimer("reportTimer", Msg("reportTimer"), 100);
     timers().startPeriodicTimer("watchdogTimer", Msg("watchdogTimer"), 2000);
     timers().startPeriodicTimer("pulseTimer", Msg("pulseTimer"), 5000);
 
-
-    _pinLeftEnable.write(1);
-    _pinRightEnable.write(1);
 }
 
 int32_t MotorSpeed::deltaToRpm(uint32_t delta,int32_t direction)
@@ -371,4 +337,69 @@ void MotorSpeed::round(float& f, float resolution)
     int i = f / resolution;
     f = i;
     f *= resolution;
+}
+
+// Generic Component commands
+
+Erc MotorSpeed::selfTest(uint32_t level)
+{
+    return 0;
+}
+
+Erc MotorSpeed::initialize()
+{
+    _adcLeftIS.init();
+    _adcRightIS.init();
+    _pinLeftEnable.init();
+    _pinLeftEnable.write(0);
+    _pinRightEnable.init();
+    _pinRightEnable.write(0);
+    _dInTachoB.init();
+    _timer_num = MCPWM_TIMER_0;
+    _mcpwm_num = MCPWM_UNIT_0;
+    mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM0A, _pinPwmLeft);
+    mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM0B, _pinPwmRight);
+    mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM_CAP_0, _pinTachoA);
+    //    _dInTachoB.onChange(DigitalIn::DIN_RAISE,onRaise,this);
+    INFO("Configuring Initial Parameters of mcpwm... on %d , %d ", _pinPwmLeft,
+         _pinPwmRight);
+    mcpwm_config_t pwm_config;
+    pwm_config.frequency = 10000; // frequency = 500Hz,
+    pwm_config.cmpr_a = 0;        // duty cycle of PWMxA = 0
+    pwm_config.cmpr_b = 0;        // duty cycle of PWMxb = 0
+    pwm_config.counter_mode = MCPWM_UP_COUNTER;
+    pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
+    mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_0,
+               &pwm_config); // Configure PWM0A & PWM0B with above settings
+    //   _bts7960.init();
+    esp_err_t rc = mcpwm_capture_enable(
+                       MCPWM_UNIT_0, MCPWM_SELECT_CAP0, MCPWM_NEG_EDGE,
+                       CAPTURE_DIVIDER); // capture signal on falling edge, prescale = 0 i.e. 80,000,000
+    // counts is equal to one second
+    MCPWM[MCPWM_UNIT_0]->int_ena.val =
+        CAP0_INT_EN; // Enable interrupt on  CAP0, CAP1 and CAP2 signal
+    rc = mcpwm_isr_register(MCPWM_UNIT_0, isrHandler, this, ESP_INTR_FLAG_IRAM,
+                            NULL); // Set ISR Handler
+    if (rc) {
+        WARN("mcpwm_capture_enable() : %d", rc);
+    }
+
+    _pinLeftEnable.write(1);
+    _pinRightEnable.write(1);
+    return 0;
+
+}
+
+Erc MotorSpeed::hold()
+{
+    state(ST_ON_HOLD);
+    return 0;
+
+}
+
+Erc MotorSpeed::run()
+{
+    state(ST_RUNNING);
+    return 0;
+
 }

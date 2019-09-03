@@ -16,10 +16,10 @@ ESPBAUD = 921600
 IDF_PATH ?= /home/lieven/esp/esp-idf
 WORKSPACE := /home/lieven/workspace
 DEFINES := -DWIFI_SSID=${SSID} -DWIFI_PASS=${PSWD}  -DESP32_IDF=1 $(DEFINE) 
-CPPFLAGS +=  $(DEFINES)  -I../Common -I../microAkka 
-CPPFLAGS +=  -I$(WORKSPACE)/ArduinoJson -I $(IDF_PATH)/components/freertos/include/freertos 
-CXXFLAGS +=  $(DEFINES)  -I../Common -I../microAkka 
-CXXFLAGS +=  -I$(WORKSPACE)/ArduinoJson -I $(IDF_PATH)/components/freertos/include/freertos 
+CPPFLAGS +=  $(DEFINES)  -I../Common -I../microAkka -I../ArduinoJson/src
+CPPFLAGS +=  -I$(WORKSPACE)/ArduinoJson/src -I $(IDF_PATH)/components/freertos/include/freertos 
+CXXFLAGS +=  $(DEFINES)  -I../Common -I../microAkka  -I../ArduinoJson/src
+CXXFLAGS +=  -I$(WORKSPACE)/ArduinoJson/src -I $(IDF_PATH)/components/freertos/include/freertos 
 CXXFLAGS +=  -fno-rtti -ffunction-sections -fdata-sections 
 EXTRA_COMPONENT_DIRS = 
 # LDFLAGS += -Wl,--gc-sections
@@ -30,13 +30,17 @@ REMOTE :
 	touch main/main.cpp
 	make DEFINE="-DREMOTE=1 -DHOSTNAME=remote -DMQTT_HOST=limero.ddns.net" 
 	
+DRIVE_WIFI :
+	touch main/main.cpp
+	make DEFINE="-DMOTORSPEED=1 -DHOSTNAME=drive_wifi"
+	
 DRIVE :
 	touch main/main.cpp
 	make DEFINE="-DMOTORSPEED=1 -DMOTORSERVO=2 -DHOSTNAME=drive -DMQTT_SERIAL" 
 	
 TAG :
 	touch main/main.cpp
-	make DEFINE="-DDWM1000_TAG=1"
+	make DEFINE="-DDWM1000_TAG=1 -DMQTT_SERIAL"
 	
 COMPASS :
 	touch main/main.cpp
