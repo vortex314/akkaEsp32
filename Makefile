@@ -17,9 +17,9 @@ IDF_PATH ?= /home/lieven/esp/esp-idf
 WORKSPACE := /home/lieven/workspace
 DEFINES := -DWIFI_SSID=${SSID} -DWIFI_PASS=${PSWD}  -DESP32_IDF=1 $(DEFINE) 
 CPPFLAGS +=  $(DEFINES)  -I../Common -I../microAkka 
-CPPFLAGS +=  -I$(WORKSPACE)/ArduinoJson -I $(IDF_PATH)/components/freertos/include/freertos 
+CPPFLAGS +=  -I$(WORKSPACE)/ArduinoJson/src -I $(IDF_PATH)/components/freertos/include/freertos 
 CXXFLAGS +=  $(DEFINES)  -I../Common -I../microAkka 
-CXXFLAGS +=  -I$(WORKSPACE)/ArduinoJson -I $(IDF_PATH)/components/freertos/include/freertos 
+CXXFLAGS +=  -I$(WORKSPACE)/ArduinoJson/src -I $(IDF_PATH)/components/freertos/include/freertos 
 CXXFLAGS +=  -fno-rtti -ffunction-sections -fdata-sections 
 EXTRA_COMPONENT_DIRS = 
 # LDFLAGS += -Wl,--gc-sections

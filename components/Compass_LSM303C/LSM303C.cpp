@@ -736,7 +736,7 @@ void LSM303C::calc() {
 	static  double pitch;
 	static  double azimuth;
 	static  double X_h, Y_h;
-	static  int8_t x, y;
+//	static  int8_t x, y;
 
 	mag_x = magData.xAxis;
 	mag_y = magData.yAxis;

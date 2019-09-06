@@ -166,7 +166,7 @@ Receive& DWM1000_Tag::createReceive() {
 		     "anchors: %d delay:%d usec",
 		     _interrupts, _timeouts, _blinks, _polls, _resps,
 		     _finals, anchorsCount(), _interruptDelay);
-		uint32_t count = 0;
+//		uint32_t count = 0;
 		for (int i = 0; i < MAX_ANCHORS; i++) {
 			if (anchors[i]._address != 0) {
 				INFO(" anchor : %6d  x: %5d y: %5d distance : %5d ",
@@ -562,13 +562,13 @@ static uint64 get_rx_timestamp_u64(void) {
  *
  * @return none
  */
-static void final_msg_get_ts(const uint8* ts_field, uint32* ts) {
+/*static void final_msg_get_ts(const uint8* ts_field, uint32* ts) {
 	int i;
 	*ts = 0;
 	for (i = 0; i < FINAL_MSG_TS_LEN; i++) {
 		*ts += ts_field[i] << (i * 8);
 	}
-}
+}*/
 
 /*!
  * ------------------------------------------------------------------------------------------------------------------
