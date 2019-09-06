@@ -7,6 +7,11 @@
   </Plugins>
   <File Name="components/Gps/component.mk"/>
   <VirtualDirectory Name="components">
+    <VirtualDirectory Name="Component">
+      <File Name="components/Component/component.mk"/>
+      <File Name="components/Component/Component.cpp"/>
+      <File Name="components/Component/Component.h"/>
+    </VirtualDirectory>
     <VirtualDirectory Name="MotorServo">
       <File Name="components/MotorServo/component.mk"/>
       <File Name="components/MotorServo/MotorServo.h"/>
@@ -177,7 +182,7 @@
       <CustomBuild Enabled="yes">
         <RebuildCommand/>
         <CleanCommand>make clean</CleanCommand>
-        <BuildCommand>make</BuildCommand>
+        <BuildCommand>make DRIVE_WIFI</BuildCommand>
         <PreprocessFileCommand/>
         <SingleFileCommand/>
         <MakefileGenerationCommand/>

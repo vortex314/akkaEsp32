@@ -122,7 +122,7 @@ void MqttSerial::handleSerial(uint8_t b) {
 				std::string message=array[3];
 				uint32_t qos=array[4];
 				bool retained =  array[5]==1;
-				INFO(" MQTT RXD : %s = %s ",topic.c_str(),message.c_str());
+				DEBUG(" MQTT RXD : %s = %s ",topic.c_str(),message.c_str());
 				if ( topic == _loopbackTopic) {
 					_loopbackCount=0;
 					updateConnected(true);
@@ -133,7 +133,7 @@ void MqttSerial::handleSerial(uint8_t b) {
 				}
 			}
 		} else {
-			WARN(" received invalid JSON Array : %s ",_line.c_str());
+			WARN(" received invalid JSON Array : [%d] '%s' ",_line.length(),_line.c_str());
 		}
 		_line.clear();
 	} else {
@@ -162,7 +162,7 @@ void MqttSerial::uartLogger(char* s,uint32_t length) {
 
 
 void MqttSerial::mqttPublish(const char* topic, const char* message) {
-	INFO(" pub %s = %s ",topic,message);
+	DEBUG(" pub %s = %s ",topic,message);
 	DynamicJsonDocument doc(2038);
 	doc.add("0000");
 	doc.add((uint32_t)PUBLISH);
