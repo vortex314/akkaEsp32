@@ -1,23 +1,47 @@
 #ifndef BTS7960_H
 #define BTS7960_H
 #include <Hardware.h>
+#include "driver/mcpwm.h"
+#include "driver/pcnt.h"
+#include "soc/mcpwm_reg.h"
+#include "soc/mcpwm_struct.h"
+#include "soc/rtc.h"
 
-class BTS7960
-{
-    DigitalOut& _left;
-    DigitalOut& _right;
-    DigitalOut& _enable;
+class BTS7960 {
+    // D34 : L_IS
+    // D35 : R_IS
+    // D25 : ENABLE
+    // D26 : L_PWM
+    // D27 : R_PWM
+    // D32 : ADC POT
+    ADC& _adcLeftIS;
+    ADC& _adcRightIS;
+    DigitalOut& _pinLeftEnable;
+    DigitalOut& _pinRightEnable;
+    uint32_t _pinPwmLeft;
+    uint32_t _pinPwmRight;
 
-    ADC& _current;
-    ADC& _position;
-    int _min,_max,_zero;
+    mcpwm_unit_t _mcpwm_num;
+    mcpwm_timer_t _timer_num;
+    pcnt_unit_t pcnt_unit;
+    pcnt_channel_t pcnt_channel;
+    pcnt_config_t pcnt_config;
+
+    float _currentLeft, _currentRight;
+	
+
+    int _min, _max, _zero;
     int _angleTarget;
     int _angleCurrent;
-public:
-    BTS7960(Connector& conn);
-    BTS7960(DigitalOut& left,DigitalOut& right,DigitalOut& enable,ADC& current,ADC& position);
+    int _directionTargetLast;
+
+  public:
+    BTS7960(Connector* conn);
+    BTS7960(uint32_t pinLeftIS, uint32_t pinrightIS, uint32_t pinLeftEnable,
+               uint32_t pinRightEnable, uint32_t pinLeftPwm,
+               uint32_t pinRightPwm);
     ~BTS7960();
-    void init();
+    void initialize();
     void loop();
     void calcTarget(float v);
     int32_t getAngle();
@@ -25,8 +49,14 @@ public:
     void setAngleTarget(int32_t target);
     int32_t getAngleTarget();
     void motorStop();
-    void motorLeft();
-    void motorRight();
+    void left(float);
+    void right(float);
+	void stop();
+    void setPwm(float dutyCycle);
+    void setDirection(float dutyCycle);
+	void measureCurrent();
+	void round(float& f, float resolution) ;
+
 };
 
 #endif // BTS7960_H

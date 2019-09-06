@@ -91,6 +91,8 @@
       <File Name="components/Gps/Neo6m.h"/>
     </VirtualDirectory>
     <VirtualDirectory Name="MotorSpeed">
+      <File Name="components/RotaryEncoder.cpp"/>
+      <File Name="components/RotaryEncoder.h"/>
       <File Name="components/MotorControl/component.mk"/>
       <File Name="components/MotorControl/MotorSpeed.h"/>
       <File Name="components/MotorControl/MotorSpeed.cpp"/>

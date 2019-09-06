@@ -1,102 +1,149 @@
 #include "BTS7960.h"
 #include <Log.h>
 
-BTS7960::BTS7960(DigitalOut& left,DigitalOut& right,DigitalOut& enable,ADC& current,ADC& position) :
-    _left(left),_right(right),_enable(enable),_current(current),_position(position)
-{
+#define MAX_PWM 80
 
+
+
+BTS7960::BTS7960(uint32_t pinLeftIS, uint32_t pinRightIS,
+                 uint32_t pinLeftEnable, uint32_t pinRightEnable,
+                 uint32_t pinLeftPwm, uint32_t pinRightPwm)
+    : _adcLeftIS(ADC::create(pinLeftIS)), _adcRightIS(ADC::create(pinRightIS)),
+      _pinLeftEnable(DigitalOut::create(pinLeftEnable)),
+      _pinRightEnable(DigitalOut::create(pinRightEnable)),
+      _pinPwmLeft(pinLeftPwm), _pinPwmRight(pinRightPwm) {}
+
+BTS7960::BTS7960(Connector* uext)
+    : BTS7960(uext->toPin(LP_RXD), uext->toPin(LP_MISO), uext->toPin(LP_MOSI),
+              uext->toPin(LP_CS), uext->toPin(LP_TXD), uext->toPin(LP_SCK)
+			  ) {
+    INFO(" Drive/Sensor = UEXT GPIO ");
+    INFO("         L_IS = %s GPIO_%d ", Connector::uextPin(LP_RXD),
+         uext->toPin(LP_SCL));
+    INFO("         R_IS = %s GPIO_%d ", Connector::uextPin(LP_MISO),
+         uext->toPin(LP_MISO));
+    INFO("         L_EN = %s GPIO_%d ", Connector::uextPin(LP_MOSI),
+         uext->toPin(LP_MOSI));
+    INFO("         R_EN = %s GPIO_%d ", Connector::uextPin(LP_CS),
+         uext->toPin(LP_CS));
+    INFO("        L_PWM = %s GPIO_%d ", Connector::uextPin(LP_TXD),
+         uext->toPin(LP_TXD));
+    INFO("        R_PWM = %s GPIO_%d ", Connector::uextPin(LP_SCK),
+         uext->toPin(LP_SCK));
+    INFO(" Tacho Chan A = %s GPIO_%d ", Connector::uextPin(LP_SCL),
+         uext->toPin(LP_RXD));
+    INFO(" Tacho Chan B = %s GPIO_%d ", Connector::uextPin(LP_SDA),
+         uext->toPin(LP_SDA));
 }
-BTS7960::BTS7960(Connector& connector) :
-    _left(connector.getDigitalOut(LP_SCL)),
-    _right(connector.getDigitalOut(LP_SDA)),
-    _enable(connector.getDigitalOut(LP_TXD)),
-    _current(connector.getADC(LP_SCK)),
-    _position(connector.getADC(LP_RXD))
-{
 
+void BTS7960::setDirection(float sign) {
+    if (sign < 0 && _directionTargetLast >= 0) {
+        mcpwm_set_signal_low(_mcpwm_num, _timer_num, MCPWM_OPR_B);
+        mcpwm_set_duty_type(_mcpwm_num, _timer_num, MCPWM_OPR_A,
+                            MCPWM_DUTY_MODE_0);
+        _directionTargetLast = -1;
+    } else if (sign > 0 && _directionTargetLast <= 0) {
+        mcpwm_set_signal_low(_mcpwm_num, _timer_num, MCPWM_OPR_A);
+        mcpwm_set_duty_type(_mcpwm_num, _timer_num, MCPWM_OPR_B,
+                            MCPWM_DUTY_MODE_0);
+        _directionTargetLast = +1;
+    }
 }
 
-void BTS7960::init()
-{
-    _left.init();
-    _right.init();
-    _enable.init();
-    _position.init();
-    _current.init();
-    
-    _left.write(0);
-    _right.write(0);
-    _enable.write(0);
-    
-    _max=75;
-    _min=-75;
-    _angleTarget=0;
-
+void BTS7960::left(float duty_cycle) {
+    if (duty_cycle > MAX_PWM)
+        duty_cycle = MAX_PWM;
+    mcpwm_set_duty(_mcpwm_num, _timer_num, MCPWM_OPR_A, duty_cycle);
 }
 
-float absolute(float f)
-{
-    if (f > 0) return f;
+void BTS7960::right(float duty_cycle) {
+    if (duty_cycle > MAX_PWM)
+        duty_cycle = MAX_PWM;
+    mcpwm_set_duty(_mcpwm_num, _timer_num, MCPWM_OPR_B, duty_cycle);
+}
+
+void BTS7960::setPwm(float output) {
+    //    INFO(" output %f",output);
+    static float lastOutput = 0;
+    if ( abs(lastOutput-output)< 1) return;
+    if ((output < 0 && lastOutput > 0) || (output > 0 && lastOutput < 0)) {
+        _pinLeftEnable.write(1);
+        _pinRightEnable.write(1);
+        left(0);
+        right(0);
+    } else if (output < 0) {
+        _pinLeftEnable.write(1);
+        _pinRightEnable.write(1);
+        left(-output);
+    } else if (output > 0) {
+        _pinLeftEnable.write(1);
+        _pinRightEnable.write(1);
+        right(output);
+    } else {
+        _pinLeftEnable.write(1);
+        _pinRightEnable.write(1);
+        left(0);
+        right(0);
+    }
+    lastOutput = output;
+}
+
+void BTS7960::initialize() {
+    _adcLeftIS.init();
+    _adcRightIS.init();
+    _pinLeftEnable.init();
+    _pinLeftEnable.write(0);
+    _pinRightEnable.init();
+    _pinRightEnable.write(0);
+    _timer_num = MCPWM_TIMER_0;
+    _mcpwm_num = MCPWM_UNIT_0;
+    mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM0A, _pinPwmLeft);
+    mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM0B, _pinPwmRight);
+    //    _dInTachoB.onChange(DigitalIn::DIN_RAISE,onRaise,this);
+    INFO("Configuring Initial Parameters of mcpwm... on %d , %d ", _pinPwmLeft,
+         _pinPwmRight);
+    mcpwm_config_t pwm_config;
+    pwm_config.frequency = 10000; // frequency = 500Hz,
+    pwm_config.cmpr_a = 0;        // duty cycle of PWMxA = 0
+    pwm_config.cmpr_b = 0;        // duty cycle of PWMxb = 0
+    pwm_config.counter_mode = MCPWM_UP_COUNTER;
+    pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
+    mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_0,
+               &pwm_config); // Configure PWM0A & PWM0B with above settings
+    //   _bts7960.init();
+
+    _pinLeftEnable.write(1);
+    _pinRightEnable.write(1);
+}
+
+float absolute(float f) {
+    if (f > 0)
+        return f;
     return -f;
 }
 
-int32_t BTS7960::getAngle()
-{
-//    INFO(" ADC %d ",_position.getValue());
-    return ((_position.getValue() *180 )/1024)-90;
-}
 
-void BTS7960::setAngleTarget(int32_t target){
-    _angleTarget = target;
-}
-
-int32_t BTS7960::getAngleTarget(){
-    return _angleTarget;
-}
-
-int32_t BTS7960::getAngleCurrent(){
-    return _angleCurrent;
-}
+BTS7960::~BTS7960() {}
 
 
-BTS7960::~BTS7960()
-{
+
+void BTS7960::stop() {
+    //    INFO("%s",__func__);
+    _pinLeftEnable.write(1);
+    _pinRightEnable.write(1);
 }
 
-void BTS7960::motorLeft()
-{
-//    INFO("%s",__func__);
-    _left.write(1);
-    _right.write(0);
-    _enable.write(1);
+void BTS7960::round(float& f, float resolution) {
+    int i = f / resolution;
+    f = i;
+    f *= resolution;
 }
 
-void BTS7960::motorRight()
-{
-//    INFO("%s",__func__);
-    _left.write(0);
-    _right.write(1);
-    _enable.write(1);
+void BTS7960::measureCurrent() {
+    _currentLeft = (_adcLeftIS.getValue() * 3.9 / 1024.0) * 0.85;
+    _currentRight = (_adcRightIS.getValue() * 3.9 / 1024.0) * 0.85;
+
+    round(_currentLeft, 0.1);
+    round(_currentRight, 0.1);
 }
 
-void BTS7960::motorStop()
-{
-//    INFO("%s",__func__);
-    _left.write(1);
-    _right.write(1);
-    _enable.write(1);
-}
-
-void BTS7960::loop()
-{
-    _angleCurrent=getAngle();
-//    INFO("angle %d target %d",_angleCurrent,_angleTarget);
-    int delta = abs(_angleCurrent - _angleTarget);
-    if (delta < 2) {
-        motorStop();
-    } else if (_angleCurrent < _angleTarget) {
-        motorRight();
-    } else if (_angleCurrent > _angleTarget) {
-        motorLeft();
-    }
-}

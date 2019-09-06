@@ -13,9 +13,9 @@ public :
 public:
     static MsgClass SelfTest;
     static MsgClass Initialize;
-    static MsgClass Hold;
+    static MsgClass Status;
     static MsgClass Run;
-    virtual Erc selfTest(uint32_t level);
+    virtual Erc selfTest(uint32_t level,std::string& message);
     virtual Erc initialize();
     virtual Erc hold();
     virtual Erc run();
@@ -32,6 +32,7 @@ public:
     {
         return _state==ST_ON_HOLD;
     };
+	bool isRunning(){ return _state==ST_RUNNING;};
 
 
 };
