@@ -21,20 +21,21 @@
 
 typedef enum { SIG_CAPTURED = 2 } Signal;
 
-class MotorSpeed : public Actor, Component {
+class MotorSpeed : public Actor, Component
+{
 
     BTS7960 _bts7960;
     RotaryEncoder _rotaryEncoder;
     ActorRef& _bridge;
 
 //int _direction = 1;
- //   int _directionPrev = 1;
+//   int _directionPrev = 1;
     int _rpmTarget = 40;
     int _directionTargetLast;
     float _rpmFiltered;
     float _KP = 0.5;
-    float _KI = 0.0027;
-    float _KD = 0;
+    float _KI = 0.0001;//0.0027;
+    float _KD = -0.001;
     float _bias = 0;
     float _error = 0;
     float _errorPrior = 0;
@@ -44,7 +45,7 @@ class MotorSpeed : public Actor, Component {
     float _output = 0.0;
     float _samples[MAX_SAMPLES];
     uint32_t _indexSample = 0;
- //   float _angleFiltered;
+//   float _angleFiltered;
     // AverageFilter<float>* _rpmMeasuredFilter;
     Uid _controlTimer;
     int _watchdogCounter;
@@ -53,7 +54,7 @@ class MotorSpeed : public Actor, Component {
 
 
 
-  public:
+public:
     static MsgClass TargetSpeed;
     MotorSpeed(Connector* connector, ActorRef& bridge);
     MotorSpeed(uint32_t pinLeftIS, uint32_t pinrightIS, uint32_t pinLeftEnable,

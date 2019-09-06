@@ -28,19 +28,21 @@ static mcpwm_dev_t* MCPWM[2] = {&MCPWM0, &MCPWM1};
 
 
 RotaryEncoder::RotaryEncoder(uint32_t pinTachoA, uint32_t pinTachoB)
-    : _pinTachoA(pinTachoA), _dInTachoB(DigitalIn::create(pinTachoB)) {
+    : _pinTachoA(pinTachoA), _dInTachoB(DigitalIn::create(pinTachoB))
+{
     _isrCounter = 0;
 }
 
-Erc RotaryEncoder::initialize() {
+Erc RotaryEncoder::initialize()
+{
     _dInTachoB.init();
     mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM_CAP_0, _pinTachoA);
 
     esp_err_t rc =
         mcpwm_capture_enable(MCPWM_UNIT_0, MCPWM_SELECT_CAP0, MCPWM_NEG_EDGE,
                              CAPTURE_DIVIDER); // capture signal on falling
-                                               // edge, prescale = 0 i.e.
-                                               // 80,000,000
+    // edge, prescale = 0 i.e.
+    // 80,000,000
     // counts is equal to one second
     // Enable interrupt on  CAP0, CAP1 and CAP2 signal
     MCPWM[MCPWM_UNIT_0]->int_ena.val = CAP0_INT_EN;
@@ -64,7 +66,7 @@ RotaryEncoder::isrHandler(void* pv) // ATTENTION no float calculations in ISR
     RotaryEncoder* ms = (RotaryEncoder*)pv;
     uint32_t mcpwm_intr_status;
     int b = ms->_dInTachoB.read(); // check encoder B when encoder A has isr,
-                                   // indicates phase or rotation direction
+    // indicates phase or rotation direction
     ms->_direction = (b == 1) ? (0 - ms->_directionSign) : ms->_directionSign;
 
     mcpwm_intr_status = MCPWM[MCPWM_UNIT_0]->int_st.val; // Read interrupt
@@ -74,8 +76,8 @@ RotaryEncoder::isrHandler(void* pv) // ATTENTION no float calculations in ISR
         CAP0_INT_EN) { // Check for interrupt on rising edge on CAP0 signal
         ms->_prevCapture = ms->_capture;
         uint32_t capt = mcpwm_capture_signal_get_value(
-            MCPWM_UNIT_0,
-            MCPWM_SELECT_CAP0); // get capture signal counter value
+                            MCPWM_UNIT_0,
+                            MCPWM_SELECT_CAP0); // get capture signal counter value
         ms->_capture = capt;
         ms->_delta = (ms->_delta * (100 - weight) +
                       weight * (ms->_capture - ms->_prevCapture)) /
@@ -85,23 +87,28 @@ RotaryEncoder::isrHandler(void* pv) // ATTENTION no float calculations in ISR
     MCPWM[MCPWM_UNIT_0]->int_clr.val = mcpwm_intr_status;
 }
 
-int32_t RotaryEncoder::rpm(){
-	return deltaToRpm(_delta,_direction);
+int32_t RotaryEncoder::rpm()
+{
+    return deltaToRpm(_delta,_direction);
 }
 
-int32_t RotaryEncoder::direction(){
-	return _direction;
+int32_t RotaryEncoder::direction()
+{
+    return _direction;
 }
 
-int32_t RotaryEncoder::deltaToRpm(uint32_t delta, int32_t direction) {
-    int rpm = 0;
+int32_t RotaryEncoder::deltaToRpm(uint32_t delta, int32_t direction)
+{
+    static int oldRpm=0;
+    int rpm = oldRpm;
     if (delta != _deltaPrev) {
         float t = (60.0 * CAPTURE_FREQ * CAPTURE_DIVIDER) /
                   (delta * PULSE_PER_ROTATION);
-        _deltaPrev = delta;
         rpm = ((int32_t)t) * _direction;
     } else {
-        _deltaPrev = delta;
+        rpm = 0;
     }
+    _deltaPrev = delta;
+    oldRpm=rpm;
     return rpm;
 }

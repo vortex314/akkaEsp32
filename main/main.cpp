@@ -69,93 +69,95 @@ ActorMsgBus eb;
 #define STRINGIFY(X) #X
 #define S(X) STRINGIFY(X)
 
-extern "C" void app_main() {
+extern "C" void app_main()
+{
 
-	esp_log_level_set("*", ESP_LOG_INFO);
-	Sys::init();
-	nvs_flash_init();
-	INFO("Starting Akka on %s heap : %d ", Sys::getProcessor(),
-	     Sys::getFreeHeap());
+    esp_log_level_set("*", ESP_LOG_INFO);
+    Sys::init();
+    nvs_flash_init();
+    INFO("Starting Akka on %s heap : %d ", Sys::getProcessor(),
+         Sys::getFreeHeap());
 
-	std::string str;
-	config.load();
-	serializeJson(config.root(), str);
-	INFO("%s",str.c_str());
+    std::string str;
+    config.load();
+    serializeJson(config.root(), str);
+    INFO("%s",str.c_str());
 
-	std::string hostname;
+    std::string hostname;
 #ifdef HOSTNAME
-	hostname = config.root()["system"]["hostname"] | S(HOSTNAME);
+    hostname = S(HOSTNAME);
+    config.root()["system"]["hostname"] = S(HOSTNAME);
 #else
-	hostname = config.root()["system"]["hostname"] | Sys::hostname();
+    hostname = config.root()["system"]["hostname"] | Sys::hostname();
 #endif
-	Sys::setHostname(hostname.c_str());
+    Sys::setHostname(hostname.c_str());
 
-	static MessageDispatcher defaultDispatcher(4, 6000, tskIDLE_PRIORITY + 1);
-	static ActorSystem actorSystem(Sys::hostname(), defaultDispatcher);
+    static MessageDispatcher defaultDispatcher(4, 6000, tskIDLE_PRIORITY + 1);
+    static ActorSystem actorSystem(Sys::hostname(), defaultDispatcher);
 
 #ifdef MQTT_SERIAL
 
-	ActorRef& mqtt = actorSystem.actorOf<MqttSerial>("mqttSerial");
+    ActorRef& mqtt = actorSystem.actorOf<MqttSerial>("mqttSerial");
 
 #else
 #include <Wifi.h>
 #include <Mqtt.h>
 
-	ActorRef& wifi = actorSystem.actorOf<Wifi>("wifi");
-	ActorRef& mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi);
+    ActorRef& wifi = actorSystem.actorOf<Wifi>("wifi");
+    ActorRef& mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi);
 #endif
-	ActorRef& bridge = actorSystem.actorOf<Bridge>("bridge", mqtt);
-	actorSystem.actorOf<System>("system", mqtt);
-	actorSystem.actorOf<ConfigActor>("config");
+    ActorRef& bridge = actorSystem.actorOf<Bridge>("bridge", mqtt);
+    actorSystem.actorOf<System>("system", mqtt);
+    actorSystem.actorOf<ConfigActor>("config");
 
 #ifdef REMOTE
-	actorSystem.actorOf<Controller>("remote", bridge);
+    actorSystem.actorOf<Controller>("remote", bridge);
 #endif
 
 #ifdef PROGRAMMER
-	actorSystem.actorOf<Programmer>("programmer", new Connector(PROGRAMMER),
-	                                bridge);
+    actorSystem.actorOf<Programmer>("programmer", new Connector(PROGRAMMER),
+                                    bridge);
 #endif
 
 #ifdef DWM1000_TAG
-	actorSystem.actorOf<DWM1000_Tag>("tag", new Connector(DWM1000_TAG), bridge);
+    actorSystem.actorOf<DWM1000_Tag>("tag", new Connector(DWM1000_TAG), bridge);
 #endif
 
 #ifdef COMPASS
-	actorSystem.actorOf<Compass>("compass", new Connector(COMPASS),
-	                             bridge);
+    actorSystem.actorOf<Compass>("compass", new Connector(COMPASS),
+                                 bridge);
 #endif
 
 #ifdef LSM303C
-	actorSystem.actorOf<LSM303C>("lsm303c", new Connector(LSM303C), bridge);
+    actorSystem.actorOf<LSM303C>("lsm303c", new Connector(LSM303C), bridge);
 #endif
 
 #ifdef MOTORSPEED
-	actorSystem.actorOf<MotorSpeed>("speed", new Connector(MOTORSPEED), bridge);
+    actorSystem.actorOf<MotorSpeed>("speed", new Connector(MOTORSPEED), bridge);
 #endif
 
 #ifdef MOTORSERVO
-	actorSystem.actorOf<MotorServo>("steer", new Connector(MOTORSERVO), bridge);
+    actorSystem.actorOf<MotorServo>("steer", new Connector(MOTORSERVO), bridge);
 #endif
 
 #ifdef NEO6M
-	actorSystem.actorOf<Neo6m>("neo6m", new Connector(NEO6M), bridge);
+    actorSystem.actorOf<Neo6m>("neo6m", new Connector(NEO6M), bridge);
 #endif
 
 #ifdef DIGITAL_COMPASS
-	actorSystem.actorOf<DigitalCompass>(name, new Connector(DIGITAL_COMPASS),
-	                                    bridge);
+    actorSystem.actorOf<DigitalCompass>(name, new Connector(DIGITAL_COMPASS),
+                                        bridge);
 #endif
 
 #ifdef ULTRASONIC
-	actorSystem.actorOf<UltraSonic>(name, new Connector(idx), bridge);
+    actorSystem.actorOf<UltraSonic>(name, new Connector(idx), bridge);
 #endif
 
 #ifdef TRIAC
-	actorSystem.actorOf<Triac>(name, new Connector(idx), bridge);
+    actorSystem.actorOf<Triac>(name, new Connector(idx), bridge);
 #endif
-	str.clear();
-	serializeJson(config.root(), str);
-	INFO("%s",str.c_str());
-	config.save();
+    str.clear();
+    serializeJson(config.root(), str);
+    INFO("%s",str.c_str());
+    config.save();
 }

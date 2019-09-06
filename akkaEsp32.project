@@ -91,6 +91,9 @@
       <File Name="components/Gps/Neo6m.h"/>
     </VirtualDirectory>
     <VirtualDirectory Name="MotorSpeed">
+      <File Name="../microAkka/src/Mqtt.cpp"/>
+  <File Name="components/MotorControl/RotaryEncoder.h"/>
+  <File Name="components/MotorControl/RotaryEncoder.cpp"/>
       <File Name="components/MotorControl/component.mk"/>
       <File Name="components/MotorControl/MotorSpeed.h"/>
       <File Name="components/MotorControl/MotorSpeed.cpp"/>
@@ -135,8 +138,8 @@
   <Reconciliation>
     <Regexes/>
     <Excludepaths>
-      <Path>build/</Path>
       <Path>Debug/</Path>
+      <Path>build/</Path>
     </Excludepaths>
     <Ignorefiles/>
     <Extensions>

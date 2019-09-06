@@ -1,7 +1,7 @@
 #include "BTS7960.h"
 #include <Log.h>
 
-#define MAX_PWM 80
+#define MAX_PWM 40
 
 
 
@@ -16,7 +16,8 @@ BTS7960::BTS7960(uint32_t pinLeftIS, uint32_t pinRightIS,
 BTS7960::BTS7960(Connector* uext)
     : BTS7960(uext->toPin(LP_RXD), uext->toPin(LP_MISO), uext->toPin(LP_MOSI),
               uext->toPin(LP_CS), uext->toPin(LP_TXD), uext->toPin(LP_SCK)
-			  ) {
+             )
+{
     INFO(" Drive/Sensor = UEXT GPIO ");
     INFO("         L_IS = %s GPIO_%d ", Connector::uextPin(LP_RXD),
          uext->toPin(LP_SCL));
@@ -36,7 +37,8 @@ BTS7960::BTS7960(Connector* uext)
          uext->toPin(LP_SDA));
 }
 
-void BTS7960::setDirection(float sign) {
+void BTS7960::setDirection(float sign)
+{
     if (sign < 0 && _directionTargetLast >= 0) {
         mcpwm_set_signal_low(_mcpwm_num, _timer_num, MCPWM_OPR_B);
         mcpwm_set_duty_type(_mcpwm_num, _timer_num, MCPWM_OPR_A,
@@ -50,20 +52,23 @@ void BTS7960::setDirection(float sign) {
     }
 }
 
-void BTS7960::left(float duty_cycle) {
+void BTS7960::left(float duty_cycle)
+{
     if (duty_cycle > MAX_PWM)
         duty_cycle = MAX_PWM;
     mcpwm_set_duty(_mcpwm_num, _timer_num, MCPWM_OPR_A, duty_cycle);
 }
 
-void BTS7960::right(float duty_cycle) {
+void BTS7960::right(float duty_cycle)
+{
     if (duty_cycle > MAX_PWM)
         duty_cycle = MAX_PWM;
     mcpwm_set_duty(_mcpwm_num, _timer_num, MCPWM_OPR_B, duty_cycle);
 }
 
-void BTS7960::setPwm(float output) {
-    //    INFO(" output %f",output);
+void BTS7960::setPwm(float output)
+{
+//  INFO(" output %f",output);
     static float lastOutput = 0;
     if ( abs(lastOutput-output)< 1) return;
     if ((output < 0 && lastOutput > 0) || (output > 0 && lastOutput < 0)) {
@@ -88,7 +93,8 @@ void BTS7960::setPwm(float output) {
     lastOutput = output;
 }
 
-void BTS7960::initialize() {
+Erc BTS7960::initialize()
+{
     _adcLeftIS.init();
     _adcRightIS.init();
     _pinLeftEnable.init();
@@ -114,9 +120,11 @@ void BTS7960::initialize() {
 
     _pinLeftEnable.write(1);
     _pinRightEnable.write(1);
+    return E_OK;
 }
 
-float absolute(float f) {
+float absolute(float f)
+{
     if (f > 0)
         return f;
     return -f;
@@ -127,23 +135,25 @@ BTS7960::~BTS7960() {}
 
 
 
-void BTS7960::stop() {
+void BTS7960::stop()
+{
     //    INFO("%s",__func__);
     _pinLeftEnable.write(1);
     _pinRightEnable.write(1);
 }
 
-void BTS7960::round(float& f, float resolution) {
+void BTS7960::round(float& f, float resolution)
+{
     int i = f / resolution;
     f = i;
     f *= resolution;
 }
 
-void BTS7960::measureCurrent() {
+void BTS7960::measureCurrent()
+{
     _currentLeft = (_adcLeftIS.getValue() * 3.9 / 1024.0) * 0.85;
     _currentRight = (_adcRightIS.getValue() * 3.9 / 1024.0) * 0.85;
 
     round(_currentLeft, 0.1);
     round(_currentRight, 0.1);
 }
-

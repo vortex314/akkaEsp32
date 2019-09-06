@@ -27,7 +27,8 @@ MotorSpeed::MotorSpeed(Connector* uext, ActorRef& bridge)
 
 MotorSpeed::~MotorSpeed() {}
 
-void MotorSpeed::preStart() {
+void MotorSpeed::preStart()
+{
     if (initialize() == 0)
         run();
     else
@@ -38,108 +39,116 @@ void MotorSpeed::preStart() {
 
     timers().startPeriodicTimer("controlTimer", Msg("controlTimer"),
                                 CONTROL_INTERVAL_MS);
-    timers().startPeriodicTimer("reportTimer", Msg("reportTimer"), 100);
+    timers().startPeriodicTimer("reportTimer", Msg("reportTimer"), 1000);
     timers().startPeriodicTimer("watchdogTimer", Msg("watchdogTimer"), 2000);
     timers().startPeriodicTimer("pulseTimer", Msg("pulseTimer"), 5000);
 }
 
-Receive& MotorSpeed::createReceive() {
+Receive& MotorSpeed::createReceive()
+{
     return receiveBuilder()
 
-        .match(MsgClass::Properties(),
-               [this](Msg& msg) {
-                   sender().tell(replyBuilder(msg)("rpmTarget", _rpmTarget) //
-                                 ("rpmMeasured", _rotaryEncoder.rpm())(
-                                     "direction", _rotaryEncoder.direction()) //
-                                 ("KP", _KP)("KI", _KI)("KD", _KD),
-                                 self());
-               })
+           .match(MsgClass::Properties(),
+    [this](Msg& msg) {
+        sender().tell(replyBuilder(msg)//
+                      ("rpmTarget", _rpmTarget) //
+                      ("rpmMeasured", _rotaryEncoder.rpm())//
+                      ("direction", _rotaryEncoder.direction()) //
+                      ("KP", _KP)("KI", _KI)("KD", _KD),
+                      self());
+    })
 
-        .match(MsgClass("keepGoing"), [this](Msg& msg) { _watchdogCounter++; })
+    .match(MsgClass("keepGoing"), [this](Msg& msg) {
+        _watchdogCounter++;
+    })
 
-        .match(MsgClass("watchdogTimer"),
-               [this](Msg& msg) {
-                   if (_watchdogCounter == 0) {
-                       hold();
-                   } else {
-                       run();
-                   }
-                   _watchdogCounter = 0;
-               })
+    .match(MsgClass("watchdogTimer"),
+    [this](Msg& msg) {
+        if (_watchdogCounter == 0) {
+            //          hold();
+        } else {
+            run();
+        }
+        _watchdogCounter = 0;
+    })
 
-        .match(MsgClass("pulseTimer"),
-               [this](Msg& msg) {
+    .match(MsgClass("pulseTimer"),
+    [this](Msg& msg) {
 
-                   static uint32_t pulse = 0;
-                   static int rpmTargets[] = {0,  30, 50,  100, 150, 100, 80,
-                                              40, 0,  -40, -80, -30, 0};
-                   _rpmTarget = rpmTargets[pulse];
-                   pulse++;
-                   pulse %= (sizeof(rpmTargets) / sizeof(int));
-                   INFO("%ld;%d;%d;", Sys::millis(), _rpmTarget,
-                        _rotaryEncoder.rpm());
+        static uint32_t pulse = 0;
+        static int rpmTargets[] = {0,  30, 50,  100, 150, 100, 80,
+                                   40, 0,  -40, -80, -30, 0
+                                  };
+        _rpmTarget = rpmTargets[pulse];
+        pulse++;
+        pulse %= (sizeof(rpmTargets) / sizeof(int));
+        INFO("%ld;%d;%d;", Sys::millis(), _rpmTarget,
+             _rotaryEncoder.rpm());
 
-                   _bridge.tell(
-                       msgBuilder(Bridge::Publish)("rpmTarget", _rpmTarget)(
-                           "rpmMeasured", _rotaryEncoder.rpm()),
-                       self());
-               })
+        _bridge.tell(
+            msgBuilder(Bridge::Publish)("rpmTarget", _rpmTarget)(
+                "rpmMeasured", _rotaryEncoder.rpm()),
+            self());
+    })
 
-        .match(TargetSpeed,
-               [this](Msg& msg) {
-                   double target;
-                   INFO(" targetSpeed message ");
-                   if (msg.get("data", target)) {
-                       INFO(" targetSpeed : %f", target);
-                       _rpmTarget = target * 40;
-                       sender().tell(replyBuilder(msg)("rc", 0), self());
-                       _bridge.tell(
-                           msgBuilder(Bridge::Publish)("rpmTarget", _rpmTarget),
-                           self());
-                   }
-               })
+    .match(TargetSpeed,
+    [this](Msg& msg) {
+        double target;
+        INFO(" targetSpeed message ");
+        if (msg.get("data", target)) {
+            INFO(" targetSpeed : %f", target);
+            _rpmTarget = target * 40;
+            sender().tell(replyBuilder(msg)("rc", 0), self());
+            _bridge.tell(
+                msgBuilder(Bridge::Publish)("rpmTarget", _rpmTarget),
+                self());
+        }
+    })
 
-        .match(MsgClass("reportTimer"),
-               [this](Msg& msg) {
-                   Msg& m = msgBuilder(Bridge::Publish);
-                   m("direction", _rotaryEncoder.direction());
-                   m("rpmMeasured", _rotaryEncoder.rpm());
-                   m("rpmTarget", _rpmTarget);
-                   m("PWM", _output);
-                   m("running", isRunning());
-                   _bridge.tell(m, self());
-               })
+    .match(MsgClass("reportTimer"),
+    [this](Msg& msg) {
+        Msg& m = msgBuilder(Bridge::Publish);
+        m("rpmMeasured", _rotaryEncoder.rpm());
+        m("direction", _rotaryEncoder.direction());
+        m("rpmTarget", _rpmTarget);
+        m("PWM", _output);
+        m("running", isRunning());
+        _bridge.tell(m, self());
+    })
 
-        .match(
-            MsgClass("controlTimer"),
-            [this](Msg& msg) {
-                if (isOnHold()) {
-                    _bts7960.setPwm(0.0);
-                    return;
-                } else {
-                    static float newOutput;
-                    int rpmMeasured;
+    .match(
+        MsgClass("controlTimer"),
+    [this](Msg& msg) {
+        if (isOnHold()) {
+            _bts7960.setPwm(0.0);
+            return;
+        } else {
+            static float newOutput;
+            int rpmMeasured;
 
-                    rpmMeasured = _rotaryEncoder.rpm();
-                    _bts7960.measureCurrent();
-                    _error = _rpmTarget - rpmMeasured;
-                    newOutput = PID(_error, CONTROL_INTERVAL_MS);
-                    if (_rpmTarget == 0)
-                        newOutput = 0;
-                    _output = newOutput;
-                    _bts7960.setPwm(_output);
+            rpmMeasured = _rotaryEncoder.rpm();
+            _bts7960.measureCurrent();
+            _error = _rpmTarget - rpmMeasured;
+            newOutput = PID(_error, CONTROL_INTERVAL_MS);
+            if (_rpmTarget == 0) {
+                newOutput = 0;
+                _integral=0;
+            }
+            _output = newOutput;
+            _bts7960.setPwm(_output);
 
-                    INFO("PID %3d/%3d rpm err:%3.1f pwm:%5f == P:%5f + I:%5f + "
-                         "D:%5f  %2.2f/%2.2f A, ",
-                         rpmMeasured, _rpmTarget, _error, _output, _error * _KP,
-                         _integral * _KI, _derivative * _KD);
-                }
-            })
+            INFO("PID %3d/%3d rpm err:%3.1f pwm:%5f == P:%5f + I:%5f + "
+                 "D:%5f  %2.2f/%2.2f A, ",
+                 rpmMeasured, _rpmTarget, _error, _output, _error * _KP,
+                 _integral * _KI, _derivative * _KD);
+        }
+    })
 
-        .build();
+    .build();
 }
 
-float MotorSpeed::PID(float err, float interval) {
+float MotorSpeed::PID(float err, float interval)
+{
     _integral = _integral + (err * interval);
     _derivative = (err - _errorPrior) / interval;
     float output = _KP * err + _KI * _integral + _KD * _derivative + _bias;
@@ -147,7 +156,8 @@ float MotorSpeed::PID(float err, float interval) {
     return output;
 }
 
-float MotorSpeed::filter(float f) {
+float MotorSpeed::filter(float f)
+{
     float result;
     _samples[(_indexSample++) % MAX_SAMPLES] = f;
     result = 0;
@@ -160,20 +170,26 @@ float MotorSpeed::filter(float f) {
 
 // Generic Component commands
 
-Erc MotorSpeed::selfTest(uint32_t level, std::string& message) { return 0; }
-
-Erc MotorSpeed::initialize() {
-    _rotaryEncoder.initialize();
-    _bts7960.initialize();
+Erc MotorSpeed::selfTest(uint32_t level, std::string& message)
+{
     return 0;
 }
 
-Erc MotorSpeed::hold() {
+Erc MotorSpeed::initialize()
+{
+    Erc rc = _rotaryEncoder.initialize();
+    if ( rc != E_OK ) return rc;
+    return _bts7960.initialize();
+}
+
+Erc MotorSpeed::hold()
+{
     state(ST_ON_HOLD);
     return 0;
 }
 
-Erc MotorSpeed::run() {
+Erc MotorSpeed::run()
+{
     state(ST_RUNNING);
     return 0;
 }

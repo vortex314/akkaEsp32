@@ -41,7 +41,7 @@ class BTS7960 {
                uint32_t pinRightEnable, uint32_t pinLeftPwm,
                uint32_t pinRightPwm);
     ~BTS7960();
-    void initialize();
+    Erc initialize();
     void loop();
     void calcTarget(float v);
     int32_t getAngle();
