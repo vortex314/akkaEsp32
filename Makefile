@@ -33,7 +33,7 @@ REMOTE :
 	
 DRIVE_WIFI :
 	touch main/main.cpp
-	make DEFINE="-DMOTORSPEED=1 -DHOSTNAME=drive_wifi"
+	make DEFINE="-DMOTORSPEED=1 -DHOSTNAME=drive"
 	
 DRIVE :
 	touch main/main.cpp

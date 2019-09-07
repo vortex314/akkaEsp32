@@ -39,7 +39,7 @@ void MotorSpeed::preStart()
 
     timers().startPeriodicTimer("controlTimer", Msg("controlTimer"),
                                 CONTROL_INTERVAL_MS);
-    timers().startPeriodicTimer("reportTimer", Msg("reportTimer"), 1000);
+    timers().startPeriodicTimer("reportTimer", Msg("reportTimer"), 100);
     timers().startPeriodicTimer("watchdogTimer", Msg("watchdogTimer"), 2000);
     timers().startPeriodicTimer("pulseTimer", Msg("pulseTimer"), 5000);
 }
@@ -59,13 +59,17 @@ Receive& MotorSpeed::createReceive()
     })
 
     .match(MsgClass("keepGoing"), [this](Msg& msg) {
-        _watchdogCounter++;
+        bool keepGoing=false;
+        if ( msg.get("value",keepGoing) && keepGoing ) {
+            _watchdogCounter++;
+            INFO(" >> RXD keepGoing ");
+        }
     })
 
     .match(MsgClass("watchdogTimer"),
     [this](Msg& msg) {
         if (_watchdogCounter == 0) {
-            //          hold();
+            hold();
         } else {
             run();
         }
@@ -75,7 +79,8 @@ Receive& MotorSpeed::createReceive()
     .match(MsgClass("pulseTimer"),
     [this](Msg& msg) {
 
-        static uint32_t pulse = 0;
+
+        /*        static uint32_t pulse = 0;
         static int rpmTargets[] = {0,  30, 50,  100, 150, 100, 80,
                                    40, 0,  -40, -80, -30, 0
                                   };
@@ -84,18 +89,17 @@ Receive& MotorSpeed::createReceive()
         pulse %= (sizeof(rpmTargets) / sizeof(int));
         INFO("%ld;%d;%d;", Sys::millis(), _rpmTarget,
              _rotaryEncoder.rpm());
-
         _bridge.tell(
-            msgBuilder(Bridge::Publish)("rpmTarget", _rpmTarget)(
-                "rpmMeasured", _rotaryEncoder.rpm()),
-            self());
+               msgBuilder(Bridge::Publish)("rpmTarget", _rpmTarget)(
+                   "rpmMeasured", _rotaryEncoder.rpm()),
+               self());*/
     })
 
     .match(TargetSpeed,
     [this](Msg& msg) {
         double target;
         INFO(" targetSpeed message ");
-        if (msg.get("data", target)) {
+        if (msg.get("value", target)) {
             INFO(" targetSpeed : %f", target);
             _rpmTarget = target * 40;
             sender().tell(replyBuilder(msg)("rc", 0), self());
@@ -136,9 +140,10 @@ Receive& MotorSpeed::createReceive()
             }
             _output = newOutput;
             _bts7960.setPwm(_output);
+//            _bts7960.setPwm(_rpmTarget/2);
 
-            INFO("PID %3d/%3d rpm err:%3.1f pwm:%5f == P:%5f + I:%5f + "
-                 "D:%5f  %2.2f/%2.2f A, ",
+            INFO("PID %3d/%3d rpm err:%5.2f pwm:%-5.2f == P:%-5.2f + I:%-5.2f + "
+                 "D:%+5.2f  %2.2f/%2.2f A, ",
                  rpmMeasured, _rpmTarget, _error, _output, _error * _KP,
                  _integral * _KI, _derivative * _KD);
         }

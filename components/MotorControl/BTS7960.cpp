@@ -1,7 +1,7 @@
 #include "BTS7960.h"
 #include <Log.h>
 
-#define MAX_PWM 40
+#define MAX_PWM 50
 
 
 
@@ -66,31 +66,34 @@ void BTS7960::right(float duty_cycle)
     mcpwm_set_duty(_mcpwm_num, _timer_num, MCPWM_OPR_B, duty_cycle);
 }
 
-void BTS7960::setPwm(float output)
+float weight=0.1;
+
+void BTS7960::setPwm(float dutyCycle)
 {
-//  INFO(" output %f",output);
-    static float lastOutput = 0;
-    if ( abs(lastOutput-output)< 1) return;
-    if ((output < 0 && lastOutput > 0) || (output > 0 && lastOutput < 0)) {
+//  INFO(" dutyCycle %f",dutyCycle);
+    static float lastDutyCycle = 0;
+    if ( abs(lastDutyCycle-dutyCycle)< 1) return;
+//   dutyCycle =  lastDutyCycle*(1-weight)+dutyCycle*weight;
+    if ((dutyCycle < 0 && lastDutyCycle > 0) || (dutyCycle > 0 && lastDutyCycle < 0)) {
         _pinLeftEnable.write(1);
         _pinRightEnable.write(1);
         left(0);
         right(0);
-    } else if (output < 0) {
+    } else if (dutyCycle < 0) {
         _pinLeftEnable.write(1);
         _pinRightEnable.write(1);
-        left(-output);
-    } else if (output > 0) {
+        left(-dutyCycle);
+    } else if (dutyCycle > 0) {
         _pinLeftEnable.write(1);
         _pinRightEnable.write(1);
-        right(output);
+        right(dutyCycle);
     } else {
         _pinLeftEnable.write(1);
         _pinRightEnable.write(1);
         left(0);
         right(0);
     }
-    lastOutput = output;
+    lastDutyCycle = dutyCycle;
 }
 
 Erc BTS7960::initialize()

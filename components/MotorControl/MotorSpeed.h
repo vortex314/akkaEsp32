@@ -33,8 +33,8 @@ class MotorSpeed : public Actor, Component
     int _rpmTarget = 40;
     int _directionTargetLast;
     float _rpmFiltered;
-    float _KP = 0.5;
-    float _KI = 0.0001;//0.0027;
+    float _KP = 0.01;
+    float _KI = 0.0027;
     float _KD = -0.001;
     float _bias = 0;
     float _error = 0;

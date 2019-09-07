@@ -10,6 +10,7 @@ public :
         ST_ON_HOLD,ST_RUNNING
     } State;
     State _state;
+    std::string _reason;
 public:
     static MsgClass SelfTest;
     static MsgClass Initialize;
@@ -32,8 +33,18 @@ public:
     {
         return _state==ST_ON_HOLD;
     };
-	bool isRunning(){ return _state==ST_RUNNING;};
-
+    bool isRunning()
+    {
+        return _state==ST_RUNNING;
+    };
+    void setReason(const char* reason)
+    {
+        _reason=reason;
+    }
+    const char* getReason()
+    {
+        return _reason.c_str();
+    }
 
 };
 

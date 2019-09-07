@@ -15,6 +15,6 @@ DWM1000_CFLAGS= -DESP_OPEN_RTOS
 DWM1000_CXXFLAGS= -ffunction-sections -fdata-sections  -fno-threadsafe-statics -std=c++11 -fno-rtti -lstdc++ -fno-exceptions -DPSWD=${PSWD} -DSSID=${SSID} -DESP_OPEN_RTOS
 DWM1000_INC_DIR= ../etl/src ../../main
 
-$(eval $(call component_compile_rules,DWM1000))
+# $(eval $(call component_compile_rules,DWM1000))
 
 COMPONENT_ADD_INCLUDEDIRS := . 

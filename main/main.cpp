@@ -102,7 +102,12 @@ extern "C" void app_main()
 #else
 #include <Wifi.h>
 #include <Mqtt.h>
-
+#ifdef WIFI_SSID
+    config.root()["wifi"]["prefix"]=S(WIFI_SSID);
+#endif
+#ifdef WIFI_PASS
+     config.root()["wifi"]["password"]=S(WIFI_PASS);
+#endif
     ActorRef& wifi = actorSystem.actorOf<Wifi>("wifi");
     ActorRef& mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi);
 #endif

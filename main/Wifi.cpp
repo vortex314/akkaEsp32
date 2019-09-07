@@ -22,18 +22,8 @@ Wifi::Wifi()
 {
     _rssi = 0;
     JsonObject myConfig = config.root()["wifi"];
-#ifdef WIFI_SSID
-    _prefix = S(WIFI_SSID);
-    myConfig["prefix"]=S(WIFI_SSID);
-#else
     _prefix = myConfig["prefix"] | SSID_DEFAULT;
-#endif
-#ifdef WIFI_PASS
-    _pswd = S(WIFI_PASS);
-    myConfig["password"]=S(WIFI_PASS);
-#else
     _pswd = myConfig["password"] | "";
-#endif
 }
 
 Wifi::~Wifi()
