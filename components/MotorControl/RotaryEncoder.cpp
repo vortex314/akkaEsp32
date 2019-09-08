@@ -38,10 +38,8 @@ RotaryEncoder::RotaryEncoder(uint32_t pinTachoA, uint32_t pinTachoB)
 void RotaryEncoder::setPwmUnit(uint32_t unit)
 {
     if ( unit==0 ) {
-        _timer_num = MCPWM_TIMER_0;
         _mcpwm_num = MCPWM_UNIT_0;
     } else if ( unit ==1 ) {
-        _timer_num = MCPWM_TIMER_1;
         _mcpwm_num = MCPWM_UNIT_1;
     }
 }

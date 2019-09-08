@@ -46,8 +46,8 @@ void BTS7960::setDirection(float sign)
         if ( _rc != E_OK ) {
             WARN("mcpwm_set_signal_low()=%d",_rc);
         }
-        mcpwm_set_duty_type(_mcpwm_num, _timer_num, MCPWM_OPR_A,
-                            MCPWM_DUTY_MODE_0);
+        _rc = mcpwm_set_duty_type(_mcpwm_num, _timer_num, MCPWM_OPR_A,
+                                  MCPWM_DUTY_MODE_0);
         if ( _rc != E_OK ) {
             WARN("mcpwm_set_duty_type()=%d",_rc);
         }
@@ -84,6 +84,8 @@ void BTS7960::right(float duty_cycle)
     if ( _rc != E_OK ) {
         WARN("mcpwm_set_duty_type()=%d",_rc);
     }
+    float dc = mcpwm_get_duty(_mcpwm_num, _timer_num,MCPWM_OPR_B);
+    INFO(" set/get duty cycle %5.1f/%5.1f",duty_cycle,dc);
 }
 
 float weight=0.1;
@@ -151,9 +153,9 @@ Erc BTS7960::initialize()
     pwm_config.cmpr_b = 0;        // duty cycle of PWMxb = 0
     pwm_config.counter_mode = MCPWM_UP_COUNTER;
     pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
-    esp_err_t rc= mcpwm_init(_mcpwm_num, _timer_num,&pwm_config);
-    if(rc != ESP_OK) {
-        WARN("mcpwm_init()=%d",rc);
+    _rc= mcpwm_init(_mcpwm_num, _timer_num,&pwm_config);
+    if(_rc != ESP_OK) {
+        WARN("mcpwm_init()=%d",_rc);
         return EIO;
     }
     // Configure PWM0A & PWM0B with above settings
