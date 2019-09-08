@@ -49,6 +49,8 @@ class MotorSpeed : public Actor, Component
     // AverageFilter<float>* _rpmMeasuredFilter;
     Uid _controlTimer;
     int _watchdogCounter;
+    float _currentLeft ;
+    float _currentRight;
 //	    int _pwmSign = 1;
 
 

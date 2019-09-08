@@ -92,7 +92,7 @@ extern "C" void app_main()
 #endif
     Sys::setHostname(hostname.c_str());
 
-    static MessageDispatcher defaultDispatcher(4, 6000, tskIDLE_PRIORITY + 1);
+    static MessageDispatcher defaultDispatcher(6, 6000, tskIDLE_PRIORITY + 1);
     static ActorSystem actorSystem(Sys::hostname(), defaultDispatcher);
 
 #ifdef MQTT_SERIAL
@@ -106,7 +106,7 @@ extern "C" void app_main()
     config.root()["wifi"]["prefix"]=S(WIFI_SSID);
 #endif
 #ifdef WIFI_PASS
-     config.root()["wifi"]["password"]=S(WIFI_PASS);
+    config.root()["wifi"]["password"]=S(WIFI_PASS);
 #endif
     ActorRef& wifi = actorSystem.actorOf<Wifi>("wifi");
     ActorRef& mqtt = actorSystem.actorOf<Mqtt>("mqtt", wifi);

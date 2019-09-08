@@ -31,6 +31,19 @@ RotaryEncoder::RotaryEncoder(uint32_t pinTachoA, uint32_t pinTachoB)
     : _pinTachoA(pinTachoA), _dInTachoB(DigitalIn::create(pinTachoB))
 {
     _isrCounter = 0;
+    _mcpwm_num=MCPWM_UNIT_0;
+    _timer_num=MCPWM_TIMER_0;
+}
+
+void RotaryEncoder::setPwmUnit(uint32_t unit)
+{
+    if ( unit==0 ) {
+        _timer_num = MCPWM_TIMER_0;
+        _mcpwm_num = MCPWM_UNIT_0;
+    } else if ( unit ==1 ) {
+        _timer_num = MCPWM_TIMER_1;
+        _mcpwm_num = MCPWM_UNIT_1;
+    }
 }
 // capture signal on falling edge, prescale = 0 i.e.
 // 80,000,000 counts is equal to one second
@@ -38,18 +51,25 @@ RotaryEncoder::RotaryEncoder(uint32_t pinTachoA, uint32_t pinTachoB)
 Erc RotaryEncoder::initialize()
 {
     _dInTachoB.init();
-    mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM_CAP_0, _pinTachoA);
+    esp_err_t rc;
+    rc = mcpwm_gpio_init(_mcpwm_num, MCPWM_CAP_0, _pinTachoA);
+    if ( rc !=ESP_OK) {
+        WARN("mcpwm_gpio_init()=%d");
+        return EIO;
+    }
 
-    esp_err_t rc =
-        mcpwm_capture_enable(MCPWM_UNIT_0, MCPWM_SELECT_CAP0, MCPWM_NEG_EDGE,
-                             CAPTURE_DIVIDER);
-
-    MCPWM[MCPWM_UNIT_0]->int_ena.val = CAP0_INT_EN;
+    rc = mcpwm_capture_enable(_mcpwm_num, MCPWM_SELECT_CAP0, MCPWM_NEG_EDGE,
+                              CAPTURE_DIVIDER);
+    if ( rc !=ESP_OK) {
+        WARN("mcpwm_capture_enable()=%d");
+        return EIO;
+    }
+    MCPWM[_mcpwm_num]->int_ena.val = CAP0_INT_EN;
     // Set ISR Handler
-    rc = mcpwm_isr_register(MCPWM_UNIT_0, isrHandler, this, ESP_INTR_FLAG_IRAM,
+    rc = mcpwm_isr_register(_mcpwm_num, isrHandler, this, ESP_INTR_FLAG_IRAM,
                             NULL);
     if (rc) {
-        WARN("mcpwm_capture_enable() : %d", rc);
+        WARN("mcpwm_capture_enable()=%d", rc);
         return ENODEV;
     }
     return E_OK;
@@ -69,7 +89,7 @@ RotaryEncoder::isrHandler(void* pv) // ATTENTION no float calculations in ISR
     int b = ms->_dInTachoB.read();
     ms->_direction = (b == 1) ? (0 - ms->_directionSign) : ms->_directionSign;
 
-    mcpwm_intr_status = MCPWM[MCPWM_UNIT_0]->int_st.val; // Read interrupt
+    mcpwm_intr_status = MCPWM[ms->_mcpwm_num]->int_st.val; // Read interrupt
     // status
     ms->_isrCounter++;
     // Check for interrupt on rising edge on CAP0 signal
@@ -77,12 +97,12 @@ RotaryEncoder::isrHandler(void* pv) // ATTENTION no float calculations in ISR
         ms->_prevCapture = ms->_capture;
         ms->_prevCaptureTime =  ms->_captureTime;
         uint32_t capt = mcpwm_capture_signal_get_value(
-                            MCPWM_UNIT_0,
+                            ms->_mcpwm_num,
                             MCPWM_SELECT_CAP0); // get capture signal counter value
         ms->_capture = capt;
         ms->_captureTime=Sys::millis();
     }
-    MCPWM[MCPWM_UNIT_0]->int_clr.val = mcpwm_intr_status;
+    MCPWM[ms->_mcpwm_num]->int_clr.val = mcpwm_intr_status;
 }
 
 int32_t RotaryEncoder::rpm()

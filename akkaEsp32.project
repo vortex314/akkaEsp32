@@ -92,8 +92,8 @@
     </VirtualDirectory>
     <VirtualDirectory Name="MotorSpeed">
       <File Name="../microAkka/src/Mqtt.cpp"/>
-  <File Name="components/MotorControl/RotaryEncoder.h"/>
-  <File Name="components/MotorControl/RotaryEncoder.cpp"/>
+      <File Name="components/MotorControl/RotaryEncoder.h"/>
+      <File Name="components/MotorControl/RotaryEncoder.cpp"/>
       <File Name="components/MotorControl/component.mk"/>
       <File Name="components/MotorControl/MotorSpeed.h"/>
       <File Name="components/MotorControl/MotorSpeed.cpp"/>
@@ -185,7 +185,7 @@
       <CustomBuild Enabled="yes">
         <RebuildCommand/>
         <CleanCommand>make clean</CleanCommand>
-        <BuildCommand>make DRIVE_WIFI</BuildCommand>
+        <BuildCommand>make STEER_WIFI</BuildCommand>
         <PreprocessFileCommand/>
         <SingleFileCommand/>
         <MakefileGenerationCommand/>

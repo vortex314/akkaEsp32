@@ -31,14 +31,22 @@ REMOTE :
 	touch main/main.cpp
 	make DEFINE="-DREMOTE=1 -DHOSTNAME=remote -DMQTT_HOST=limero.ddns.net" 
 	
-DRIVE_WIFI :
+SPEED_WIFI :
 	touch main/main.cpp
 	make DEFINE="-DMOTORSPEED=1 -DHOSTNAME=drive"
 	
+STEER_WIFI :
+	touch main/main.cpp
+	make DEFINE="-DMOTORSERVO=2 -DHOSTNAME=drive"
+	
 DRIVE :
 	touch main/main.cpp
-	make DEFINE="-DMOTORSPEED=1 -DMOTORSERVO=2 -DHOSTNAME=drive -DMQTT_SERIAL" 
+	make DEFINE="-DMOTORSPEED=1 -DMOTORSERVO=2 -DHOSTNAME=drive" 
 	
+TAG_WIFI :
+	touch main/main.cpp
+	make DEFINE="-DDWM1000_TAG=2 -DHOSTNAME=tag"
+
 TAG :
 	touch main/main.cpp
 	make DEFINE="-DDWM1000_TAG=1 -DMQTT_SERIAL"

@@ -25,6 +25,8 @@ class RotaryEncoder
     int _direction = 1;
     int _directionPrev = 1;
     int _directionSign = -1;
+    mcpwm_unit_t _mcpwm_num;
+    mcpwm_timer_t _timer_num;
 
 public:
     RotaryEncoder(uint32_t pinTachoA, uint32_t pinTachoB);
@@ -36,6 +38,7 @@ public:
 
     int32_t rpm();
     int32_t direction();
+    void setPwmUnit(uint32_t);
 };
 
 #endif // ROTARYENCODER_H

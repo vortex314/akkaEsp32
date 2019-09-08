@@ -4,7 +4,9 @@
 #include <Akka.h>
 #include <Bridge.h>
 #include <Hardware.h>
+#include <Component.h>
 #include <MedianFilter.h>
+#include <BTS7960.h>
 
 #include "driver/mcpwm.h"
 #include "soc/mcpwm_reg.h"
@@ -12,7 +14,7 @@
 
 #define SERVO_MAX_SAMPLES 16
 
-class MotorServo : public Actor
+class MotorServo : public Actor,Component
 {
 
 // D34 : L_IS
@@ -21,12 +23,8 @@ class MotorServo : public Actor
 // D26 : L_PWM
 // D27 : R_PWM
 // D32 : ADC POT
+    BTS7960 _bts7960;
     ADC& _adcPot;
-    ADC& _adcIS;
-    DigitalOut& _pinLeftEnable;
-    DigitalOut& _pinRightEnable;
-    uint32_t _pinPwmLeft;
-    uint32_t _pinPwmRight;
     ActorRef& _bridge;
     MedianFilter<int,11> _potFilter;
 
@@ -34,9 +32,9 @@ class MotorServo : public Actor
     mcpwm_timer_t _timer_num;
     float _angleMeasured=0.0;
     float _angleTarget=20;
-    float _KP=1.18;
-    float _KI=0.00015;//06;
-    float _KD=0;
+    float _KP=10;
+    float _KI=0.001;//06;
+    float _KD=-1;
     float _bias=0;
     float _error=0;
     float _errorPrior=0;
@@ -59,13 +57,14 @@ public:
                ActorRef& bridge);
     ~MotorServo();
     void preStart();
+    Erc initialize();
+    Erc hold();
+    Erc run();
+    Erc selfTest(uint32_t level,std::string& message);
+
     Receive& createReceive();
     void calcTarget(float);
     float PID(float error, float interval);
-    void setDirection(float output);
-    void left(float);
-    void right(float);
-    void setOutput(float output);
     float filterAngle(float inp);
     void round(float& f,float resol);
     bool measureAngle();

@@ -17,6 +17,8 @@ MotorSpeed::MotorSpeed(uint32_t pinLeftIS, uint32_t pinRightIS,
     _rpmTarget = 0;
     _watchdogCounter = 0;
     _directionTargetLast = 0;
+    _rotaryEncoder.setPwmUnit(0);
+    _bts7960.setPwmUnit(0);
 }
 
 MotorSpeed::MotorSpeed(Connector* uext, ActorRef& bridge)
@@ -111,12 +113,16 @@ Receive& MotorSpeed::createReceive()
 
     .match(MsgClass("reportTimer"),
     [this](Msg& msg) {
+        _currentLeft = _bts7960.measureCurrentLeft();
+        _currentRight = _bts7960.measureCurrentRight();
         Msg& m = msgBuilder(Bridge::Publish);
         m("rpmMeasured", _rotaryEncoder.rpm());
         m("direction", _rotaryEncoder.direction());
         m("rpmTarget", _rpmTarget);
         m("PWM", _output);
         m("running", isRunning());
+        m("currentLeft",_currentLeft);
+        m("currentRight",_currentRight);
         _bridge.tell(m, self());
     })
 
@@ -131,7 +137,6 @@ Receive& MotorSpeed::createReceive()
             int rpmMeasured;
 
             rpmMeasured = _rotaryEncoder.rpm();
-            _bts7960.measureCurrent();
             _error = _rpmTarget - rpmMeasured;
             newOutput = PID(_error, CONTROL_INTERVAL_MS);
             if (_rpmTarget == 0) {
@@ -142,10 +147,10 @@ Receive& MotorSpeed::createReceive()
             _bts7960.setPwm(_output);
 //            _bts7960.setPwm(_rpmTarget/2);
 
-            INFO("PID %3d/%3d rpm err:%5.2f pwm:%-5.2f == P:%-5.2f + I:%-5.2f + "
-                 "D:%+5.2f  %2.2f/%2.2f A, ",
-                 rpmMeasured, _rpmTarget, _error, _output, _error * _KP,
-                 _integral * _KI, _derivative * _KD);
+            /*         INFO("PID %3d/%3d rpm err:%5.2f pwm:%-5.2f == P:%-5.2f + I:%-5.2f + "
+                             "D:%+5.2f  %2.2f/%2.2f A, ",
+                             rpmMeasured, _rpmTarget, _error, _output, _error * _KP,
+                             _integral * _KI, _derivative * _KD);*/
         }
     })
 

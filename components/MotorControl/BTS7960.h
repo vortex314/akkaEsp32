@@ -7,7 +7,8 @@
 #include "soc/mcpwm_struct.h"
 #include "soc/rtc.h"
 
-class BTS7960 {
+class BTS7960
+{
     // D34 : L_IS
     // D35 : R_IS
     // D25 : ENABLE
@@ -26,20 +27,22 @@ class BTS7960 {
     pcnt_unit_t pcnt_unit;
     pcnt_channel_t pcnt_channel;
     pcnt_config_t pcnt_config;
+    esp_err_t _rc;
 
     float _currentLeft, _currentRight;
-	
+
 
     int _min, _max, _zero;
     int _angleTarget;
     int _angleCurrent;
     int _directionTargetLast;
+    uint32_t MAX_PWM=50;
 
-  public:
+public:
     BTS7960(Connector* conn);
     BTS7960(uint32_t pinLeftIS, uint32_t pinrightIS, uint32_t pinLeftEnable,
-               uint32_t pinRightEnable, uint32_t pinLeftPwm,
-               uint32_t pinRightPwm);
+            uint32_t pinRightEnable, uint32_t pinLeftPwm,
+            uint32_t pinRightPwm);
     ~BTS7960();
     Erc initialize();
     void loop();
@@ -51,11 +54,14 @@ class BTS7960 {
     void motorStop();
     void left(float);
     void right(float);
-	void stop();
+    void stop();
+    void setMaxPwm(uint32_t);
     void setPwm(float dutyCycle);
     void setDirection(float dutyCycle);
-	void measureCurrent();
-	void round(float& f, float resolution) ;
+    float measureCurrentLeft();
+    float measureCurrentRight();
+    void round(float& f, float resolution) ;
+    void setPwmUnit(uint32_t );
 
 };
 
