@@ -1,5 +1,38 @@
 #include "BTS7960.h"
 #include <Log.h>
+#include <Register.h>
+
+static Register reg_prescaler("PWM_CLK_CFG_REG",
+                              "- - - - - - - - - - - - - - - - - - - - - - - - + + + + + + + PWM_CLK_PRESCALE");
+static Register reg_fault_detect("PWM_FAULT_DETECT_REG",
+                                 "- - - - - - - - - - - - - - - - - - - - - - - PWM_EVENT_F2 PWM_EVENT_F1 PWM_EVENT_F0 PWM_F2_POLE PWM_F1_POLE PWM_F0_POLE PWM_F2_EN PWM_F1_EN PWM_F0_EN");
+static Register timer0_status_reg("PWM_TIMER0_STATUS_REG",
+                                  "- - - - - - - - - - - - - - - PWM_TIMER0_DIRECTION + + + + + + + + + + + + + + + PWM_TIMER0_VALUE");
+static Register pwm_int_raw_pwm_reg("INT_RAW_PWM_REG","- - INT_CAP2_INT_RAW INT_CAP1_INT_RAW INT_CAP0_INT_RAW INT_FH2_OST_INT_RAW INT_FH1_OST_INT_RAW INT_FH0_OST_INT_RAW"
+                                    " INT_FH2_CBC_INT_RAW INT_FH1_CBC_INT_RAW INT_FH0_CBC_INT_RAW INT_OP2_TEB_INT_RAW INT_OP1_TEB_INT_RAW INT_OP0_TEB_INT_RAW INT_OP2_TEA_INT_RAW"
+                                    " INT_OP1_TEA_INT_RAW INT_OP0_TEA_INT_RAW INT_FAULT2_CLR_INT_RAW INT_FAULT1_CLR_INT_RAW INT_FAULT0_CLR_INT_RAW INT_FAULT2_INT_RAW INT_FAULT1_INT_RAW"
+                                    " INT_FAULT0_INT_RAW INT_TIMER2_TEP_INT_RAW INT_TIMER1_TEP_INT_RAW INT_TIMER0_TEP_INT_RAW INT_TIMER2_TEZ_INT_RAW"
+                                    " INT_TIMER1_TEZ_INT_RAW INT_TIMER0_TEZ_INT_RAW INT_TIMER2_STOP_INT_RAW INT_TIMER1_STOP_INT_RAW INT_TIMER0_STOP_INT_RAW");
+static Register pwm_int_ena_pwm_reg("INT_ENA_PWM_REG","- - INT_CAP2_INT_ENA INT_CAP1_INT_ENA INT_CAP0_INT_ENA INT_FH2_OST_INT_ENA INT_FH1_OST_INT_ENA INT_FH0_OST_INT_ENA"
+                                    " INT_FH2_CBC_INT_ENA INT_FH1_CBC_INT_ENA INT_FH0_CBC_INT_ENA INT_OP2_TEB_INT_ENA INT_OP1_TEB_INT_ENA INT_OP0_TEB_INT_ENA INT_OP2_TEA_INT_ENA"
+                                    " INT_OP1_TEA_INT_ENA INT_OP0_TEA_INT_ENA INT_FAULT2_CLR_INT_ENA INT_FAULT1_CLR_INT_ENA INT_FAULT0_CLR_INT_ENA INT_FAULT2_INT_ENA INT_FAULT1_INT_ENA"
+                                    " INT_FAULT0_INT_ENA INT_TIMER2_TEP_INT_ENA INT_TIMER1_TEP_INT_ENA INT_TIMER0_TEP_INT_ENA INT_TIMER2_TEZ_INT_ENA"
+                                    " INT_TIMER1_TEZ_INT_ENA INT_TIMER0_TEZ_INT_ENA INT_TIMER2_STOP_INT_ENA INT_TIMER1_STOP_INT_ENA INT_TIMER0_STOP_INT_ENA");
+void BTS7960::showReg()
+{
+    uint32_t idx=_mcpwm_num;
+    INFO(" MCPWM[%d]",idx);
+    reg_prescaler.value(*(uint32_t*)MCPWM_CLK_CFG_REG(idx));
+    reg_prescaler.show();
+    reg_fault_detect.value(*(uint32_t*)MCPWM_FAULT_DETECT_REG(idx));
+    reg_fault_detect.show();
+    timer0_status_reg.value(*(uint32_t*)MCPWM_TIMER0_STATUS_REG(idx));
+    timer0_status_reg.show();
+    /*   pwm_int_raw_pwm_reg.value(*(uint32_t*)MCMCPWM_INT_RAW_MCPWM_REG(idx));
+       pwm_int_raw_pwm_reg.show();*/
+    pwm_int_ena_pwm_reg.value(*(uint32_t*)MCMCPWM_INT_ENA_MCPWM_REG(idx));
+    pwm_int_ena_pwm_reg.show();
+}
 
 
 BTS7960::BTS7960(uint32_t pinLeftIS, uint32_t pinRightIS,
@@ -84,8 +117,8 @@ void BTS7960::right(float duty_cycle)
     if ( _rc != E_OK ) {
         WARN("mcpwm_set_duty_type()=%d",_rc);
     }
-    float dc = mcpwm_get_duty(_mcpwm_num, _timer_num,MCPWM_OPR_B);
-    INFO(" set/get duty cycle %5.1f/%5.1f",duty_cycle,dc);
+    /*    float dc = mcpwm_get_duty(_mcpwm_num, _timer_num,MCPWM_OPR_B);
+        INFO(" set/get duty cycle %5.1f/%5.1f",duty_cycle,dc);*/
 }
 
 float weight=0.1;
@@ -93,6 +126,7 @@ float weight=0.1;
 void BTS7960::setPwm(float dutyCycle)
 {
     INFO("MCPWM[%d] PWM=%f",_mcpwm_num,dutyCycle);
+
     static float lastDutyCycle = 0;
     if ( abs(lastDutyCycle-dutyCycle)< 1) return;
 //   dutyCycle =  lastDutyCycle*(1-weight)+dutyCycle*weight;
@@ -146,7 +180,6 @@ Erc BTS7960::initialize()
         WARN("mcpwm_gpio_init()=%d",_rc);
         return EIO;
     };
-    INFO("MCPWM[%d]... on %d,%d ", _mcpwm_num, _pinPwmLeft,_pinPwmRight);
     mcpwm_config_t pwm_config;
     pwm_config.frequency = 10000; // frequency = 500Hz,
     pwm_config.cmpr_a = 0;        // duty cycle of PWMxA = 0
@@ -161,6 +194,7 @@ Erc BTS7960::initialize()
     // Configure PWM0A & PWM0B with above settings
     _pinLeftEnable.write(1);
     _pinRightEnable.write(1);
+    showReg();
     return E_OK;
 }
 

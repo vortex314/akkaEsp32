@@ -109,13 +109,14 @@ Receive& MotorServo::createReceive()
     })
 
     .match(MsgClass("pulseTimer"),  [this](Msg& msg) {
-        static uint32_t pulse=0;
-        static int outputTargets[]= {-30,0,30,0};
-        _angleTarget=outputTargets[pulse];
-        pulse++;
-        pulse %= (sizeof(outputTargets)/sizeof(int));
+        _bts7960.showReg();
+        /*     static uint32_t pulse=0;
+             static int outputTargets[]= {-30,0,30,0};
+             _angleTarget=outputTargets[pulse];
+             pulse++;
+             pulse %= (sizeof(outputTargets)/sizeof(int));
 
-        _bridge.tell(msgBuilder(Bridge::Publish)("angleMeasured",_angleMeasured)("angleTarget",_angleTarget),self());
+             _bridge.tell(msgBuilder(Bridge::Publish)("angleMeasured",_angleMeasured)("angleTarget",_angleTarget),self());*/
     })
 
     .match(MsgClass("reportTimer"),
@@ -136,16 +137,16 @@ Receive& MotorServo::createReceive()
             _error = _angleTarget - _angleMeasured;
             _output = PID(_error, CONTROL_INTERVAL_MS);
             _bts7960.setPwm(_output);
-/*            INFO("PID  %3.1f/%3.1f angle err:%3.1f pwm:%5f == P:%5f + I:%5f + D:%5f  ",
-                 _angleMeasured, _angleTarget,
-                 _error, _output, _error * _KP,
-                 _integral * _KI, _derivative * _KD);*/
+            /*            INFO("PID  %3.1f/%3.1f angle err:%3.1f pwm:%5f == P:%5f + I:%5f + D:%5f  ",
+                             _angleMeasured, _angleTarget,
+                             _error, _output, _error * _KP,
+                             _integral * _KI, _derivative * _KD);*/
         }
     })
 
-    .match(MotorServo::targetAngle,  [this](Msg& msg) {
+    .match(targetAngle,  [this](Msg& msg) {
         double target;
-        if ( msg.get("data",target)) {
+        if ( msg.get("value",target)) {
             INFO(" targetAngle : %f",target);
             _angleTarget=target;
             if ( _angleTarget< ANGLE_MIN) _angleTarget=ANGLE_MIN;

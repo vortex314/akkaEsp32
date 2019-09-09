@@ -62,6 +62,7 @@ public:
     float measureCurrentRight();
     void round(float& f, float resolution) ;
     void setPwmUnit(uint32_t );
+    void showReg();
 
 };
 

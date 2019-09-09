@@ -80,7 +80,7 @@ Receive& MotorSpeed::createReceive()
 
     .match(MsgClass("pulseTimer"),
     [this](Msg& msg) {
-
+        _bts7960.showReg();
 
         /*        static uint32_t pulse = 0;
         static int rpmTargets[] = {0,  30, 50,  100, 150, 100, 80,
