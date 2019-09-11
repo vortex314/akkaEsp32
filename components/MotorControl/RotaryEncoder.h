@@ -8,6 +8,9 @@
 #include "soc/mcpwm_struct.h"
 #include "soc/rtc.h"
 
+#define MAX_SAMPLES 5
+
+
 class RotaryEncoder
 {
     uint32_t _pinTachoA;
@@ -27,6 +30,9 @@ class RotaryEncoder
     int _directionSign = -1;
     mcpwm_unit_t _mcpwm_num;
     mcpwm_timer_t _timer_num;
+    int32_t _samples[MAX_SAMPLES];
+    uint32_t _indexSample = 0;
+
 
 public:
     RotaryEncoder(uint32_t pinTachoA, uint32_t pinTachoB);
@@ -39,6 +45,8 @@ public:
     int32_t rpm();
     int32_t direction();
     void setPwmUnit(uint32_t);
+    int32_t filter(int32_t inp);
+    int32_t medianFilter(int32_t inp);
 };
 
 #endif // ROTARYENCODER_H

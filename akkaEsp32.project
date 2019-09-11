@@ -116,6 +116,7 @@
   </VirtualDirectory>
   <File Name="CMakeLists.txt"/>
   <VirtualDirectory Name="main">
+    <File Name="main/pwmTest.c"/>
     <File Name="main/MqttSerial.h"/>
     <File Name="main/MqttSerial.cpp"/>
     <File Name="main/LogIsr.h"/>

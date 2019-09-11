@@ -1,6 +1,6 @@
 #include "MotorSpeed.h"
 
-#define CONTROL_INTERVAL_MS 100
+#define CONTROL_INTERVAL_MS 1000
 
 MsgClass MotorSpeed::TargetSpeed("targetSpeed");
 
@@ -36,9 +36,6 @@ void MotorSpeed::preStart()
     else
         hold();
 
-    for (uint32_t i = 0; i < MAX_SAMPLES; i++)
-        _samples[i] = 0;
-
     timers().startPeriodicTimer("controlTimer", Msg("controlTimer"),
                                 CONTROL_INTERVAL_MS);
     timers().startPeriodicTimer("reportTimer", Msg("reportTimer"), 100);
@@ -71,7 +68,7 @@ Receive& MotorSpeed::createReceive()
     .match(MsgClass("watchdogTimer"),
     [this](Msg& msg) {
         if (_watchdogCounter == 0) {
-            hold();
+//           hold();
         } else {
             run();
         }
@@ -80,21 +77,21 @@ Receive& MotorSpeed::createReceive()
 
     .match(MsgClass("pulseTimer"),
     [this](Msg& msg) {
-        _bts7960.showReg();
+ //       _bts7960.showReg();
 
-        /*        static uint32_t pulse = 0;
+        static uint32_t pulse = 0;
         static int rpmTargets[] = {0,  30, 50,  100, 150, 100, 80,
-                                   40, 0,  -40, -80, -30, 0
+                                   40, 0,  -40, -80,-120,-80 -30
                                   };
         _rpmTarget = rpmTargets[pulse];
         pulse++;
         pulse %= (sizeof(rpmTargets) / sizeof(int));
-        INFO("%ld;%d;%d;", Sys::millis(), _rpmTarget,
+        INFO("rpmTarget : %d rpmMeasured : %d;",  _rpmTarget,
              _rotaryEncoder.rpm());
         _bridge.tell(
-               msgBuilder(Bridge::Publish)("rpmTarget", _rpmTarget)(
-                   "rpmMeasured", _rotaryEncoder.rpm()),
-               self());*/
+            msgBuilder(Bridge::Publish)("rpmTarget", _rpmTarget)(
+                "rpmMeasured", _rotaryEncoder.rpm()),
+            self());
     })
 
     .match(TargetSpeed,
@@ -130,7 +127,7 @@ Receive& MotorSpeed::createReceive()
         MsgClass("controlTimer"),
     [this](Msg& msg) {
         if (isOnHold()) {
-            _bts7960.setPwm(0.0);
+            _bts7960.setOutput(0.0);
             return;
         } else {
             static float newOutput;
@@ -144,7 +141,7 @@ Receive& MotorSpeed::createReceive()
                 _integral=0;
             }
             _output = newOutput;
-            _bts7960.setPwm(_output);
+            _bts7960.setOutput(20);
 //            _bts7960.setPwm(_rpmTarget/2);
 
             /*         INFO("PID %3d/%3d rpm err:%5.2f pwm:%-5.2f == P:%-5.2f + I:%-5.2f + "
@@ -166,17 +163,7 @@ float MotorSpeed::PID(float err, float interval)
     return output;
 }
 
-float MotorSpeed::filter(float f)
-{
-    float result;
-    _samples[(_indexSample++) % MAX_SAMPLES] = f;
-    result = 0;
-    for (uint32_t i = 0; i < MAX_SAMPLES; i++) {
-        result += _samples[i];
-    }
-    result /= MAX_SAMPLES;
-    return result;
-}
+
 
 // Generic Component commands
 

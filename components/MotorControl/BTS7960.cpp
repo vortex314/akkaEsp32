@@ -45,7 +45,6 @@ BTS7960::BTS7960(uint32_t pinLeftIS, uint32_t pinRightIS,
 {
     _timer_num = MCPWM_TIMER_0;
     _mcpwm_num = MCPWM_UNIT_0;
-    INFO(" BTS7960 PWM:%d,%d ENABLE:%d,%d IS:%d,%d ",pinLeftPwm,pinRightPwm,pinLeftEnable,pinRightEnable,pinLeftIS,pinRightIS);
 }
 
 BTS7960::BTS7960(Connector* uext)
@@ -53,23 +52,23 @@ BTS7960::BTS7960(Connector* uext)
               uext->toPin(LP_CS), uext->toPin(LP_TXD), uext->toPin(LP_SCK)
              )
 {
-    INFO(" Drive/Sensor = UEXT GPIO ");
-    INFO("         L_IS = %s GPIO_%d ", Connector::uextPin(LP_RXD),
-         uext->toPin(LP_RXD));
-    INFO("         R_IS = %s GPIO_%d ", Connector::uextPin(LP_MISO),
-         uext->toPin(LP_MISO));
-    INFO("         L_EN = %s GPIO_%d ", Connector::uextPin(LP_MOSI),
-         uext->toPin(LP_MOSI));
-    INFO("         R_EN = %s GPIO_%d ", Connector::uextPin(LP_CS),
-         uext->toPin(LP_CS));
-    INFO("        L_PWM = %s GPIO_%d ", Connector::uextPin(LP_TXD),
-         uext->toPin(LP_TXD));
-    INFO("        R_PWM = %s GPIO_%d ", Connector::uextPin(LP_SCK),
-         uext->toPin(LP_SCK));
-    INFO(" Tacho Chan A = %s GPIO_%d ", Connector::uextPin(LP_SCL),
-         uext->toPin(LP_SCL));
-    INFO(" Tacho Chan B = %s GPIO_%d ", Connector::uextPin(LP_SDA),
-         uext->toPin(LP_SDA));
+    /*   INFO(" Drive/Sensor = UEXT GPIO ");
+       INFO("         L_IS = %s GPIO_%d ", Connector::uextPin(LP_RXD),
+            uext->toPin(LP_RXD));
+       INFO("         R_IS = %s GPIO_%d ", Connector::uextPin(LP_MISO),
+            uext->toPin(LP_MISO));
+       INFO("         L_EN = %s GPIO_%d ", Connector::uextPin(LP_MOSI),
+            uext->toPin(LP_MOSI));
+       INFO("         R_EN = %s GPIO_%d ", Connector::uextPin(LP_CS),
+            uext->toPin(LP_CS));
+       INFO("        L_PWM = %s GPIO_%d ", Connector::uextPin(LP_TXD),
+            uext->toPin(LP_TXD));
+       INFO("        R_PWM = %s GPIO_%d ", Connector::uextPin(LP_SCK),
+            uext->toPin(LP_SCK));
+       INFO(" Tacho Chan A = %s GPIO_%d ", Connector::uextPin(LP_SCL),
+            uext->toPin(LP_SCL));
+       INFO(" Tacho Chan B = %s GPIO_%d ", Connector::uextPin(LP_SDA),
+            uext->toPin(LP_SDA));*/
 }
 
 void BTS7960::setDirection(float sign)
@@ -103,6 +102,7 @@ void BTS7960::left(float duty_cycle)
 {
     if (duty_cycle > MAX_PWM)
         duty_cycle = MAX_PWM;
+    if ( duty_cycle < 0 ) duty_cycle=0;
     _rc = mcpwm_set_duty(_mcpwm_num, _timer_num, MCPWM_OPR_A, duty_cycle);
     if ( _rc != E_OK ) {
         WARN("mcpwm_set_duty_type()=%d",_rc);
@@ -113,6 +113,8 @@ void BTS7960::right(float duty_cycle)
 {
     if (duty_cycle > MAX_PWM)
         duty_cycle = MAX_PWM;
+    if ( duty_cycle < 0 ) duty_cycle=0;
+
     _rc= mcpwm_set_duty(_mcpwm_num, _timer_num, MCPWM_OPR_B, duty_cycle);
     if ( _rc != E_OK ) {
         WARN("mcpwm_set_duty_type()=%d",_rc);
@@ -123,7 +125,7 @@ void BTS7960::right(float duty_cycle)
 
 float weight=0.1;
 
-void BTS7960::setPwm(float dutyCycle)
+void BTS7960::setOutput(float dutyCycle)
 {
     INFO("MCPWM[%d] PWM=%f",_mcpwm_num,dutyCycle);
 
@@ -170,6 +172,11 @@ Erc BTS7960::initialize()
     _pinRightEnable.init();
     _pinRightEnable.write(0);
 
+    INFO(" BTS7960 PWM[%d] PWM : GPIO_%d,%d enable : GPIO_%d,%d ",_mcpwm_num,
+         _pinPwmLeft,_pinPwmRight,
+         _pinLeftEnable.getPin(),_pinRightEnable.getPin());
+
+
     _rc = mcpwm_gpio_init(_mcpwm_num, MCPWM0A, _pinPwmLeft);
     if ( _rc != ESP_OK ) {
         WARN("mcpwm_gpio_init()=%d",_rc);
@@ -181,7 +188,8 @@ Erc BTS7960::initialize()
         return EIO;
     };
     mcpwm_config_t pwm_config;
-    pwm_config.frequency = 10000; // frequency = 500Hz,
+    BZERO(pwm_config);
+    pwm_config.frequency = 1000; // frequency = 1000Hz,
     pwm_config.cmpr_a = 0;        // duty cycle of PWMxA = 0
     pwm_config.cmpr_b = 0;        // duty cycle of PWMxb = 0
     pwm_config.counter_mode = MCPWM_UP_COUNTER;
@@ -194,7 +202,7 @@ Erc BTS7960::initialize()
     // Configure PWM0A & PWM0B with above settings
     _pinLeftEnable.write(1);
     _pinRightEnable.write(1);
-    showReg();
+//    showReg();
     return E_OK;
 }
 

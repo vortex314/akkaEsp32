@@ -48,6 +48,9 @@ void RotaryEncoder::setPwmUnit(uint32_t unit)
 // Enable interrupt on  CAP0, CAP1 and CAP2 signal
 Erc RotaryEncoder::initialize()
 {
+    INFO(" rotaryEncoder PWM[%d] capture : GPIO_%d direction : GPIO_%d ",_mcpwm_num,_pinTachoA,_dInTachoB.getPin());
+    for (uint32_t i = 0; i < MAX_SAMPLES; i++)
+        _samples[i] = 0;
     _dInTachoB.init();
     esp_err_t rc;
     rc = mcpwm_gpio_init(_mcpwm_num, MCPWM_CAP_0, _pinTachoA);
@@ -106,12 +109,12 @@ RotaryEncoder::isrHandler(void* pv) // ATTENTION no float calculations in ISR
 int32_t RotaryEncoder::rpm()
 {
     static int oldRpm=0;
-    if ( _captureTime < ( Sys::millis()-100))  return 0;
+    if ( _captureTime < ( Sys::millis()-100))  return medianFilter(0);
     _delta =_capture - _prevCapture;
-    if ( _delta == 0 ) return oldRpm;
+    if ( _delta == 0 ) return medianFilter(oldRpm);
     int32_t rpm = deltaToRpm(_delta,_direction);
     oldRpm=rpm;
-    return rpm;
+    return medianFilter(rpm);
 }
 
 int32_t RotaryEncoder::direction()
@@ -125,4 +128,27 @@ int32_t RotaryEncoder::deltaToRpm(uint32_t delta, int32_t direction)
               (delta * PULSE_PER_ROTATION);
     int32_t rpm = ((int32_t)t) * _direction;
     return rpm;
+}
+
+int32_t RotaryEncoder::filter(int32_t f)
+{
+    int32_t result;
+    _samples[(_indexSample++) % MAX_SAMPLES] = f;
+    result = 0;
+    for (uint32_t i = 0; i < MAX_SAMPLES; i++) {
+        result += _samples[i];
+    }
+    result /= MAX_SAMPLES;
+    return result;
+}
+
+#include <array>
+#include <algorithm>
+int32_t RotaryEncoder::medianFilter(int32_t f)
+{
+    static std::array<int32_t,MAX_SAMPLES> samples;
+    samples[(_indexSample++) % MAX_SAMPLES] = f;
+    size_t n= MAX_SAMPLES/2;
+    std::sort(std::begin(samples),std::end(samples));
+    return samples[n];
 }

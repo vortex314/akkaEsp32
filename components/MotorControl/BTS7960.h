@@ -15,6 +15,7 @@ class BTS7960
     // D26 : L_PWM
     // D27 : R_PWM
     // D32 : ADC POT
+
     ADC& _adcLeftIS;
     ADC& _adcRightIS;
     DigitalOut& _pinLeftEnable;
@@ -56,7 +57,7 @@ public:
     void right(float);
     void stop();
     void setMaxPwm(uint32_t);
-    void setPwm(float dutyCycle);
+    void setOutput(float dutyCycle);
     void setDirection(float dutyCycle);
     float measureCurrentLeft();
     float measureCurrentRight();

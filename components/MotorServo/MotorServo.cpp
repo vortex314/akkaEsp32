@@ -1,7 +1,7 @@
 #include "MotorServo.h"
 
 #define MAX_PWM 50
-#define CONTROL_INTERVAL_MS 100
+#define CONTROL_INTERVAL_MS 1000
 #define ANGLE_MIN -45.0
 #define ANGLE_MAX 45.0
 #define ADC_MIN 330
@@ -42,8 +42,8 @@ MotorServo::~MotorServo()
 
 void MotorServo::preStart()
 {
-    for(uint32_t i=0; i<SERVO_MAX_SAMPLES; i++)
-        _angleSamples[i]=0;
+    /*    for(uint32_t i=0; i<SERVO_MAX_SAMPLES; i++)
+            _angleSamples[i]=0;*/
     if (initialize() == 0) {
         run();
         _bts7960.setMaxPwm(90);
@@ -109,14 +109,15 @@ Receive& MotorServo::createReceive()
     })
 
     .match(MsgClass("pulseTimer"),  [this](Msg& msg) {
-        _bts7960.showReg();
-        /*     static uint32_t pulse=0;
-             static int outputTargets[]= {-30,0,30,0};
-             _angleTarget=outputTargets[pulse];
-             pulse++;
-             pulse %= (sizeof(outputTargets)/sizeof(int));
+//       _bts7960.showReg();
+        static uint32_t pulse=0;
+        static int outputTargets[]= {-30,0,30,0};
+        _angleTarget=outputTargets[pulse];
+        pulse++;
+        pulse %= (sizeof(outputTargets)/sizeof(int));
 
-             _bridge.tell(msgBuilder(Bridge::Publish)("angleMeasured",_angleMeasured)("angleTarget",_angleTarget),self());*/
+        _bridge.tell(msgBuilder(Bridge::Publish)("angleMeasured",_angleMeasured)("angleTarget",_angleTarget),self());
+
     })
 
     .match(MsgClass("reportTimer"),
@@ -136,7 +137,7 @@ Receive& MotorServo::createReceive()
         if ( measureAngle()) {
             _error = _angleTarget - _angleMeasured;
             _output = PID(_error, CONTROL_INTERVAL_MS);
-            _bts7960.setPwm(_output);
+            _bts7960.setOutput(_output);
             /*            INFO("PID  %3.1f/%3.1f angle err:%3.1f pwm:%5f == P:%5f + I:%5f + D:%5f  ",
                              _angleMeasured, _angleTarget,
                              _error, _output, _error * _KP,
@@ -174,7 +175,7 @@ void MotorServo::round(float& f, float resolution)
     f = i;
     f *= resolution;
 }
-
+/*
 float MotorServo::filterAngle(float f)
 {
     float result;
@@ -185,7 +186,7 @@ float MotorServo::filterAngle(float f)
     }
     result /= SERVO_MAX_SAMPLES;
     return result;
-}
+}*/
 
 Erc MotorServo::initialize()
 {

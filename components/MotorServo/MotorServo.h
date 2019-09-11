@@ -32,9 +32,9 @@ class MotorServo : public Actor,Component
     mcpwm_timer_t _timer_num;
     float _angleMeasured=0.0;
     float _angleTarget=20;
-    float _KP=10;
-    float _KI=0.001;//06;
-    float _KD=-1;
+    float _KP=8;
+    float _KI=0.0001;//06;
+    float _KD=0;
     float _bias=0;
     float _error=0;
     float _errorPrior=0;
@@ -42,7 +42,7 @@ class MotorServo : public Actor,Component
     float _integral=0;
     float _derivative=0;
     float _output=0;
-    float _angleSamples[SERVO_MAX_SAMPLES];
+//   float _angleSamples[SERVO_MAX_SAMPLES];
     uint32_t _indexSample=0;
     float _current;
     int _watchdogCounter;
